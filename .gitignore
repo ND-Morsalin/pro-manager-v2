@@ -1,0 +1,12 @@
+# node moduls
+node_modules
+
+.env
+.env.local
+public
+
+.vercel
+
+# build output
+build
+dist
