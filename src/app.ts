@@ -1,25 +1,19 @@
-import express from 'express'
-import cors from 'cors'
-import cookieParser from 'cookie-parser'
-import router from './routes/routes'
-import * as dotenv from 'dotenv';
-import prisma from './utility/prisma';
-import path from 'path';
-
+import express from "express";
+import cors from "cors";
+import cookieParser from "cookie-parser";
+import router from "./routes/routes";
+import * as dotenv from "dotenv";
 
 dotenv.config();
 
+// create app
 
-// create app 
-
-const app = express()
-
-
+const app = express();
 
 // use middleware
-app.use(cookieParser())
-app.use(cors())
-app.use(express.json({ limit: '50mb' }))
+app.use(cookieParser(process.env.COOKIE_SECRET));
+app.use(cors());
+app.use(express.json({ limit: "50mb" }));
 
 // static folder
 
@@ -28,11 +22,11 @@ app.use(express.json({ limit: '50mb' }))
 
 // route
 
-app.use('/api/', router)
+app.use("/api/", router);
 
 // test route
-app.get('/test',async (req, res) => {
-   /*  await prisma.user.create({
+app.get("/test", async (req, res) => {
+  /*  await prisma.user.create({
         data: {
           name: 'Rich',
           email: 'hello@prisma.com',
@@ -52,7 +46,7 @@ app.get('/test',async (req, res) => {
         },
       })
       console.dir(allUsers, { depth: null }) */
-    res.json({success: true, message: 'test successful'})
-})
+  res.json({ success: true, message: "test successful" });
+});
 
-export default app
+export default app;

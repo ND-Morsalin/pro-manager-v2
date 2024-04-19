@@ -10,103 +10,16 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id       String  @id @default(auto()) @map("_id") @db.ObjectId
-  email    String  @unique
-  name     String
-  surname  String
-  company  String?
-  address  Address
-  uniqueId String
-  order    Order[]
+// shop Owner model
+model ShopOwner {
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  shopName  String
+  mobile    String @unique
+  pincode   String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
-// order model
-model Order {
-  id             String         @id @default(auto()) @map("_id") @db.ObjectId
-  author         User           @relation(fields: [authorId], references: [id])
-  authorId       String         @db.ObjectId
-  orderedImages  CardImageType[]
-  deliveryStatus DeliveryStatus
-  uniqueId       String
-  paymentMethod  String
-  paymentStatus  PaymentStatus
-  transactionId  String?
-  totalPrice          Price
-  orderStatus    OrderStatus
-  createdAt      DateTime       @default(now())
-}
+// product model
 
-// Address is an embedded document
-type Address {
-  country         String
-  zipCode         String
-  city            String
-  streetNumber    String
-  additionalNotes String?
-}
-
-// user generated images save on dd
-model UserGeneratedImages {
-  id       String   @id @default(auto()) @map("_id") @db.ObjectId
-  images   String[]
-  uniqueId String
-}
-
-// enums
-enum PaymentStatus {
-  PAID
-  UNPAID
-}
-
-enum OrderStatus {
-  PADDING
-  APPROVED
-  REJECTED
-}
-
-enum DeliveryStatus {
-  PROCESSING
-  PACkAGING
-  SHIPPING
-  DELIVERED
-}
-
-type Price {
-  shippingFee    Float
-  allImagesPrice Float
-}
-
-model Cart {
-  id         String      @id @default(auto()) @map("_id") @db.ObjectId
-  variants   String[]
-  uniqueId   String
-  cardImages CardImage[]
-}
-
-model CardImage {
-  id              String  @id @default(auto()) @map("_id") @db.ObjectId
-  cart            Cart    @relation(fields: [cardImagesId], references: [id])
-  cardImagesId    String  @db.ObjectId
-  imagesUrl       String
-  material        String?
-  generationModel String
-  deliveryPeriod  String
-  numberOfImage   Int?
-  size            String?
-  price           Float?
-  subTotal       Float?
-}
-
-type CardImageType {
-  id              String
-  cardImagesId    String
-  imagesUrl       String
-  material        String
-  generationModel String
-  deliveryPeriod  String
-  numberOfImage   Int
-  size            String
-  price           Float
-  subTotal        Float
-}
