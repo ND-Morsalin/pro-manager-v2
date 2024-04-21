@@ -53,42 +53,56 @@ paths:
       summary: Create a new product
       tags:
         - Product
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Product'
+              $ref: "#/components/schemas/Product"
       responses:
-        '201':
+        "201":
           description: Product created successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ProductResponse'
-        '500':
+                $ref: "#/components/schemas/ProductResponse"
+        "500":
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
     get:
       summary: Get all products
       tags:
         - Product
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
       responses:
-        '200':
+        "200":
           description: All products
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ProductsResponse'
-        '500':
+                $ref: "#/components/schemas/ProductsResponse"
+        "500":
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
   /api/product/{id}:
     get:
       summary: Get a single product by ID
@@ -101,25 +115,31 @@ paths:
           schema:
             type: string
           description: ID of the product to get
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
       responses:
-        '200':
+        "200":
           description: Product found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ProductResponse'
-        '404':
+                $ref: "#/components/schemas/ProductResponse"
+        "404":
           description: Product not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-        '500':
+                $ref: "#/components/schemas/Error"
+        "500":
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
     put:
       summary: Update a product by ID
       tags:
@@ -131,25 +151,31 @@ paths:
           schema:
             type: string
           description: ID of the product to update
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Product'
+              $ref: "#/components/schemas/Product"
       responses:
-        '200':
+        "200":
           description: Product updated successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ProductResponse'
-        '500':
+                $ref: "#/components/schemas/ProductResponse"
+        "500":
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
     delete:
       summary: Delete a product by ID
       tags:
@@ -161,20 +187,25 @@ paths:
           schema:
             type: string
           description: ID of the product to delete
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
       responses:
-        '200':
+        "200":
           description: Product deleted successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ProductResponse'
-        '500':
+                $ref: "#/components/schemas/ProductResponse"
+        "500":
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-
+                $ref: "#/components/schemas/Error"
 
 components:
   schemas:
@@ -256,7 +287,7 @@ components:
         message:
           type: string
         product:
-          $ref: '#/components/schemas/Product'
+          $ref: "#/components/schemas/Product"
     ProductsResponse:
       type: object
       properties:
@@ -267,7 +298,7 @@ components:
         products:
           type: array
           items:
-            $ref: '#/components/schemas/Product'
+            $ref: "#/components/schemas/Product"
     Error:
       type: object
       properties:
