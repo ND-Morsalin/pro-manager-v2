@@ -2,102 +2,316 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-provider = "mongodb"
-url      = env("DATABASE_URL")
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
 }
 
-// shop Owner model
+
+//**************************/
+// Shop Owner Model start
+//**************************/
 model ShopOwner {
-id        String  @id @default(auto()) @map("_id") @db.ObjectId
-shopName  String
-mobile    String @unique
-pincode   String
-// product id
-// Coustomer id
-// BusinessContactInfo id
+  id       String @id @default(auto()) @map("_id") @db.ObjectId
+  shopName String
+  mobile   String @unique
+  pincode  String
+  //  relations with product, coustomer, loneProvider, businessContactInfo model
+  //  shopOwner can have multiple product, coustomer, loneProvider, businessContactInfo
 
+  // shopOwner can have multiple product
+  products   Product[]
+  // shopOwner can have multiple coustomer
+  coustomers Coustomer[]
 
+  // shopOwner can have multiple loneProvider
+  loneProviders LoneProvider[]
 
-createdAt DateTime @default(now())
-updatedAt DateTime @updatedAt
+  // shopOwner can have multiple businessContactInfo
+  businessContactInfos BusinessContactInfo[]
+
+  // shopOwner can have multiple coustomerPaymentHistory
+  coustomerPaymentHistories CoustomerPaymentHistory[]
+  // shopOwner can have multiple lonePaymentHistory
+  lonePaymentHistories      LonePaymentHistory[]
+
+  // shopOwner can have multiple productVoicer
+  productVoicers ProductVoicer[]
+
+  // shopOwner can have multiple sellingProduct
+  sellingProducts SellingProduct[]
+
+  // shopOwner can have multiple cash
+  cashs Cash[]
+
+  cashInHistory  CashInHistory[]
+  cashOutHistory CashOutHistory[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
+//**************************/
+// Shop Owner Model end
+//**************************/
 
-// product model
 
+
+//**************************/
+// Product Model start
+//**************************/
 model Product {
-id String  @id @default(auto()) @map("_id") @db.ObjectId
-productName String
-amount String
-buyingPrice String
-sellingPrice String
-productCategory String
-productBrand String
-unit String // kg , hali, litter, pic, packate
-//* need to add shop owner id */
+  id              String    @id @default(auto()) @map("_id") @db.ObjectId
+  productName     String
+  amount          String
+  buyingPrice     String
+  sellingPrice    String
+  productCategory String
+  productBrand    String
+  unit            String // kg , hali, litter, pic, packate
+  //* need to add shop owner id */
+  shopOwner       ShopOwner @relation(fields: [shopOwnerId], references: [id])
+  shopOwnerId     String    @db.ObjectId
 
-createdAt DateTime @default(now())
-updatedAt DateTime @updatedAt
+  sellingHistory SellingProduct[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
+//**************************/
+// Product Model end
+//**************************/
 
+
+
+
+
+//**************************/
+// Coustomer Model start
+//**************************/
 model Coustomer {
-id String  @id @default(auto()) @map("_id") @db.ObjectId
-coustomerName String
-phoneNumber String
-address String
-deuAmount String
-paidAmount String
-// coustomer payment history
+  id            String @id @default(auto()) @map("_id") @db.ObjectId
+  coustomerName String
+  phoneNumber   String
+  address       String
+  deuAmount     String
+  paidAmount    String
+  // coustomer payment history
 
-// ShopOwner id
+  // ShopOwner id
+  shopOwner   ShopOwner @relation(fields: [shopOwnerId], references: [id])
+  shopOwnerId String    @db.ObjectId
 
+  coustomerPaymentHistories CoustomerPaymentHistory[]
 
-createdAt DateTime @default(now())
-updatedAt DateTime @updatedAt
+  invoiceHistory ProductVoicer[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
+
 model CoustomerPaymentHistory {
-id String  @id @default(auto()) @map("_id") @db.ObjectId
-paymentStatys PaymentStatus // enum SHOPOWNERRECIVED SHOPOWNERGIVE
-// shopOwnerId
-paymentDate DateTime @default(now())
+  id            String        @id @default(auto()) @map("_id") @db.ObjectId
+  paymentStatys PaymentStatus
+  paymentDate   DateTime      @default(now())
 
+  shopOwner   ShopOwner @relation(fields: [shopOwnerId], references: [id])
+  shopOwnerId String    @db.ObjectId
+
+  coustomer   Coustomer @relation(fields: [coustomerId], references: [id])
+  coustomerId String    @db.ObjectId
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
+//**************************/
+// Coustomer Model end
+//**************************/
+
+
+
+
+
+//**************************/
+// Product Voicer Model start
+//**************************/
+model ProductVoicer {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  // ShopOwner id
+  shopOwner   ShopOwner @relation(fields: [shopOwnerId], references: [id])
+  shopOwnerId String    @db.ObjectId
+
+  coustomer   Coustomer @relation(fields: [coustomerId], references: [id])
+  coustomerId String    @db.ObjectId
+
+  sellingProducts SellingProduct[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model SellingProduct {
+  id           String @id @default(auto()) @map("_id") @db.ObjectId
+  productName  String
+  sellingPrice String
+  amount       Float
+  unit         String
+  totalPrice   Float // sellingPrice * amount
+
+  product   Product @relation(fields: [productId], references: [id])
+  productId String  @db.ObjectId
+
+  // ShopOwner id
+  shopOwner   ShopOwner @relation(fields: [shopOwnerId], references: [id])
+  shopOwnerId String    @db.ObjectId
+
+  productVoicer   ProductVoicer @relation(fields: [productVoicerId], references: [id])
+  productVoicerId String        @db.ObjectId
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+//**************************/
+// Product Voicer Model end
+//**************************/
+
+
+
+
+
+
+
+//**************************/
+// Lone Model start
+//**************************/
+model LoneProvider {
+  id               String    @id @default(auto()) @map("_id") @db.ObjectId
+  loneProviderName String
+  phoneNumber      String
+  address          String
+  loneDeuAmount    String
+  lonePaidAmount   String
+  // paymentHistory
+  // ShopOwner id
+  shopOwner        ShopOwner @relation(fields: [shopOwnerId], references: [id])
+  shopOwnerId      String    @db.ObjectId
+
+  lonePaymentHistories LonePaymentHistory[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model LonePaymentHistory {
+  id                String        @id @default(auto()) @map("_id") @db.ObjectId
+  lonePaymentStatys PaymentStatus // enum SHOPOWNERRECIVED SHOPOWNERGIVE
+  // shopOwnerId
+  lonePaymentDate   DateTime      @default(now())
+
+  shopOwner   ShopOwner @relation(fields: [shopOwnerId], references: [id])
+  shopOwnerId String    @db.ObjectId
+
+  loneProvider   LoneProvider @relation(fields: [loneProviderId], references: [id])
+  loneProviderId String       @db.ObjectId
+}
+//**************************/
+// Lone Model end
+//**************************/
+
+
+
+
+
+//**************************/
+// Business Contact Info Model start
+//**************************/
+model BusinessContactInfo {
+  id           String    @id @default(auto()) @map("_id") @db.ObjectId
+  name         String
+  phoneNumber  String
+  organization String
+  // ShopOwner id
+  shopOwner    ShopOwner @relation(fields: [shopOwnerId], references: [id])
+  shopOwnerId  String    @db.ObjectId
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+//**************************/
+// Business Contact Info Model end
+//**************************/
+
+
+
+
+
+//**************************/
+// Cash Model start
+//**************************/
+
+model Cash {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  cashBalance Float
+
+  cashInHistory  CashInHistory[]
+  cashOutHistory CashOutHistory[]
+
+  // ShopOwner id
+  shopOwner   ShopOwner @relation(fields: [shopOwnerId], references: [id])
+  shopOwnerId String    @db.ObjectId
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model CashInHistory {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  cashInAmount Float
+  cashInDate   DateTime @default(now())
+  cashInFor    String
+
+  // ShopOwner id
+  shopOwner   ShopOwner @relation(fields: [shopOwnerId], references: [id])
+  shopOwnerId String    @db.ObjectId
+
+  cash   Cash   @relation(fields: [cashId], references: [id])
+  cashId String @db.ObjectId
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+
+model CashOutHistory {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  cashOutAmount Float
+  cashOutFor    String
+  cashOutDate   DateTime @default(now())
+
+  // ShopOwner id
+  shopOwner   ShopOwner @relation(fields: [shopOwnerId], references: [id])
+  shopOwnerId String    @db.ObjectId
+
+  cash   Cash   @relation(fields: [cashId], references: [id])
+  cashId String @db.ObjectId
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+//**************************/
+// Cash Model end
+//**************************/
+
+
 
 enum PaymentStatus {
-SHOPOWNERRECIVED SHOPOWNERGIVE
+  SHOPOWNERRECIVED
+  SHOPOWNERGIVE
 }
-
-
-model LoneProvider {
-id String  @id @default(auto()) @map("_id") @db.ObjectId
-loneProviderName String
-phoneNumber String
-address String
-loneDeuAmount String
-lonePaidAmount String
-// paymentHistory
-// ShopOwner id
-
-
-createdAt DateTime @default(now())
-updatedAt DateTime @updatedAt
-}
-model LonePaymentHistory {
-
-}
-
-model BusinessContactInfo{
-id String @id @default(auto()) @map("_id") @db.ObjectId
-name String
-phoneNumber String
-organization String
-// ShopOwner id
-
-
-createdAt DateTime @default(now())
-updatedAt DateTime @updatedAt
-}
-
