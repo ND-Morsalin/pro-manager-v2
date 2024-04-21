@@ -65,9 +65,9 @@ model ShopOwner {
 model Product {
   id              String    @id @default(auto()) @map("_id") @db.ObjectId
   productName     String
-  amount          String
-  buyingPrice     String
-  sellingPrice    String
+  amount          Float
+  buyingPrice     Float
+  sellingPrice    Float
   productCategory String
   productBrand    String
   unit            String // kg , hali, litter, pic, packate
@@ -96,8 +96,8 @@ model Coustomer {
   coustomerName String
   phoneNumber   String
   address       String
-  deuAmount     String
-  paidAmount    String
+  deuAmount     Float
+  paidAmount    Float
   // coustomer payment history
 
   // ShopOwner id
@@ -156,7 +156,7 @@ model ProductVoicer {
 model SellingProduct {
   id           String @id @default(auto()) @map("_id") @db.ObjectId
   productName  String
-  sellingPrice String
+  sellingPrice Float
   amount       Float
   unit         String
   totalPrice   Float // sellingPrice * amount
@@ -192,8 +192,9 @@ model LoneProvider {
   loneProviderName String
   phoneNumber      String
   address          String
-  loneDeuAmount    String
-  lonePaidAmount   String
+  totalLoneTaken  Float
+  loneDeuAmount    Float
+  lonePaidAmount   Float
   // paymentHistory
   // ShopOwner id
   shopOwner        ShopOwner @relation(fields: [shopOwnerId], references: [id])
