@@ -1,3 +1,5 @@
+import { Request } from "express";
+
 interface shopOwnerBodyType {
   shopName: string;
   mobile: string;
@@ -15,4 +17,25 @@ interface CookiePayloadType {
   id: string;
 }
 
-export { shopOwnerBodyType,LoginBodyType ,CookiePayloadType};
+interface DecodedToken {
+  id: string;
+  iat: number;
+  exp: number;
+}
+
+interface ExtendedRequest extends Request {
+  shopOwner: {
+    id: string;
+    shopName: string;
+    mobile: string;
+    pincode?: string;
+  };
+}
+
+export {
+  shopOwnerBodyType,
+  LoginBodyType,
+  CookiePayloadType,
+  DecodedToken,
+  ExtendedRequest,
+};
