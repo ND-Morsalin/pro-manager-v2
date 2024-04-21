@@ -1,11 +1,11 @@
 import {
   CreateShopOwner,
   logIn,
-} from "../controller/user/shopOwner/shopOwnerController";
+} from "../controller/shopOwner/shopOwnerController";
 import { Router } from "express";
-import shopOwnerBodyChecker from "../middleware/user/shopOwner/shopOwnerValidator";
+import shopOwnerBodyChecker from "../middleware/shopOwner/shopOwnerValidator";
 import handleValidationErrors from "../middleware/handelValidatorError";
-import logInValidator from "../middleware/user/shopOwner/loginValidator";
+import logInValidator from "../middleware/shopOwner/loginValidator";
 import checkValidUser from "../middleware/checkValidUser";
 
 const router = Router();
@@ -26,7 +26,7 @@ router.post(
 router.post("/login", logInValidator, handleValidationErrors, logIn);
 
 router.get("/", checkValidUser, (req, res) => {
-  res.json({ message: "Hello, world!" });
+  return res.json({ message: "Hello, world!" });
 });
 
 // router.get("/shop-owner", CreateShopOwner);

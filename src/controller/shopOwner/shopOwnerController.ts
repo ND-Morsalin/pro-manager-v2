@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
-import { LoginBodyType, shopOwnerBodyType } from "../../../types/types";
+import { LoginBodyType, shopOwnerBodyType } from "../../types/types";
 import bcryptjs from "bcryptjs";
-import prisma from "../../../utility/prisma";
-import setCookie from "../../../utility/setCookie";
+import prisma from "../../utility/prisma";
+import setCookie from "../../utility/setCookie";
 
 const CreateShopOwner = async (req: Request, res: Response) => {
   const { shopName, mobile, pincode, confirmPincode } =
@@ -10,7 +10,7 @@ const CreateShopOwner = async (req: Request, res: Response) => {
 
   // check pincode and confirm pin code
   if (!(pincode === confirmPincode)) {
-    res.status(403).json({
+   return res.status(403).json({
       success: false,
       errors: [
         {
@@ -25,14 +25,15 @@ const CreateShopOwner = async (req: Request, res: Response) => {
   }
 
   //   check unique mobile number
-  const existShopOwner = prisma.shopOwner.findUnique({
+  const existShopOwner = await prisma.shopOwner.findUnique({
     where: {
       mobile,
     },
   });
 
   if (existShopOwner) {
-    res.status(405).json({
+    console.log({existShopOwner})
+    return res.status(405).json({
       success: false,
       errors: [
         {
@@ -59,7 +60,7 @@ const CreateShopOwner = async (req: Request, res: Response) => {
     },
   });
 
-  res.json({
+ return res.json({
     success: true,
     message: "Shop owner created",
     shopOwner: {
@@ -81,7 +82,7 @@ const logIn = async (req: Request, res: Response) => {
   });
 
   if (!shopOwner) {
-    res.status(404).json({
+    return res.status(404).json({
       success: false,
       errors: [
         {
@@ -99,7 +100,7 @@ const logIn = async (req: Request, res: Response) => {
   const isMatch = await bcryptjs.compare(pincode, shopOwner.pincode);
 
   if (!isMatch) {
-    res.status(404).json({
+    return  res.status(404).json({
       success: false,
       errors: [
         {
@@ -119,7 +120,7 @@ const logIn = async (req: Request, res: Response) => {
     id: shopOwner.id,
   });
 
-  res.json({
+  return  res.json({
     success: true,
     message: "Login successful",
     shopOwner: {
