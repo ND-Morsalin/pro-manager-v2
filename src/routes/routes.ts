@@ -15,6 +15,7 @@ import {
   updateProduct,
 } from "../controller/products/productsController";
 import productBodyChecker from "../middleware/products/productValidator";
+import { addCustomer, deleteCustomer, getAllCustomers, getSingleCustomer, updateCustomer } from "../controller/customer/customerController";
 
 const router = Router();
 
@@ -67,5 +68,33 @@ router.delete("/product/:id", checkValidUser, deleteProduct);
 /**
  * PRODUCT ROUTES end
  **/
+
+
+
+
+
+/**
+ * Customer ROUTES start
+ **/
+// create customer
+router.post("/customer", checkValidUser, addCustomer);
+
+// get all customers
+router.get("/customers", checkValidUser, getAllCustomers);
+
+// get single customer
+router.get("/customer/:id", checkValidUser, getSingleCustomer);
+
+// update customer
+router.put("/customer/:id", checkValidUser, updateCustomer);
+
+// delete customer
+router.delete("/customer/:id", checkValidUser, deleteCustomer);
+
+/**
+ * Customer ROUTES end
+ **/
+
+
 
 export default router;

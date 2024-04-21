@@ -19,13 +19,13 @@ model ShopOwner {
   shopName String
   mobile   String @unique
   pincode  String
-  //  relations with product, coustomer, loneProvider, businessContactInfo model
-  //  shopOwner can have multiple product, coustomer, loneProvider, businessContactInfo
+  //  relations with product, customer, loneProvider, businessContactInfo model
+  //  shopOwner can have multiple product, customer, loneProvider, businessContactInfo
 
   // shopOwner can have multiple product
   products   Product[]
-  // shopOwner can have multiple coustomer
-  coustomers Coustomer[]
+  // shopOwner can have multiple customer
+  customers Customer[]
 
   // shopOwner can have multiple loneProvider
   loneProviders LoneProvider[]
@@ -33,8 +33,8 @@ model ShopOwner {
   // shopOwner can have multiple businessContactInfo
   businessContactInfos BusinessContactInfo[]
 
-  // shopOwner can have multiple coustomerPaymentHistory
-  coustomerPaymentHistories CoustomerPaymentHistory[]
+  // shopOwner can have multiple customerPaymentHistory
+  customerPaymentHistories CustomerPaymentHistory[]
   // shopOwner can have multiple lonePaymentHistory
   lonePaymentHistories      LonePaymentHistory[]
 
@@ -89,22 +89,22 @@ model Product {
 
 
 //**************************/
-// Coustomer Model start
+// Customer Model start
 //**************************/
-model Coustomer {
+model Customer {
   id            String @id @default(auto()) @map("_id") @db.ObjectId
-  coustomerName String
+  customerName String
   phoneNumber   String
   address       String
   deuAmount     Float
   paidAmount    Float
-  // coustomer payment history
+  // customer payment history
 
   // ShopOwner id
   shopOwner   ShopOwner @relation(fields: [shopOwnerId], references: [id])
   shopOwnerId String    @db.ObjectId
 
-  coustomerPaymentHistories CoustomerPaymentHistory[]
+  customerPaymentHistories CustomerPaymentHistory[]
 
   invoiceHistory ProductVoicer[]
 
@@ -112,7 +112,7 @@ model Coustomer {
   updatedAt DateTime @updatedAt
 }
 
-model CoustomerPaymentHistory {
+model CustomerPaymentHistory {
   id            String        @id @default(auto()) @map("_id") @db.ObjectId
   paymentStatys PaymentStatus
   paymentDate   DateTime      @default(now())
@@ -120,14 +120,14 @@ model CoustomerPaymentHistory {
   shopOwner   ShopOwner @relation(fields: [shopOwnerId], references: [id])
   shopOwnerId String    @db.ObjectId
 
-  coustomer   Coustomer @relation(fields: [coustomerId], references: [id])
-  coustomerId String    @db.ObjectId
+  customer   Customer @relation(fields: [customerId], references: [id])
+  customerId String    @db.ObjectId
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 //**************************/
-// Coustomer Model end
+// Customer Model end
 //**************************/
 
 
@@ -144,8 +144,8 @@ model ProductVoicer {
   shopOwner   ShopOwner @relation(fields: [shopOwnerId], references: [id])
   shopOwnerId String    @db.ObjectId
 
-  coustomer   Coustomer @relation(fields: [coustomerId], references: [id])
-  coustomerId String    @db.ObjectId
+  customer   Customer @relation(fields: [customerId], references: [id])
+  customerId String    @db.ObjectId
 
   sellingProducts SellingProduct[]
 

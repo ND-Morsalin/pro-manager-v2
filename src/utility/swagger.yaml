@@ -206,7 +206,194 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-
+  /api/customer:
+    post:
+      summary: Create a new customer
+      tags:
+        - Customer
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Customer"
+      responses:
+        "201":
+          description: Customer created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CustomerResponse"
+        "401":
+          description: Unauthorized, Token is not found on header
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    get:
+      summary: Get all customers
+      tags:
+        - Customer
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+      responses:
+        "200":
+          description: All customers
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CustomersResponse"
+        "401":
+          description: Unauthorized, Token is not found on header
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /api/customer/{id}:
+    get:
+      summary: Get a single customer by ID
+      tags:
+        - Customer
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID of the customer to get
+      responses:
+        "200":
+          description: Customer found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CustomerResponse"
+        "401":
+          description: Unauthorized, Token is not found on header
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Customer not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    put:
+      summary: Update a customer by ID
+      tags:
+        - Customer
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID of the customer to update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Customer"
+      responses:
+        "200":
+          description: Customer updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CustomerResponse"
+        "401":
+          description: Unauthorized, Token is not found on header
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    delete:
+      summary: Delete a customer by ID
+      tags:
+        - Customer
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID of the customer to delete
+      responses:
+        "200":
+          description: Customer deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CustomerResponse"
+        "401":
+          description: Unauthorized, Token is not found on header
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 components:
   schemas:
     ShopOwnerBodyType:
@@ -299,6 +486,48 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/Product"
+    Customer:
+      type: object
+      properties:
+        address:
+          type: string
+        customerName:
+          type: string
+        phoneNumber:
+          type: string
+        shopOwnerId:
+          type: string
+        deuAmount:
+          type: number
+        paidAmount:
+          type: number
+      required:
+        - address
+        - customerName
+        - phoneNumber
+        - shopOwnerId
+        - deuAmount
+        - paidAmount
+    CustomerResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        customer:
+          $ref: "#/components/schemas/Customer"
+    CustomersResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        customers:
+          type: array
+          items:
+            $ref: "#/components/schemas/Customer"
     Error:
       type: object
       properties:
