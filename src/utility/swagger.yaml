@@ -48,6 +48,134 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+  /api/product:
+    post:
+      summary: Create a new product
+      tags:
+        - Product
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Product'
+      responses:
+        '201':
+          description: Product created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    get:
+      summary: Get all products
+      tags:
+        - Product
+      responses:
+        '200':
+          description: All products
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductsResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/product/{id}:
+    get:
+      summary: Get a single product by ID
+      tags:
+        - Product
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID of the product to get
+      responses:
+        '200':
+          description: Product found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductResponse'
+        '404':
+          description: Product not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      summary: Update a product by ID
+      tags:
+        - Product
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID of the product to update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Product'
+      responses:
+        '200':
+          description: Product updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      summary: Delete a product by ID
+      tags:
+        - Product
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID of the product to delete
+      responses:
+        '200':
+          description: Product deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+
 components:
   schemas:
     ShopOwnerBodyType:
@@ -92,6 +220,54 @@ components:
               type: string
             shopName:
               type: string
+    Product:
+      type: object
+      properties:
+        productName:
+          type: string
+        amount:
+          type: number
+        buyingPrice:
+          type: number
+        sellingPrice:
+          type: number
+        productCategory:
+          type: string
+        productBrand:
+          type: string
+        unit:
+          type: string
+        shopOwnerId:
+          type: string
+      required:
+        - productName
+        - amount
+        - buyingPrice
+        - sellingPrice
+        - productCategory
+        - productBrand
+        - unit
+        - shopOwnerId
+    ProductResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        product:
+          $ref: '#/components/schemas/Product'
+    ProductsResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        products:
+          type: array
+          items:
+            $ref: '#/components/schemas/Product'
     Error:
       type: object
       properties:
