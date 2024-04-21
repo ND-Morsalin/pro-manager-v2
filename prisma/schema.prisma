@@ -2,24 +2,102 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
+provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "mongodb"
-  url      = env("DATABASE_URL")
+provider = "mongodb"
+url      = env("DATABASE_URL")
 }
 
 // shop Owner model
 model ShopOwner {
-  id        String  @id @default(auto()) @map("_id") @db.ObjectId
-  shopName  String
-  mobile    String @unique
-  pincode   String
+id        String  @id @default(auto()) @map("_id") @db.ObjectId
+shopName  String
+mobile    String @unique
+pincode   String
+// product id
+// Coustomer id
+// BusinessContactInfo id
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+
+
+createdAt DateTime @default(now())
+updatedAt DateTime @updatedAt
 }
 
 // product model
+
+model Product {
+id String  @id @default(auto()) @map("_id") @db.ObjectId
+productName String
+amount String
+buyingPrice String
+sellingPrice String
+productCategory String
+productBrand String
+unit String // kg , hali, litter, pic, packate
+//* need to add shop owner id */
+
+createdAt DateTime @default(now())
+updatedAt DateTime @updatedAt
+}
+
+model Coustomer {
+id String  @id @default(auto()) @map("_id") @db.ObjectId
+coustomerName String
+phoneNumber String
+address String
+deuAmount String
+paidAmount String
+// coustomer payment history
+
+// ShopOwner id
+
+
+createdAt DateTime @default(now())
+updatedAt DateTime @updatedAt
+}
+model CoustomerPaymentHistory {
+id String  @id @default(auto()) @map("_id") @db.ObjectId
+paymentStatys PaymentStatus // enum SHOPOWNERRECIVED SHOPOWNERGIVE
+// shopOwnerId
+paymentDate DateTime @default(now())
+
+}
+
+enum PaymentStatus {
+SHOPOWNERRECIVED SHOPOWNERGIVE
+}
+
+
+model LoneProvider {
+id String  @id @default(auto()) @map("_id") @db.ObjectId
+loneProviderName String
+phoneNumber String
+address String
+loneDeuAmount String
+lonePaidAmount String
+// paymentHistory
+// ShopOwner id
+
+
+createdAt DateTime @default(now())
+updatedAt DateTime @updatedAt
+}
+model LonePaymentHistory {
+
+}
+
+model BusinessContactInfo{
+id String @id @default(auto()) @map("_id") @db.ObjectId
+name String
+phoneNumber String
+organization String
+// ShopOwner id
+
+
+createdAt DateTime @default(now())
+updatedAt DateTime @updatedAt
+}
 
