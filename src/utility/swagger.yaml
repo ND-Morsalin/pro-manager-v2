@@ -618,7 +618,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-   /api/lone-provider:
+  /api/lone-provider:
     post:
       summary: Create a new lone provider
       tags:
