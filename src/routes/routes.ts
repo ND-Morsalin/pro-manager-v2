@@ -15,7 +15,22 @@ import {
   updateProduct,
 } from "../controller/products/productsController";
 import productBodyChecker from "../middleware/products/productValidator";
-import { addCustomer, deleteCustomer, getAllCustomers, getSingleCustomer, updateCustomer } from "../controller/customer/customerController";
+import {
+  addCustomer,
+  deleteCustomer,
+  getAllCustomers,
+  getSingleCustomer,
+  updateCustomer,
+} from "../controller/customer/customerController";
+import {
+  createCustomerPaymentHistory,
+  deleteCustomerPaymentHistory,
+  getAllCustomerPaymentHistory,
+  getSingleCustomerPaymentHistory,
+  updateCustomerPaymentHistory,
+} from "../controller/customer/CustomerPaymentHistory";
+import { createLoneProvider, deleteLoneProvider, getAllLoneProviders, getSingleLoneProvider, updateLoneProvider } from "../controller/loneProvider/loneProviderController";
+import { createProductVoicer } from "../controller/productVoicer/productVoicerController";
 
 const router = Router();
 
@@ -69,10 +84,6 @@ router.delete("/product/:id", checkValidUser, deleteProduct);
  * PRODUCT ROUTES end
  **/
 
-
-
-
-
 /**
  * Customer ROUTES start
  **/
@@ -94,6 +105,89 @@ router.delete("/customer/:id", checkValidUser, deleteCustomer);
 /**
  * Customer ROUTES end
  **/
+
+/**
+ * CustomerPaymentHistory ROUTES start
+ **/
+
+router.post(
+  "/customer-payment-history",
+  checkValidUser,
+  createCustomerPaymentHistory
+);
+
+router.get(
+  "/customer-payment-history",
+  checkValidUser,
+  getAllCustomerPaymentHistory
+);
+
+router.get(
+  "/customer-payment-history/:id",
+  checkValidUser,
+  getSingleCustomerPaymentHistory
+);
+
+router.put(
+  "/customer-payment-history/:id",
+  checkValidUser,
+  updateCustomerPaymentHistory
+);
+
+router.delete(
+  "/customer-payment-history/:id",
+  checkValidUser,
+  deleteCustomerPaymentHistory
+);
+
+/**
+ * CustomerPaymentHistory ROUTES end
+ **/
+
+
+
+/**
+ * LoneProvider ROUTES start
+ **/
+
+// create lone provider
+router.post("/lone-provider", checkValidUser, createLoneProvider);
+
+// get all lone providers
+router.get("/lone-providers", checkValidUser, getAllLoneProviders);
+
+// get single lone provider
+router.get("/lone-provider/:id", checkValidUser, getSingleLoneProvider);
+
+// update lone provider
+router.put("/lone-provider/:id", checkValidUser, updateLoneProvider);
+
+// delete lone provider
+router.delete("/lone-provider/:id", checkValidUser, deleteLoneProvider);
+
+/**
+ * LoneProvider ROUTES end
+ **/
+
+
+
+
+/**
+ * createProductVoicer ROUTES end
+ **/
+
+router.post("/product-voicer", checkValidUser, createProductVoicer);
+
+
+/**
+ * createProductVoicer ROUTES end
+ **/
+
+
+
+
+
+
 
 
 
