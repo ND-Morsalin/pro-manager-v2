@@ -827,6 +827,9 @@ paths:
   /product-voicer:
     post:
       summary: Create a new product voicer
+      
+      tags:
+        - ProductVoicer
       requestBody:
         required: true
         content:
