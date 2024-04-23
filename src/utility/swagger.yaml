@@ -394,6 +394,539 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+  /api/customer-payment-history:
+    post:
+      summary: Create a new customer payment history
+      tags:
+        - Customer Payment History
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerPaymentHistory'
+      responses:
+        '201':
+          description: Customer payment history created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerPaymentHistoryResponse'
+        '401':
+          description: Unauthorized, Token is not found on header
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    get:
+      summary: Get all customer payment history
+      tags:
+        - Customer Payment History
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+        - in: query
+          name: customerId
+          required: true
+          schema:
+            type: string
+          description: ID of the customer
+      responses:
+        '200':
+          description: All customer payment history
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerPaymentHistoriesResponse'
+        '401':
+          description: Unauthorized, Token is not found on header
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/customer-payment-history/{id}:
+    get:
+      summary: Get a single customer payment history by ID
+      tags:
+        - Customer Payment History
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID of the payment history
+        - in: query
+          name: customerId
+          required: true
+          schema:
+            type: string
+          description: ID of the customer
+      responses:
+        '200':
+          description: Customer payment history found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerPaymentHistoryResponse'
+        '401':
+          description: Unauthorized, Token is not found on header
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Payment history not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      summary: Update a customer payment history by ID
+      tags:
+        - Customer Payment History
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID of the payment history
+        - in: query
+          name: customerId
+          required: true
+          schema:
+            type: string
+          description: ID of the customer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerPaymentHistory'
+      responses:
+        '200':
+          description: Customer payment history updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerPaymentHistoryResponse'
+        '401':
+          description: Unauthorized, Token is not found on header
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Payment history not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      summary: Delete a customer payment history by ID
+      tags:
+        - Customer Payment History
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID of the payment history
+        - in: query
+          name: customerId
+          required: true
+          schema:
+            type: string
+          description: ID of the customer
+      responses:
+        '200':
+          description: Customer payment history deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerPaymentHistoryResponse'
+        '401':
+          description: Unauthorized, Token is not found on header
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Payment history not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+   /api/lone-provider:
+    post:
+      summary: Create a new lone provider
+      tags:
+        - Lone Provider
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoneProvider'
+      responses:
+        '201':
+          description: Lone provider created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoneProviderResponse'
+        '401':
+          description: Unauthorized, Token is not found on header
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    get:
+      summary: Get all lone providers
+      tags:
+        - Lone Provider
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+      responses:
+        '200':
+          description: All lone providers
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoneProvidersResponse'
+        '401':
+          description: Unauthorized, Token is not found on header
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: No lone provider found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/lone-provider/{id}:
+    get:
+      summary: Get a single lone provider by ID
+      tags:
+        - Lone Provider
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID of the lone provider
+      responses:
+        '200':
+          description: Lone provider found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoneProviderResponse'
+        '401':
+          description: Unauthorized, Token is not found on header
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Lone provider not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      summary: Update a lone provider by ID
+      tags:
+        - Lone Provider
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID of the lone provider
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoneProvider'
+      responses:
+        '200':
+          description: Lone provider updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoneProviderResponse'
+        '401':
+          description: Unauthorized, Token is not found on header
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Lone provider not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      summary: Delete a lone provider by ID
+      tags:
+        - Lone Provider
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID of the lone provider
+      responses:
+        '200':
+          description: Lone provider deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoneProviderResponse'
+        '401':
+          description: Unauthorized, Token is not found on header
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Lone provider not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /product-voicer:
+    post:
+      summary: Create a new product voicer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                sellingProducts:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/SellingProduct'
+                customerId:
+                  type: string
+              required:
+                - sellingProducts
+                - customerId
+      responses:
+        '201':
+          description: Product voicer created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Indicates if the request was successful
+                  productVoicer:
+                    $ref: '#/components/schemas/ProductVoicer'
+        '404':
+          description: Customer not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Indicates if the request was successful
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          example: validation error
+                          description: The type of error
+                        value:
+                          type: string
+                          example: ""
+                          description: The value of the error
+                        msg:
+                          type: string
+                          example: Customer not found
+                          description: The error message
+                        path:
+                          type: string
+                          example: customerId
+                          description: The path related to the error
+                        location:
+                          type: string
+                          example: createProductVoicer
+                          description: The location of the error in the code
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Indicates if the request was successful
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          example: server error
+                          description: The type of error
+                        value:
+                          type: string
+                          example: ""
+                          description: The value of the error
+                        msg:
+                          type: string
+                          example: Internal server error
+                          description: The error message
+                        path:
+                          type: string
+                          example: server
+                          description: The path related to the error
+                        location:
+                          type: string
+                          example: createProductVoicer
+                          description: The location of the error in the code
+
 components:
   schemas:
     ShopOwnerBodyType:
@@ -528,6 +1061,123 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/Customer"
+    CustomerPaymentHistory:
+      type: object
+      properties:
+        paymentDate:
+          type: string
+          format: date
+        paymentStatus:
+          type: string
+        paymentAmount:
+          type: number
+        customerId:
+          type: string
+      required:
+        - paymentDate
+        - paymentStatus
+        - paymentAmount
+        - customerId
+    CustomerPaymentHistoryResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        customerPaymentHistory:
+          $ref: '#/components/schemas/CustomerPaymentHistory'
+    CustomerPaymentHistoriesResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        customerPaymentHistories:
+          type: array
+          items:
+            $ref: '#/components/schemas/CustomerPaymentHistory'
+    LoneProvider:
+      type: object
+      properties:
+        providerName:
+          type: string
+        providerMobile:
+          type: string
+        providerAddress:
+          type: string
+        providerType:
+          type: string
+        shopOwnerId:
+          type: string
+      required:
+        - providerName
+        - providerMobile
+        - providerAddress
+        - providerType
+        - shopOwnerId
+    LoneProviderResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        loneProvider:
+          $ref: '#/components/schemas/LoneProvider'
+    LoneProvidersResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        loneProviders:
+          type: array
+          items:
+            $ref: '#/components/schemas/LoneProvider'
+    ProductVoicer:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The ID of the product voicer
+        customerId:
+          type: string
+          description: The ID of the customer
+        shopOwnerId:
+          type: string
+          description: The ID of the shop owner
+        totalBillAmount:
+          type: number
+          description: The total bill amount
+        sellingProducts:
+          type: array
+          items:
+            $ref: '#/components/schemas/SellingProduct'
+    SellingProduct:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The ID of the selling product
+        productName:
+          type: string
+          description: The name of the product
+        sellingPrice:
+          type: number
+          description: The selling price of the product
+        quantity:
+          type: integer
+          description: The quantity of the product
+        totalPrice:
+          type: number
+          description: The total price of the product
+        shopOwnerId:
+          type: string
+          description: The ID of the shop owner
+    
     Error:
       type: object
       properties:
