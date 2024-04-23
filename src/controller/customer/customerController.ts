@@ -27,34 +27,32 @@ const addCustomer = async (req: ExtendedRequest, res: Response) => {
 
     return res.status(201).json({
       success: true,
-      message: "Customer created successfully", 
-        customer: newCustomer,
+      message: "Customer created successfully",
+      customer: newCustomer,
     });
-
-
   } catch (error) {
     return res.status(500).json({
-        success: false,
-        
-        errors: [
-          {
-            type: "server error",
-            value: "",
-            msg: "Internal server error",
-            path: "server",
-            location: "addCustomer function",
-          },
-        ],
-      });
+      success: false,
+
+      errors: [
+        {
+          type: "server error",
+          value: "",
+          msg: "Internal server error",
+          path: "server",
+          location: "addCustomer function",
+        },
+      ],
+    });
   }
 };
 
 const getAllCustomers = async (req: ExtendedRequest, res: Response) => {
   try {
     const customers = await prisma.customer.findMany({
-        where: {
-            shopOwnerId: req.shopOwner.id,
-        },
+      where: {
+        shopOwnerId: req.shopOwner.id,
+      },
     });
 
     return res.status(200).json({
@@ -62,20 +60,19 @@ const getAllCustomers = async (req: ExtendedRequest, res: Response) => {
       message: "All customers",
       customers,
     });
-
   } catch (error) {
     return res.status(500).json({
-        success: false,
-        errors: [
-          {
-            type: "server error",
-            value: "",
-            msg: "Internal server error",
-            path: "server",
-            location: "getAllCustomers function",
-          },
-        ],
-      });
+      success: false,
+      errors: [
+        {
+          type: "server error",
+          value: "",
+          msg: "Internal server error",
+          path: "server",
+          location: "getAllCustomers function",
+        },
+      ],
+    });
   }
 };
 
@@ -86,7 +83,7 @@ const getSingleCustomer = async (req: ExtendedRequest, res: Response) => {
     const customer = await prisma.customer.findUnique({
       where: {
         id: id as string,
-        shopOwnerId:req.shopOwner.id
+        shopOwnerId: req.shopOwner.id,
       },
     });
 
@@ -97,30 +94,26 @@ const getSingleCustomer = async (req: ExtendedRequest, res: Response) => {
     });
   } catch (error) {
     return res.status(500).json({
-        success: false,
-        errors: [
-          {
-            type: "server error",
-            value: "",
-            msg: "Internal server error",
-            path: "server",
-            location: "getSingleCustomer function",
-          },
-        ],
-      });
+      success: false,
+      errors: [
+        {
+          type: "server error",
+          value: "",
+          msg: "Internal server error",
+          path: "server",
+          location: "getSingleCustomer function",
+        },
+      ],
+    });
   }
 };
 
+// TODO If give customer any stokeAmount then update the paidAmount and deuAmount and create customerPaymentHistory
 const updateCustomer = async (req: ExtendedRequest, res: Response) => {
   try {
     const { id } = req.params;
-    const {
-      address,
-      customerName,
-      phoneNumber,
-      deuAmount,
-      paidAmount,
-    } = req.body as Customer;
+    const { address, customerName, phoneNumber, deuAmount, paidAmount } =
+      req.body as Customer;
 
     const updatedCustomer = await prisma.customer.update({
       where: {
@@ -133,7 +126,6 @@ const updateCustomer = async (req: ExtendedRequest, res: Response) => {
         phoneNumber,
         deuAmount,
         paidAmount,
-
       },
     });
 
@@ -142,20 +134,19 @@ const updateCustomer = async (req: ExtendedRequest, res: Response) => {
       message: "Customer updated successfully",
       customer: updatedCustomer,
     });
-
   } catch (error) {
     return res.status(500).json({
-        success: false,
-        errors: [
-          {
-            type: "server error",
-            value: "",
-            msg: "Internal server error",
-            path: "server",
-            location: "updateCustomer function",
-          },
-        ],
-      });
+      success: false,
+      errors: [
+        {
+          type: "server error",
+          value: "",
+          msg: "Internal server error",
+          path: "server",
+          location: "updateCustomer function",
+        },
+      ],
+    });
   }
 };
 
@@ -175,20 +166,19 @@ const deleteCustomer = async (req: ExtendedRequest, res: Response) => {
       message: "Customer deleted successfully",
       customer: deletedCustomer,
     });
-    
   } catch (error) {
     return res.status(500).json({
-        success: false,
-        errors: [
-          {
-            type: "server error",
-            value: "",
-            msg: "Internal server error",
-            path: "server",
-            location: "deleteCustomer function",
-          },
-        ],
-      });
+      success: false,
+      errors: [
+        {
+          type: "server error",
+          value: "",
+          msg: "Internal server error",
+          path: "server",
+          location: "deleteCustomer function",
+        },
+      ],
+    });
   }
 };
 

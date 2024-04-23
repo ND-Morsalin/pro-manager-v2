@@ -6,7 +6,7 @@
 Product {
   id              String    @id @default(auto()) @map("_id") @db.ObjectId
   productName     String
-  amount          Float
+  stokeAmount          Float
   buyingPrice     Float
   sellingPrice    Float
   productCategory String
@@ -30,7 +30,7 @@ const productBodyChecker = [
     .withMessage("Product name must be a string")
     .isLength({ min: 2, max: 100 })
     .withMessage("Product name must be between 2 and 100 characters long"),
-  body("amount")
+  body("stokeAmount")
     .isNumeric()
     .withMessage("Amount must be a number")
     .isFloat({ min: 0.01 })
@@ -66,6 +66,5 @@ const productBodyChecker = [
     .isLength({ min: 2 })
     .withMessage("Shop owner id must be at least 2 characters long"),
 ];
-
 
 export default productBodyChecker;

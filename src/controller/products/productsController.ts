@@ -6,7 +6,7 @@ const addProduct = async (req: Request, res: Response) => {
   try {
     const {
       productName,
-      amount,
+      stokeAmount,
       buyingPrice,
       sellingPrice,
       productCategory,
@@ -18,7 +18,7 @@ const addProduct = async (req: Request, res: Response) => {
     const product = await prisma.product.create({
       data: {
         productName,
-        amount,
+        stokeAmount,
         buyingPrice,
         sellingPrice,
         productCategory,
@@ -123,8 +123,8 @@ const getSingleProduct = async (req: Request, res: Response) => {
 const updateProduct = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    // ! update only amount, buyingPrice, sellingPrice, unit
-    const { amount, buyingPrice, sellingPrice, unit, shopOwnerId } =
+    // ! update only stokeAmount, buyingPrice, sellingPrice, unit
+    const { stokeAmount, buyingPrice, sellingPrice, unit, shopOwnerId } =
       req.body as Product;
 
     const product = await prisma.product.update({
@@ -133,7 +133,7 @@ const updateProduct = async (req: Request, res: Response) => {
         shopOwnerId,
       },
       data: {
-        amount,
+        stokeAmount,
         buyingPrice,
         sellingPrice,
         unit,

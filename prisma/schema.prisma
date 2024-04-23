@@ -10,7 +10,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
 //**************************/
 // Shop Owner Model start
 //**************************/
@@ -23,7 +22,7 @@ model ShopOwner {
   //  shopOwner can have multiple product, customer, loneProvider, businessContactInfo
 
   // shopOwner can have multiple product
-  products   Product[]
+  products  Product[]
   // shopOwner can have multiple customer
   customers Customer[]
 
@@ -36,7 +35,7 @@ model ShopOwner {
   // shopOwner can have multiple customerPaymentHistory
   customerPaymentHistories CustomerPaymentHistory[]
   // shopOwner can have multiple lonePaymentHistory
-  lonePaymentHistories      LonePaymentHistory[]
+  lonePaymentHistories     LonePaymentHistory[]
 
   // shopOwner can have multiple productVoicer
   productVoicers ProductVoicer[]
@@ -53,11 +52,10 @@ model ShopOwner {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
 //**************************/
 // Shop Owner Model end
 //**************************/
-
-
 
 //**************************/
 // Product Model start
@@ -65,7 +63,7 @@ model ShopOwner {
 model Product {
   id              String    @id @default(auto()) @map("_id") @db.ObjectId
   productName     String
-  amount          Float
+  stokeAmount     Float
   buyingPrice     Float
   sellingPrice    Float
   productCategory String
@@ -80,24 +78,21 @@ model Product {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
 //**************************/
 // Product Model end
 //**************************/
-
-
-
-
 
 //**************************/
 // Customer Model start
 //**************************/
 model Customer {
-  id            String @id @default(auto()) @map("_id") @db.ObjectId
+  id           String @id @default(auto()) @map("_id") @db.ObjectId
   customerName String
-  phoneNumber   String
-  address       String
-  deuAmount     Float
-  paidAmount    Float
+  phoneNumber  String
+  address      String
+  deuAmount    Float
+  paidAmount   Float
   // customer payment history
 
   // ShopOwner id
@@ -114,25 +109,23 @@ model Customer {
 
 model CustomerPaymentHistory {
   id            String        @id @default(auto()) @map("_id") @db.ObjectId
-  paymentStatys PaymentStatus
+  paymentAmount Float
+  paymentStatus PaymentStatus
   paymentDate   DateTime      @default(now())
 
   shopOwner   ShopOwner @relation(fields: [shopOwnerId], references: [id])
   shopOwnerId String    @db.ObjectId
 
   customer   Customer @relation(fields: [customerId], references: [id])
-  customerId String    @db.ObjectId
+  customerId String   @db.ObjectId
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
 //**************************/
 // Customer Model end
 //**************************/
-
-
-
-
 
 //**************************/
 // Product Voicer Model start
@@ -140,12 +133,14 @@ model CustomerPaymentHistory {
 model ProductVoicer {
   id String @id @default(auto()) @map("_id") @db.ObjectId
 
+  totalBillAmount Float
+
   // ShopOwner id
   shopOwner   ShopOwner @relation(fields: [shopOwnerId], references: [id])
   shopOwnerId String    @db.ObjectId
 
   customer   Customer @relation(fields: [customerId], references: [id])
-  customerId String    @db.ObjectId
+  customerId String   @db.ObjectId
 
   sellingProducts SellingProduct[]
 
@@ -157,9 +152,9 @@ model SellingProduct {
   id           String @id @default(auto()) @map("_id") @db.ObjectId
   productName  String
   sellingPrice Float
-  amount       Float
+  quantity     Float
   unit         String
-  totalPrice   Float // sellingPrice * amount
+  totalPrice   Float // sellingPrice * stokeAmount
 
   product   Product @relation(fields: [productId], references: [id])
   productId String  @db.ObjectId
@@ -174,15 +169,10 @@ model SellingProduct {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
 //**************************/
 // Product Voicer Model end
 //**************************/
-
-
-
-
-
-
 
 //**************************/
 // Lone Model start
@@ -192,7 +182,8 @@ model LoneProvider {
   loneProviderName String
   phoneNumber      String
   address          String
-  totalLoneTaken  Float
+  loneTakenDate    DateTime
+  totalLoneTaken   Float
   loneDeuAmount    Float
   lonePaidAmount   Float
   // paymentHistory
@@ -208,7 +199,8 @@ model LoneProvider {
 
 model LonePaymentHistory {
   id                String        @id @default(auto()) @map("_id") @db.ObjectId
-  lonePaymentStatys PaymentStatus // enum SHOPOWNERRECIVED SHOPOWNERGIVE
+  givingAmount      Float
+  lonePaymentStatus PaymentStatus // enum SHOPOWNERRECIVED SHOPOWNERGIVE
   // shopOwnerId
   lonePaymentDate   DateTime      @default(now())
 
@@ -218,13 +210,10 @@ model LonePaymentHistory {
   loneProvider   LoneProvider @relation(fields: [loneProviderId], references: [id])
   loneProviderId String       @db.ObjectId
 }
+
 //**************************/
 // Lone Model end
 //**************************/
-
-
-
-
 
 //**************************/
 // Business Contact Info Model start
@@ -245,10 +234,6 @@ model BusinessContactInfo {
 //**************************/
 // Business Contact Info Model end
 //**************************/
-
-
-
-
 
 //**************************/
 // Cash Model start
@@ -288,7 +273,6 @@ model CashInHistory {
   updatedAt DateTime @updatedAt
 }
 
-
 model CashOutHistory {
   id String @id @default(auto()) @map("_id") @db.ObjectId
 
@@ -306,11 +290,10 @@ model CashOutHistory {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
 //**************************/
 // Cash Model end
 //**************************/
-
-
 
 enum PaymentStatus {
   SHOPOWNERRECIVED

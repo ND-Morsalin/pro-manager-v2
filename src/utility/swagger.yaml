@@ -443,7 +443,7 @@ components:
       properties:
         productName:
           type: string
-        amount:
+        stokeAmount:
           type: number
         buyingPrice:
           type: number
@@ -459,7 +459,7 @@ components:
           type: string
       required:
         - productName
-        - amount
+        - stokeAmount
         - buyingPrice
         - sellingPrice
         - productCategory
