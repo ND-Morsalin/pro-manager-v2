@@ -965,7 +965,7 @@ components:
           type: boolean
         message:
           type: string
-        shopOwner:
+        data:
           type: object
           properties:
             id:

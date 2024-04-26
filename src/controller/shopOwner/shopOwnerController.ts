@@ -123,7 +123,7 @@ const logIn = async (req: Request, res: Response) => {
   return  res.json({
     success: true,
     message: "Login successful",
-    shopOwner: {
+    data: {
       id: shopOwner.id,
       mobile: shopOwner.mobile,
       shopName: shopOwner.shopName,

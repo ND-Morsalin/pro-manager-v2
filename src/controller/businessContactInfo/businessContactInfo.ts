@@ -45,20 +45,17 @@ const getAllBusinessContactInfo = async (
   res: Response
 ) => {
   try {
-
     const allBusinessContactInfo = await prisma.businessContactInfo.findMany({
-        where:{
-            shopOwnerId:req.shopOwner.id
-        }
-    })
+      where: {
+        shopOwnerId: req.shopOwner.id,
+      },
+    });
 
     return res.status(200).json({
-        success:true,
-        allBusinessContactInfo,
-        message :'all business info'
-    })
-
-
+      success: true,
+      allBusinessContactInfo,
+      message: "all business info",
+    });
   } catch (error) {
     return res.status(500).json({
       success: false,
@@ -80,7 +77,20 @@ const getSingleBusinessContactInfo = async (
   res: Response
 ) => {
   try {
-    
+    const { id } = req.params;
+
+    const singleBusinessContactInfo =
+      await prisma.businessContactInfo.findUnique({
+        where: {
+          id,
+          shopOwnerId: req.shopOwner.id,
+        },
+      });
+
+    return res.status(200).json({
+      success: true,
+      singleBusinessContactInfo,
+    });
   } catch (error) {
     return res.status(500).json({
       success: false,
@@ -102,6 +112,26 @@ const updateBusinessContactInfo = async (
   res: Response
 ) => {
   try {
+    const { id } = req.params;
+    const { organization, name, phoneNumber } = req.body as BusinessContactInfo;
+
+    const updatedBusinessContactInfo = await prisma.businessContactInfo.update({
+      where: {
+        id,
+
+        shopOwnerId: req.shopOwner.id,
+      },
+      data: {
+        organization,
+        name,
+        phoneNumber,
+      },
+    });
+
+    return res.status(200).json({
+        success:true,
+        updateBusinessContactInfo
+    })
   } catch (error) {
     return res.status(500).json({
       success: false,
