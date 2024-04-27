@@ -69,6 +69,52 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
       });
     }
 
+    // update cash balance and cash in history
+
+    // check if cash is available or not
+    const cash = await prisma.cash.findUnique({
+      where: {
+        shopOwnerId: req.shopOwner.id,
+      },
+    });
+
+    if (!cash) {
+      await prisma.cash.create({
+        data: {
+          shopOwnerId: req.shopOwner.id,
+          cashBalance: totalBill,
+          cashInHistory: {
+            create: {
+              cashInAmount: totalBill,
+              cashInFor: "Product sell",
+              shopOwnerId: req.shopOwner.id,
+              cashInDate: new Date(),
+            },
+          },
+        },
+      });
+    }
+
+    // if cash is available then update cash
+    await prisma.cash.update({
+      where: {
+        shopOwnerId: req.shopOwner.id,
+      },
+      data: {
+        cashBalance: {
+          increment: totalBill,
+        },
+        cashInHistory: {
+          create: {
+            cashInAmount: totalBill,
+            cashInFor: "Product sell",
+            shopOwnerId: req.shopOwner.id,
+            cashInDate: new Date(),
+          },
+        },
+      },
+    });
+
     return res.status(201).json({
       success: true,
       productVoicer: newProductVoicer,

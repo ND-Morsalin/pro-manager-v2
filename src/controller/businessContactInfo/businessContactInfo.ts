@@ -1,7 +1,7 @@
 import { Response } from "express";
 import { ExtendedRequest } from "../../types/types";
 import { BusinessContactInfo } from "@prisma/client";
-import prisma from "utility/prisma";
+import prisma from "../../utility/prisma";
 
 const createBusinessContactInfo = async (
   req: ExtendedRequest,

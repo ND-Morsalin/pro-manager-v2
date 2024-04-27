@@ -31,6 +31,7 @@ import {
 } from "../controller/customer/CustomerPaymentHistory";
 import { createLoneProvider, deleteLoneProvider, getAllLoneProviders, getSingleLoneProvider, updateLoneProvider } from "../controller/loneProvider/loneProviderController";
 import { createProductVoicer } from "../controller/productVoicer/productVoicerController";
+import { createBusinessContactInfo, deleteBusinessContactInfo, getAllBusinessContactInfo, getSingleBusinessContactInfo, updateBusinessContactInfo } from "../controller/businessContactInfo/businessContactInfo";
 
 const router = Router();
 
@@ -185,6 +186,24 @@ router.post("/product-voicer", checkValidUser, createProductVoicer);
 
 
 
+
+/**
+ * Business ContactInfo ROUTES start
+ **/
+
+router.post("/business-contact-info", checkValidUser, createBusinessContactInfo);
+
+router.get("/business-contact-info", checkValidUser, getAllBusinessContactInfo);
+
+router.get("/business-contact-info/:id", checkValidUser, getSingleBusinessContactInfo);
+
+router.put("/business-contact-info/:id", checkValidUser, updateBusinessContactInfo);
+
+router.delete("/business-contact-info/:id", checkValidUser, deleteBusinessContactInfo);
+
+/**
+ * Business ContactInfo ROUTES end
+ **/
 
 
 

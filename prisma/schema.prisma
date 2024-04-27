@@ -242,14 +242,14 @@ model BusinessContactInfo {
 model Cash {
   id String @id @default(auto()) @map("_id") @db.ObjectId
 
-  cashBalance Float
+  cashBalance Float @default(0)
 
   cashInHistory  CashInHistory[]
   cashOutHistory CashOutHistory[]
 
   // ShopOwner id
   shopOwner   ShopOwner @relation(fields: [shopOwnerId], references: [id])
-  shopOwnerId String    @db.ObjectId
+  shopOwnerId String    @db.ObjectId @unique
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
