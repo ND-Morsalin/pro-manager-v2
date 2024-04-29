@@ -52,7 +52,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-  /api/product:
+  /api/products:
     post:
       summary: Create a new product
       tags:
@@ -163,6 +163,7 @@ paths:
           description: JWT token of the shop owner
       requestBody:
         required: true
+        description: update only stokeAmount, buyingPrice, sellingPrice,
         content:
           application/json:
             schema:
@@ -342,7 +343,15 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Customer"
+              type: object
+              properties:
+                deuAmount:
+                  type: number
+                paidAmount:
+                  type: number
+              required:
+                - mobile
+                - paidAmount
       responses:
         "200":
           description: Customer updated successfully
@@ -415,26 +424,26 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CustomerPaymentHistory'
+              $ref: "#/components/schemas/CustomerPaymentHistory"
       responses:
-        '201':
+        "201":
           description: Customer payment history created successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CustomerPaymentHistoryResponse'
-        '401':
+                $ref: "#/components/schemas/CustomerPaymentHistoryResponse"
+        "401":
           description: Unauthorized, Token is not found on header
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-        '500':
+                $ref: "#/components/schemas/Error"
+        "500":
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
     get:
       summary: Get all customer payment history
       tags:
@@ -453,24 +462,24 @@ paths:
             type: string
           description: ID of the customer
       responses:
-        '200':
+        "200":
           description: All customer payment history
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CustomerPaymentHistoriesResponse'
-        '401':
+                $ref: "#/components/schemas/CustomerPaymentHistoriesResponse"
+        "401":
           description: Unauthorized, Token is not found on header
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-        '500':
+                $ref: "#/components/schemas/Error"
+        "500":
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
   /api/customer-payment-history/{id}:
     get:
       summary: Get a single customer payment history by ID
@@ -496,30 +505,30 @@ paths:
             type: string
           description: ID of the customer
       responses:
-        '200':
+        "200":
           description: Customer payment history found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CustomerPaymentHistoryResponse'
-        '401':
+                $ref: "#/components/schemas/CustomerPaymentHistoryResponse"
+        "401":
           description: Unauthorized, Token is not found on header
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-        '404':
+                $ref: "#/components/schemas/Error"
+        "404":
           description: Payment history not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-        '500':
+                $ref: "#/components/schemas/Error"
+        "500":
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
     put:
       summary: Update a customer payment history by ID
       tags:
@@ -548,32 +557,32 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CustomerPaymentHistory'
+              $ref: "#/components/schemas/CustomerPaymentHistory"
       responses:
-        '200':
+        "200":
           description: Customer payment history updated successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CustomerPaymentHistoryResponse'
-        '401':
+                $ref: "#/components/schemas/CustomerPaymentHistoryResponse"
+        "401":
           description: Unauthorized, Token is not found on header
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-        '404':
+                $ref: "#/components/schemas/Error"
+        "404":
           description: Payment history not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-        '500':
+                $ref: "#/components/schemas/Error"
+        "500":
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
     delete:
       summary: Delete a customer payment history by ID
       tags:
@@ -598,30 +607,30 @@ paths:
             type: string
           description: ID of the customer
       responses:
-        '200':
+        "200":
           description: Customer payment history deleted successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CustomerPaymentHistoryResponse'
-        '401':
+                $ref: "#/components/schemas/CustomerPaymentHistoryResponse"
+        "401":
           description: Unauthorized, Token is not found on header
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-        '404':
+                $ref: "#/components/schemas/Error"
+        "404":
           description: Payment history not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-        '500':
+                $ref: "#/components/schemas/Error"
+        "500":
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
   /api/lone-provider:
     post:
       summary: Create a new lone provider
@@ -639,26 +648,26 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/LoneProvider'
+              $ref: "#/components/schemas/LoneProvider"
       responses:
-        '201':
+        "201":
           description: Lone provider created successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/LoneProviderResponse'
-        '401':
+                $ref: "#/components/schemas/LoneProviderResponse"
+        "401":
           description: Unauthorized, Token is not found on header
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-        '500':
+                $ref: "#/components/schemas/Error"
+        "500":
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
     get:
       summary: Get all lone providers
       tags:
@@ -671,30 +680,30 @@ paths:
             type: string
           description: JWT token of the shop owner
       responses:
-        '200':
+        "200":
           description: All lone providers
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/LoneProvidersResponse'
-        '401':
+                $ref: "#/components/schemas/LoneProvidersResponse"
+        "401":
           description: Unauthorized, Token is not found on header
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-        '404':
+                $ref: "#/components/schemas/Error"
+        "404":
           description: No lone provider found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-        '500':
+                $ref: "#/components/schemas/Error"
+        "500":
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
   /api/lone-provider/{id}:
     get:
       summary: Get a single lone provider by ID
@@ -714,30 +723,30 @@ paths:
             type: string
           description: ID of the lone provider
       responses:
-        '200':
+        "200":
           description: Lone provider found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/LoneProviderResponse'
-        '401':
+                $ref: "#/components/schemas/LoneProviderResponse"
+        "401":
           description: Unauthorized, Token is not found on header
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-        '404':
+                $ref: "#/components/schemas/Error"
+        "404":
           description: Lone provider not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-        '500':
+                $ref: "#/components/schemas/Error"
+        "500":
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
     put:
       summary: Update a lone provider by ID
       tags:
@@ -760,32 +769,32 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/LoneProvider'
+              $ref: "#/components/schemas/LoneProvider"
       responses:
-        '200':
+        "200":
           description: Lone provider updated successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/LoneProviderResponse'
-        '401':
+                $ref: "#/components/schemas/LoneProviderResponse"
+        "401":
           description: Unauthorized, Token is not found on header
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-        '404':
+                $ref: "#/components/schemas/Error"
+        "404":
           description: Lone provider not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-        '500':
+                $ref: "#/components/schemas/Error"
+        "500":
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
     delete:
       summary: Delete a lone provider by ID
       tags:
@@ -804,34 +813,34 @@ paths:
             type: string
           description: ID of the lone provider
       responses:
-        '200':
+        "200":
           description: Lone provider deleted successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/LoneProviderResponse'
-        '401':
+                $ref: "#/components/schemas/LoneProviderResponse"
+        "401":
           description: Unauthorized, Token is not found on header
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-        '404':
+                $ref: "#/components/schemas/Error"
+        "404":
           description: Lone provider not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-        '500':
+                $ref: "#/components/schemas/Error"
+        "500":
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
   /product-voicer:
     post:
       summary: Create a new product voicer
-      
+
       tags:
         - ProductVoicer
       requestBody:
@@ -844,14 +853,17 @@ paths:
                 sellingProducts:
                   type: array
                   items:
-                    $ref: '#/components/schemas/SellingProduct'
+                    $ref: "#/components/schemas/SellingProduct"
                 customerId:
                   type: string
+                paidAmount:
+                  type: number
               required:
                 - sellingProducts
                 - customerId
+                - paidAmount
       responses:
-        '201':
+        "201":
           description: Product voicer created successfully
           content:
             application/json:
@@ -862,8 +874,8 @@ paths:
                     type: boolean
                     description: Indicates if the request was successful
                   productVoicer:
-                    $ref: '#/components/schemas/ProductVoicer'
-        '404':
+                    $ref: "#/components/schemas/ProductVoicer"
+        "404":
           description: Customer not found
           content:
             application/json:
@@ -898,7 +910,7 @@ paths:
                           type: string
                           example: createProductVoicer
                           description: The location of the error in the code
-        '500':
+        "500":
           description: Internal server error
           content:
             application/json:
@@ -951,9 +963,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/BusinessContactInfo'
+              $ref: "#/components/schemas/BusinessContactInfo"
       responses:
-        '200':
+        "200":
           description: Business contact info created successfully
           content:
             application/json:
@@ -967,8 +979,8 @@ paths:
                     type: string
                     description: A message indicating the status of the operation
                   businessContactInfo:
-                    $ref: '#/components/schemas/BusinessContactInfo'
-        '500':
+                    $ref: "#/components/schemas/BusinessContactInfo"
+        "500":
           description: Internal server error
           content:
             application/json:
@@ -981,7 +993,7 @@ paths:
                   errors:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Error'
+                      $ref: "#/components/schemas/Error"
 
     get:
       summary: Get all business contact info
@@ -995,7 +1007,7 @@ paths:
             type: string
           description: JWT token of the shop owner
       responses:
-        '200':
+        "200":
           description: List of all business contact info
           content:
             application/json:
@@ -1008,11 +1020,11 @@ paths:
                   allBusinessContactInfo:
                     type: array
                     items:
-                      $ref: '#/components/schemas/BusinessContactInfo'
+                      $ref: "#/components/schemas/BusinessContactInfo"
                   message:
                     type: string
                     description: A message indicating the status of the operation
-        '500':
+        "500":
           description: Internal server error
           content:
             application/json:
@@ -1025,7 +1037,7 @@ paths:
                   errors:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Error'
+                      $ref: "#/components/schemas/Error"
 
   /business-contact-info/{id}:
     get:
@@ -1046,7 +1058,7 @@ paths:
             type: string
           description: JWT token of the shop owner
       responses:
-        '200':
+        "200":
           description: Business contact info retrieved successfully
           content:
             application/json:
@@ -1057,8 +1069,8 @@ paths:
                     type: boolean
                     description: Indicates if the request was successful
                   singleBusinessContactInfo:
-                    $ref: '#/components/schemas/BusinessContactInfo'
-        '500':
+                    $ref: "#/components/schemas/BusinessContactInfo"
+        "500":
           description: Internal server error
           content:
             application/json:
@@ -1071,7 +1083,7 @@ paths:
                   errors:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Error'
+                      $ref: "#/components/schemas/Error"
 
     put:
       summary: Update a business contact info
@@ -1095,9 +1107,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/BusinessContactInfo'
+              $ref: "#/components/schemas/BusinessContactInfo"
       responses:
-        '200':
+        "200":
           description: Business contact info updated successfully
           content:
             application/json:
@@ -1108,8 +1120,8 @@ paths:
                     type: boolean
                     description: Indicates if the request was successful
                   updatedBusinessContactInfo:
-                    $ref: '#/components/schemas/BusinessContactInfo'
-        '500':
+                    $ref: "#/components/schemas/BusinessContactInfo"
+        "500":
           description: Internal server error
           content:
             application/json:
@@ -1122,7 +1134,7 @@ paths:
                   errors:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Error'
+                      $ref: "#/components/schemas/Error"
 
     delete:
       summary: Delete a business contact info
@@ -1142,7 +1154,7 @@ paths:
             type: string
           description: JWT token of the shop owner
       responses:
-        '200':
+        "200":
           description: Business contact info deleted successfully
           content:
             application/json:
@@ -1156,8 +1168,8 @@ paths:
                     type: string
                     description: A message indicating the status of the operation
                   deletedBusinessContact:
-                    $ref: '#/components/schemas/BusinessContactInfo'
-        '500':
+                    $ref: "#/components/schemas/BusinessContactInfo"
+        "500":
           description: Internal server error
           content:
             application/json:
@@ -1170,8 +1182,8 @@ paths:
                   errors:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Error'
-  
+                      $ref: "#/components/schemas/Error"
+
   /cash:
     post:
       summary: Create cash transaction
@@ -1214,7 +1226,7 @@ paths:
                 - note
                 - requestType
       responses:
-        '201':
+        "201":
           description: Cash transaction created successfully
           content:
             application/json:
@@ -1228,8 +1240,8 @@ paths:
                     type: string
                     description: A message indicating the status of the operation
                   cash:
-                    $ref: '#/components/schemas/Cash'
-        '500':
+                    $ref: "#/components/schemas/Cash"
+        "500":
           description: Internal server error
           content:
             application/json:
@@ -1242,7 +1254,7 @@ paths:
                   errors:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Error'
+                      $ref: "#/components/schemas/Error"
 
     get:
       summary: Get all cash transactions
@@ -1256,7 +1268,7 @@ paths:
             type: string
           description: JWT token of the shop owner
       responses:
-        '200':
+        "200":
           description: List of all cash transactions
           content:
             application/json:
@@ -1269,8 +1281,8 @@ paths:
                   cash:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Cash'
-        '404':
+                      $ref: "#/components/schemas/Cash"
+        "404":
           description: Cash not found
           content:
             application/json:
@@ -1283,8 +1295,8 @@ paths:
                   errors:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Error'
-        '500':
+                      $ref: "#/components/schemas/Error"
+        "500":
           description: Internal server error
           content:
             application/json:
@@ -1297,8 +1309,7 @@ paths:
                   errors:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Error'
-
+                      $ref: "#/components/schemas/Error"
 
 components:
   schemas:
@@ -1459,7 +1470,7 @@ components:
         message:
           type: string
         customerPaymentHistory:
-          $ref: '#/components/schemas/CustomerPaymentHistory'
+          $ref: "#/components/schemas/CustomerPaymentHistory"
     CustomerPaymentHistoriesResponse:
       type: object
       properties:
@@ -1470,7 +1481,7 @@ components:
         customerPaymentHistories:
           type: array
           items:
-            $ref: '#/components/schemas/CustomerPaymentHistory'
+            $ref: "#/components/schemas/CustomerPaymentHistory"
     LoneProvider:
       type: object
       properties:
@@ -1498,7 +1509,7 @@ components:
         message:
           type: string
         loneProvider:
-          $ref: '#/components/schemas/LoneProvider'
+          $ref: "#/components/schemas/LoneProvider"
     LoneProvidersResponse:
       type: object
       properties:
@@ -1509,7 +1520,7 @@ components:
         loneProviders:
           type: array
           items:
-            $ref: '#/components/schemas/LoneProvider'
+            $ref: "#/components/schemas/LoneProvider"
     ProductVoicer:
       type: object
       properties:
@@ -1528,7 +1539,7 @@ components:
         sellingProducts:
           type: array
           items:
-            $ref: '#/components/schemas/SellingProduct'
+            $ref: "#/components/schemas/SellingProduct"
     SellingProduct:
       type: object
       properties:
@@ -1580,12 +1591,12 @@ components:
         cashInHistory:
           type: array
           items:
-            $ref: '#/components/schemas/CashTransaction'
+            $ref: "#/components/schemas/CashTransaction"
           description: History of cash-in transactions
         cashOutHistory:
           type: array
           items:
-            $ref: '#/components/schemas/CashTransaction'
+            $ref: "#/components/schemas/CashTransaction"
           description: History of cash-out transactions
         shopOwnerId:
           type: string
@@ -1619,8 +1630,6 @@ components:
         shopOwnerId:
           type: string
           description: The ID of the shop owner associated with the cash transaction
-    
-
 
     Error:
       type: object

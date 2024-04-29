@@ -89,7 +89,7 @@ model Product {
 model Customer {
   id           String @id @default(auto()) @map("_id") @db.ObjectId
   customerName String
-  phoneNumber  String
+  phoneNumber  String @unique
   address      String
   deuAmount    Float
   paidAmount   Float
@@ -134,6 +134,8 @@ model ProductVoicer {
   id String @id @default(auto()) @map("_id") @db.ObjectId
 
   totalBillAmount Float
+  paidAmount Float
+  remainingDue Float
 
   // ShopOwner id
   shopOwner   ShopOwner @relation(fields: [shopOwnerId], references: [id])

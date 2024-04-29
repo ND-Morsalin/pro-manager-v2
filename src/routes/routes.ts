@@ -63,7 +63,7 @@ router.get("/", checkValidUser, (req, res) => {
 
 // create product
 router.post(
-  "/product",
+  "/products",
   checkValidUser,
   productBodyChecker,
   handleValidationErrors,
@@ -93,7 +93,7 @@ router.delete("/product/:id", checkValidUser, deleteProduct);
 router.post("/customer", checkValidUser, addCustomer);
 
 // get all customers
-router.get("/customers", checkValidUser, getAllCustomers);
+router.get("/customer", checkValidUser, getAllCustomers);
 
 // get single customer
 router.get("/customer/:id", checkValidUser, getSingleCustomer);

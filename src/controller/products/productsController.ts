@@ -51,7 +51,7 @@ const addProduct = async (req: Request, res: Response) => {
 
 const getAllProducts = async (req: Request, res: Response) => {
   try {
-    const products = await prisma.product.findMany();
+    const products = await prisma.product.findMany(); // todo get product by shopOwnerId
 
     return res.status(200).json({
       success: true,
@@ -133,7 +133,9 @@ const updateProduct = async (req: Request, res: Response) => {
         shopOwnerId,
       },
       data: {
-        stokeAmount,
+        stokeAmount:{
+          increment: stokeAmount
+        },
         buyingPrice,
         sellingPrice,
         unit,

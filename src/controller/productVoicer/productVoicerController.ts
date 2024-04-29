@@ -5,9 +5,10 @@ import prisma from "../../utility/prisma";
 
 const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
   try {
-    const { sellingProducts, customerId } = req.body as {
+    const { sellingProducts, customerId, paidAmount } = req.body as {
       sellingProducts: SellingProduct[];
       customerId: string;
+      paidAmount: number;
     };
 
     // find user by Customer id
@@ -43,12 +44,18 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
         customerId,
         shopOwnerId: req.shopOwner.id,
         totalBillAmount: totalBill,
+        paidAmount,
+        remainingDue: totalBill - paidAmount + customer.deuAmount,
         sellingProducts: {
           create: sellingProducts.map((product) => {
             return {
-              ...product,
               totalPrice: product.sellingPrice * product.quantity,
               shopOwnerId: req.shopOwner.id,
+              productId: product.productId,
+              quantity: product.quantity,
+              productName: product.productName,
+              sellingPrice: product.sellingPrice,
+              unit: product.unit,
             };
           }),
         },
@@ -85,6 +92,26 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
           cashBalance: totalBill,
           cashInHistory: {
             create: {
+              cashInAmount: paidAmount,
+              cashInFor: `Product sell to ${customer.customerName}`,
+              shopOwnerId: req.shopOwner.id,
+              cashInDate: new Date(),
+            },
+          },
+        },
+      });
+    } else {
+      // if cash is available then update cash
+      await prisma.cash.update({
+        where: {
+          shopOwnerId: req.shopOwner.id,
+        },
+        data: {
+          cashBalance: {
+            increment: totalBill,
+          },
+          cashInHistory: {
+            create: {
               cashInAmount: totalBill,
               cashInFor: "Product sell",
               shopOwnerId: req.shopOwner.id,
@@ -94,22 +121,21 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
         },
       });
     }
-
-    // if cash is available then update cash
-    await prisma.cash.update({
+    // update customer due balance
+    await prisma.customer.update({
       where: {
+        id: customerId,
         shopOwnerId: req.shopOwner.id,
       },
       data: {
-        cashBalance: {
-          increment: totalBill,
+        deuAmount: {
+          increment: totalBill - paidAmount,
         },
-        cashInHistory: {
+        customerPaymentHistories: {
           create: {
-            cashInAmount: totalBill,
-            cashInFor: "Product sell",
+            paymentAmount: totalBill - paidAmount,
+            paymentStatus: "SHOPOWNERGIVE",
             shopOwnerId: req.shopOwner.id,
-            cashInDate: new Date(),
           },
         },
       },
