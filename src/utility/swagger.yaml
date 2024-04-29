@@ -7,6 +7,8 @@ paths:
   /api/create-shop-owner:
     post:
       summary: Create a new shop owner
+      tags:
+        - Authentication
       requestBody:
         required: true
         content:
@@ -29,6 +31,8 @@ paths:
   /api/login:
     post:
       summary: Log in as a shop owner
+      tags:
+        - Authentication
       requestBody:
         required: true
         content:
