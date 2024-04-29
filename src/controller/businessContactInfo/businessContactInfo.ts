@@ -56,6 +56,7 @@ const getAllBusinessContactInfo = async (
       allBusinessContactInfo,
       message: "all business info",
     });
+    
   } catch (error) {
     return res.status(500).json({
       success: false,
@@ -129,9 +130,9 @@ const updateBusinessContactInfo = async (
     });
 
     return res.status(200).json({
-        success:true,
-        updateBusinessContactInfo
-    })
+      success: true,
+      updatedBusinessContactInfo,
+    });
   } catch (error) {
     return res.status(500).json({
       success: false,
@@ -153,6 +154,21 @@ const deleteBusinessContactInfo = async (
   res: Response
 ) => {
   try {
+    const { id } = req.params;
+
+    const deletedBusinessContact = await prisma.businessContactInfo.delete({
+      where: {
+        id,
+        shopOwnerId: req.shopOwner.id,
+      },
+    });
+
+    return res.status(200). json({
+      success:true,
+      message:'Business contact deleted',
+      deletedBusinessContact
+    })
+
   } catch (error) {
     return res.status(500).json({
       success: false,

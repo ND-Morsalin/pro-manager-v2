@@ -149,51 +149,5 @@ const getAllCash = async (req: ExtendedRequest, res: Response) => {
   }
 };
 
-const getSingleCash = async (req: ExtendedRequest, res: Response) => {
-  try {
-    const { id } = req.params;
-    const cash = await prisma.cash.findUnique({
-      where: {
-        id,
-        shopOwnerId: req.shopOwner.id,
-      },
-      include: {
-        cashInHistory: true,
-        cashOutHistory: true,
-      },
-    });
 
-    // if cash is not available then return error
-    if (!cash) {
-      return res.status(404).json({
-        success: false,
-        errors: [
-          {
-            type: "not found",
-            value: "",
-            msg: "Cash not found",
-            path: "cash",
-            location: "getSingleCash",
-          },
-        ],
-      });
-    }
-
-    return res.json({ success: true, cash });
-  } catch (error) {
-    return res.status(500).json({
-      success: false,
-      errors: [
-        {
-          type: "server error",
-          value: "",
-          msg: "Internal server error",
-          path: "server",
-          location: "getSingleCash",
-        },
-      ],
-    });
-  }
-};
-
-export { crateCash, getAllCash, getSingleCash };
+export { crateCash, getAllCash };

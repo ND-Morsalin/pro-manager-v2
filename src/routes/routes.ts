@@ -32,6 +32,7 @@ import {
 import { createLoneProvider, deleteLoneProvider, getAllLoneProviders, getSingleLoneProvider, updateLoneProvider } from "../controller/loneProvider/loneProviderController";
 import { createProductVoicer } from "../controller/productVoicer/productVoicerController";
 import { createBusinessContactInfo, deleteBusinessContactInfo, getAllBusinessContactInfo, getSingleBusinessContactInfo, updateBusinessContactInfo } from "../controller/businessContactInfo/businessContactInfo";
+import { crateCash, getAllCash } from "../controller/cash/cashController";
 
 const router = Router();
 
@@ -207,6 +208,21 @@ router.delete("/business-contact-info/:id", checkValidUser, deleteBusinessContac
 
 
 
+
+/**
+ * Cash ROUTES start
+ **/
+
+router.post("/cash", checkValidUser, crateCash);
+
+router.get("/cash", checkValidUser, getAllCash);
+
+
+
+
+/**
+ * Cash ROUTES end
+ **/
 
 
 
