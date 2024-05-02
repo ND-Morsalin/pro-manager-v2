@@ -52,7 +52,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-  /forget-password:
+  /api/forget-password:
     post:
       summary: Request OTP for password reset
       requestBody:
@@ -112,7 +112,7 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/Error'
-  /check-otp:
+  /api/check-otp:
     post:
       summary: Check if the OTP matches for password reset
       requestBody:
@@ -187,7 +187,7 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/Error'
-  /reset-password:
+  /api/reset-password:
     post:
       summary: Reset password
       requestBody:
