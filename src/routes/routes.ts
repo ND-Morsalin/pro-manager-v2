@@ -46,6 +46,8 @@ import {
 } from "../controller/businessContactInfo/businessContactInfo";
 import { crateCash, getAllCash } from "../controller/cash/cashController";
 import forgetPassword from "../controller/shopOwner/forgetPass";
+import resetPassword from "../controller/shopOwner/resetPassword";
+import checkOtp from "../controller/shopOwner/checkOtp";
 
 const router = Router();
 
@@ -66,6 +68,8 @@ router.post("/login", logInValidator, handleValidationErrors, logIn);
 
 // forget password
 router.post("/forget-password", forgetPassword);
+router.post("/check-otp", checkOtp);
+router.post("/reset-password", resetPassword);
 
 router.get("/", checkValidUser, (req, res) => {
   return res.json({ message: "Hello, world!" });

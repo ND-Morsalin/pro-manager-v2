@@ -18,6 +18,7 @@ model ShopOwner {
   shopName String
   mobile   String @unique
   pincode  String
+  otp      String?
   //  relations with product, customer, loneProvider, businessContactInfo model
   //  shopOwner can have multiple product, customer, loneProvider, businessContactInfo
 

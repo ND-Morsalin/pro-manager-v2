@@ -52,11 +52,9 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-  /api/forget-password:
+  /forget-password:
     post:
-      summary: Forget password
-      tags:
-        - Authentication
+      summary: Request OTP for password reset
       requestBody:
         required: true
         content:
@@ -66,11 +64,12 @@ paths:
               properties:
                 mobile:
                   type: string
+                  description: The mobile number of the shop owner
               required:
                 - mobile
       responses:
-        "200":
-          description: OTP sent successfully
+        '200':
+          description: SMS sent successfully
           content:
             application/json:
               schema:
@@ -82,8 +81,11 @@ paths:
                   message:
                     type: string
                     description: A message indicating the status of the operation
-        "404":
-          description: Shop owner not found
+                  smsPost:
+                    type: object
+                    description: The response from the SMS provider
+        '404':
+          description: User not found
           content:
             application/json:
               schema:
@@ -95,8 +97,8 @@ paths:
                   errors:
                     type: array
                     items:
-                      $ref: "#/components/schemas/Error"
-        "500":
+                      $ref: '#/components/schemas/Error'
+        '500':
           description: Internal server error
           content:
             application/json:
@@ -109,7 +111,161 @@ paths:
                   errors:
                     type: array
                     items:
-                      $ref: "#/components/schemas/Error"
+                      $ref: '#/components/schemas/Error'
+  /check-otp:
+    post:
+      summary: Check if the OTP matches for password reset
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                mobile:
+                  type: string
+                  description: The mobile number of the shop owner
+                otp:
+                  type: string
+                  description: The OTP received by the shop owner
+              required:
+                - mobile
+                - otp
+      responses:
+        '200':
+          description: OTP matched
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Indicates if the OTP matched
+                  message:
+                    type: string
+                    description: A message indicating the status of the OTP verification
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Indicates if the request was successful
+                  errors:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Error'
+        '400':
+          description: Invalid OTP
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Indicates if the request was successful
+                  errors:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Indicates if the request was successful
+                  errors:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Error'
+  /reset-password:
+    post:
+      summary: Reset password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                mobile:
+                  type: string
+                  description: The mobile number of the shop owner
+                pincode:
+                  type: string
+                  description: The new pincode to set
+                otp:
+                  type: string
+                  description: The OTP received for verification
+              required:
+                - mobile
+                - pincode
+                - otp
+      responses:
+        '200':
+          description: Password reset successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Indicates if the request was successful
+                  message:
+                    type: string
+                    description: A message indicating the status of the operation
+        '400':
+          description: Invalid OTP
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Indicates if the request was successful
+                  errors:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Error'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Indicates if the request was successful
+                  errors:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Indicates if the request was successful
+                  errors:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Error'
   /api/products:
     post:
       summary: Create a new product
