@@ -46,7 +46,7 @@ const crateCash = async (req: ExtendedRequest, res: Response) => {
         },
       });
 
-      return res.status(201).json({
+      return res.status(200).json({
         success: true,
         message: "cash created",
         cash: newCash,
@@ -83,7 +83,7 @@ const crateCash = async (req: ExtendedRequest, res: Response) => {
       },
     });
 
-    return res.status(201).json({
+    return res.status(200).json({
       success: true,
       message: "cash updated",
       cash: updatedCash,
@@ -148,6 +148,5 @@ const getAllCash = async (req: ExtendedRequest, res: Response) => {
     });
   }
 };
-
 
 export { crateCash, getAllCash };

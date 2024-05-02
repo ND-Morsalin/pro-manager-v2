@@ -29,10 +29,23 @@ import {
   getSingleCustomerPaymentHistory,
   updateCustomerPaymentHistory,
 } from "../controller/customer/CustomerPaymentHistory";
-import { createLoneProvider, deleteLoneProvider, getAllLoneProviders, getSingleLoneProvider, updateLoneProvider } from "../controller/loneProvider/loneProviderController";
+import {
+  createLoneProvider,
+  deleteLoneProvider,
+  getAllLoneProviders,
+  getSingleLoneProvider,
+  updateLoneProvider,
+} from "../controller/loneProvider/loneProviderController";
 import { createProductVoicer } from "../controller/productVoicer/productVoicerController";
-import { createBusinessContactInfo, deleteBusinessContactInfo, getAllBusinessContactInfo, getSingleBusinessContactInfo, updateBusinessContactInfo } from "../controller/businessContactInfo/businessContactInfo";
+import {
+  createBusinessContactInfo,
+  deleteBusinessContactInfo,
+  getAllBusinessContactInfo,
+  getSingleBusinessContactInfo,
+  updateBusinessContactInfo,
+} from "../controller/businessContactInfo/businessContactInfo";
 import { crateCash, getAllCash } from "../controller/cash/cashController";
+import forgetPassword from "../controller/shopOwner/forgetPass";
 
 const router = Router();
 
@@ -50,6 +63,9 @@ router.post(
 
 // login route
 router.post("/login", logInValidator, handleValidationErrors, logIn);
+
+// forget password
+router.post("/forget-password", forgetPassword);
 
 router.get("/", checkValidUser, (req, res) => {
   return res.json({ message: "Hello, world!" });
@@ -146,8 +162,6 @@ router.delete(
  * CustomerPaymentHistory ROUTES end
  **/
 
-
-
 /**
  * LoneProvider ROUTES start
  **/
@@ -171,43 +185,49 @@ router.delete("/lone-provider/:id", checkValidUser, deleteLoneProvider);
  * LoneProvider ROUTES end
  **/
 
-
-
-
 /**
  * createProductVoicer ROUTES end
  **/
 
 router.post("/product-voicer", checkValidUser, createProductVoicer);
 
-
 /**
  * createProductVoicer ROUTES end
  **/
-
-
-
 
 /**
  * Business ContactInfo ROUTES start
  **/
 
-router.post("/business-contact-info", checkValidUser, createBusinessContactInfo);
+router.post(
+  "/business-contact-info",
+  checkValidUser,
+  createBusinessContactInfo
+);
 
 router.get("/business-contact-info", checkValidUser, getAllBusinessContactInfo);
 
-router.get("/business-contact-info/:id", checkValidUser, getSingleBusinessContactInfo);
+router.get(
+  "/business-contact-info/:id",
+  checkValidUser,
+  getSingleBusinessContactInfo
+);
 
-router.put("/business-contact-info/:id", checkValidUser, updateBusinessContactInfo);
+router.put(
+  "/business-contact-info/:id",
+  checkValidUser,
+  updateBusinessContactInfo
+);
 
-router.delete("/business-contact-info/:id", checkValidUser, deleteBusinessContactInfo);
+router.delete(
+  "/business-contact-info/:id",
+  checkValidUser,
+  deleteBusinessContactInfo
+);
 
 /**
  * Business ContactInfo ROUTES end
  **/
-
-
-
 
 /**
  * Cash ROUTES start
@@ -217,13 +237,8 @@ router.post("/cash", checkValidUser, crateCash);
 
 router.get("/cash", checkValidUser, getAllCash);
 
-
-
-
 /**
  * Cash ROUTES end
  **/
-
-
 
 export default router;

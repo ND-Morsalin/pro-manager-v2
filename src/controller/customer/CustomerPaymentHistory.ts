@@ -43,7 +43,7 @@ const createCustomerPaymentHistory = async (
       },
     });
 
-    return res.status(201).json({
+    return res.status(200).json({
       success: true,
       newPaymentHistory,
     });

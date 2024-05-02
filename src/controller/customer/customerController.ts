@@ -62,7 +62,7 @@ const addCustomer = async (req: ExtendedRequest, res: Response) => {
       });
     }
 
-    return res.status(201).json({
+    return res.status(200).json({
       success: true,
       message: "Customer created successfully",
       customer: newCustomer,

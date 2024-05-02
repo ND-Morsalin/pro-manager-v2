@@ -141,7 +141,7 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
       },
     });
 
-    return res.status(201).json({
+    return res.status(200).json({
       success: true,
       productVoicer: newProductVoicer,
     });

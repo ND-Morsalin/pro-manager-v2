@@ -52,6 +52,64 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+  /api/forget-password:
+    post:
+      summary: Forget password
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                mobile:
+                  type: string
+              required:
+                - mobile
+      responses:
+        "200":
+          description: OTP sent successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Indicates if the request was successful
+                  message:
+                    type: string
+                    description: A message indicating the status of the operation
+        "404":
+          description: Shop owner not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Indicates if the request was successful
+                  errors:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Indicates if the request was successful
+                  errors:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Error"
   /api/products:
     post:
       summary: Create a new product
@@ -71,7 +129,7 @@ paths:
             schema:
               $ref: "#/components/schemas/Product"
       responses:
-        "201":
+        "200":
           description: Product created successfully
           content:
             application/json:
@@ -230,7 +288,7 @@ paths:
             schema:
               $ref: "#/components/schemas/Customer"
       responses:
-        "201":
+        "200":
           description: Customer created successfully
           content:
             application/json:
@@ -426,7 +484,7 @@ paths:
             schema:
               $ref: "#/components/schemas/CustomerPaymentHistory"
       responses:
-        "201":
+        "200":
           description: Customer payment history created successfully
           content:
             application/json:
@@ -650,7 +708,7 @@ paths:
             schema:
               $ref: "#/components/schemas/LoneProvider"
       responses:
-        "201":
+        "200":
           description: Lone provider created successfully
           content:
             application/json:
@@ -863,7 +921,7 @@ paths:
                 - customerId
                 - paidAmount
       responses:
-        "201":
+        "200":
           description: Product voicer created successfully
           content:
             application/json:
@@ -1226,7 +1284,7 @@ paths:
                 - note
                 - requestType
       responses:
-        "201":
+        "200":
           description: Cash transaction created successfully
           content:
             application/json:

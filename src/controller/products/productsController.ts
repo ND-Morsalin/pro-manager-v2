@@ -28,7 +28,7 @@ const addProduct = async (req: Request, res: Response) => {
       },
     });
 
-    return res.status(201).json({
+    return res.status(200).json({
       success: true,
       message: "Product created successfully",
       product,
@@ -133,8 +133,8 @@ const updateProduct = async (req: Request, res: Response) => {
         shopOwnerId,
       },
       data: {
-        stokeAmount:{
-          increment: stokeAmount
+        stokeAmount: {
+          increment: stokeAmount,
         },
         buyingPrice,
         sellingPrice,
