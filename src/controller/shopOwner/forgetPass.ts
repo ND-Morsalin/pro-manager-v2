@@ -37,20 +37,7 @@ const forgetPassword = async (req: Request, res: Response) => {
       `http://bulksmsbd.net/api/smsapi?api_key=3CuemU2YW4dCNqDJulbJ&type=text&number=88${mobile}&senderid=8809617618303&message= Your OTP is ${otp}`
     );
 
-    if (smsPost.data?.response_code !== "202") {
-      return res.status(500).json({
-        success: false,
-        errors: [
-          {
-            type: "sms error",
-            value: mobile,
-            msg: "SMS not sent",
-            path: "mobile",
-            location: "forgetPassword function",
-          },
-        ],
-      });
-    }
+    
 
     const updateShopOwner = await prisma.shopOwner.update({
       where: {
@@ -61,7 +48,7 @@ const forgetPassword = async (req: Request, res: Response) => {
       },
     });
 
-    // console.log({ smsPost, updateShopOwner });
+    console.log({ smsPost, updateShopOwner });
 
     res.status(200).json({
       success: true,
