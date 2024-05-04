@@ -2,7 +2,7 @@ import { Product } from "@prisma/client";
 import { Request, Response } from "express";
 import prisma from "../../utility/prisma";
 import qrcode from "qrcode";
-import { ExtendedRequest } from "types/types";
+import { ExtendedRequest } from "../../types/types";
 
 const addProduct = async (req: ExtendedRequest, res: Response) => {
   try {
