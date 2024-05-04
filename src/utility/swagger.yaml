@@ -1653,8 +1653,7 @@ components:
           type: string
         phoneNumber:
           type: string
-        shopOwnerId:
-          type: string
+        
         deuAmount:
           type: number
         paidAmount:
@@ -1663,7 +1662,6 @@ components:
         - address
         - customerName
         - phoneNumber
-        - shopOwnerId
         - deuAmount
         - paidAmount
     CustomerResponse:
