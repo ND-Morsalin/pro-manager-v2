@@ -1054,7 +1054,14 @@ paths:
   /product-voicer:
     post:
       summary: Create a new product voicer
-
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+      
       tags:
         - ProductVoicer
       requestBody:
@@ -1080,15 +1087,10 @@ paths:
         "200":
           description: Product voicer created successfully
           content:
-            application/json:
+            application/pdf:
               schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    description: Indicates if the request was successful
-                  productVoicer:
-                    $ref: "#/components/schemas/ProductVoicer"
+                type: string
+                format: binary
         "404":
           description: Customer not found
           content:

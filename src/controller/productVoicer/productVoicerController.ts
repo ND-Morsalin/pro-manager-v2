@@ -2,7 +2,11 @@ import { Response } from "express";
 import { ExtendedRequest } from "../../types/types";
 import { SellingProduct } from "@prisma/client";
 import prisma from "../../utility/prisma";
+import fs from "fs";
+import path from "path";
+import Handlebars from "handlebars";
 
+import puppeteer from "puppeteer";
 const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
   try {
     const { sellingProducts, customerId, paidAmount } = req.body as {
@@ -141,10 +145,50 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
       },
     });
 
+    const data = {
+      customerName: customer.customerName,
+      address: customer.address,
+      phone: customer.phoneNumber,
+      products: sellingProducts,
+      totalPrice: totalBill,
+      beforeDue: customer.deuAmount,
+      nowPaying: paidAmount,
+      remainingDue:  totalBill - paidAmount + customer.deuAmount,
+    };
+  
+    // Compile Handlebars template
+    const hbsFileName = path.join(__dirname, "../utility/invoice_template.hbs");
+    const source = fs.readFileSync(hbsFileName, "utf8");
+    const template = Handlebars.compile(source);
+    const html = template(data);
+  
+    // console.log(html);
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
+  
+    // Set content to the page
+    await page.setContent(html);
+  
+    // Generate PDF
+    const pdfBuffer = await page.pdf({
+      format: "A6",
+      width: "3in",
+      height: "auto",
+    });
+  
+    // Close browser
+    await browser.close();
+  
+    // send pdf to the client
+  
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", "attachment; filename=invoice.pdf");
+    res.send(pdfBuffer);
+/* 
     return res.status(200).json({
       success: true,
       productVoicer: newProductVoicer,
-    });
+    }); */
   } catch (error) {
     return res.status(500).json({
       success: false,
