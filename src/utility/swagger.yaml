@@ -345,7 +345,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ProductResponse"
+                $ref: "#/components/schemas/SingleProductResponse"
         "404":
           description: Product not found
           content:
@@ -1586,8 +1586,6 @@ components:
           type: string
         unit:
           type: string
-        shopOwnerId:
-          type: string
       required:
         - productName
         - stokeAmount
@@ -1596,7 +1594,6 @@ components:
         - productCategory
         - productBrand
         - unit
-        - shopOwnerId
     ProductResponse:
       type: object
       properties:
@@ -1606,6 +1603,34 @@ components:
           type: string
         product:
           $ref: "#/components/schemas/Product"
+    SingleProductResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        product:
+          type: object
+          properties:
+            qrcodeUrl:
+              type: string
+            productName:
+              type: string
+            stokeAmount:
+              type: number
+            buyingPrice:
+              type: number
+            sellingPrice:
+              type: number
+            productCategory:
+              type: string
+            productBrand:
+              type: string
+            unit:
+              type: string
+            shopOwnerId:
+              type: string
     ProductsResponse:
       type: object
       properties:

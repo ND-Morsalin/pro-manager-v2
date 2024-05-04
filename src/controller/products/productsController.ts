@@ -1,8 +1,10 @@
 import { Product } from "@prisma/client";
 import { Request, Response } from "express";
 import prisma from "../../utility/prisma";
+import qrcode from "qrcode";
+import { ExtendedRequest } from "types/types";
 
-const addProduct = async (req: Request, res: Response) => {
+const addProduct = async (req: ExtendedRequest, res: Response) => {
   try {
     const {
       productName,
@@ -12,7 +14,6 @@ const addProduct = async (req: Request, res: Response) => {
       productCategory,
       productBrand,
       unit,
-      shopOwnerId,
     } = req.body as Product;
 
     const product = await prisma.product.create({
@@ -24,7 +25,7 @@ const addProduct = async (req: Request, res: Response) => {
         productCategory,
         productBrand,
         unit,
-        shopOwnerId,
+        shopOwnerId: req.shopOwner.id as string,
       },
     });
 
@@ -99,10 +100,14 @@ const getSingleProduct = async (req: Request, res: Response) => {
       });
     }
 
+    const qrcodeUrl =  await qrcode.toDataURL(JSON.stringify(product));
+    
+
+
     return res.status(200).json({
       success: true,
       message: "Product found",
-      product,
+      product: { ...product, qrcodeUrl },
     });
   } catch (error) {
     return res.status(500).json({

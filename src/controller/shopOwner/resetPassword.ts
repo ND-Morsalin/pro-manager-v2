@@ -17,6 +17,13 @@ const resetPassword = async (req: Request, res: Response) => {
       },
     });
 
+    console.log({
+      shopOwner,
+      mobile,
+      pincode,
+      otp,
+    })
+
     if (!shopOwner) {
       return res.status(404).json({
         success: false,
