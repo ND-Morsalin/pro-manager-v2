@@ -34,7 +34,7 @@ const forgetPassword = async (req: Request, res: Response) => {
     // at first check if the user exists
 
     const smsPost = await axios.get(
-      `http://bulksmsbd.net/api/smsapi?api_key=3CuemU2YW4dCNqDJulbJ&type=text&number=88${mobile}&senderid=8809617618303&message=Your OTP is ${otp} for password reset. Do not share this with anyone. Thank you.`
+      `http://bulksmsbd.net/api/smsapi?api_key=3CuemU2YW4dCNqDJulbJ&type=text&number=88${mobile}&senderid=8809617618303&message=Your Manager.com OTP is ${otp} for password reset. Do not share this with anyone. Thank you.`
     );
 
     
