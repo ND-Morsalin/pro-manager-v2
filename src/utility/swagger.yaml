@@ -203,13 +203,13 @@ paths:
                 pincode:
                   type: string
                   description: The new pincode to set
-                otp:
-                  type: string
-                  description: The OTP received for verification
+                # otp:
+                #   type: string
+                #   description: The OTP received for verification
               required:
                 - mobile
                 - pincode
-                - otp
+                # - otp
       responses:
         '200':
           description: Password reset successfully

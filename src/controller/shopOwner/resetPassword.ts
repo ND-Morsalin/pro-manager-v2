@@ -4,10 +4,10 @@ import prisma from "../../utility/prisma";
 
 const resetPassword = async (req: Request, res: Response) => {
   try {
-    const { mobile, pincode, otp } = req.body as {
+    const { mobile, pincode } = req.body as {
       mobile: string;
       pincode: string;
-      otp: string;
+      // otp: string;
     };
 
     // find shop owner by mobile
@@ -32,20 +32,20 @@ const resetPassword = async (req: Request, res: Response) => {
       });
     }
 
-    if (shopOwner.otp !== otp) {
-      return res.status(400).json({
-        success: false,
-        errors: [
-          {
-            type: "otp",
-            value: otp,
-            msg: "Invalid OTP",
-            path: "otp",
-            location: "resetPassword function",
-          },
-        ],
-      });
-    }
+    // if (shopOwner.otp !== otp) {
+    //   return res.status(400).json({
+    //     success: false,
+    //     errors: [
+    //       {
+    //         type: "otp",
+    //         value: otp,
+    //         msg: "Invalid OTP",
+    //         path: "otp",
+    //         location: "resetPassword function",
+    //       },
+    //     ],
+    //   });
+    // }
 
     // hash pin
     const salt = await bcryptjs.genSalt(10);
