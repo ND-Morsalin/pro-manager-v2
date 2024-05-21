@@ -60,11 +60,7 @@ const productBodyChecker = [
     .withMessage("Unit must be a string")
     .isLength({ min: 1, max: 20 })
     .withMessage("Unit must be between 1 and 20 characters long"),
-  body("shopOwnerId")
-    .isString()
-    .withMessage("Shop owner id must be a string")
-    .isLength({ min: 2 })
-    .withMessage("Shop owner id must be at least 2 characters long"),
+  
 ];
 
 export default productBodyChecker;
