@@ -73,6 +73,10 @@ const crateCash = async (req: ExtendedRequest, res: Response) => {
             },
           },
         },
+        include:{
+          cashInHistory: true,
+          cashOutHistory: true,
+        }
       });
     }else if(requestType === "cashOut"){
        updatedCash = await prisma.cash.update({
@@ -92,6 +96,10 @@ const crateCash = async (req: ExtendedRequest, res: Response) => {
             },
           },
         },
+        include:{
+          cashInHistory: true,
+          cashOutHistory: true,
+        }
       });
     }
    
