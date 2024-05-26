@@ -54,34 +54,47 @@ const crateCash = async (req: ExtendedRequest, res: Response) => {
     }
 
     // if cash is available then update cash
-    const updatedCash = await prisma.cash.update({
-      where: {
-        shopOwnerId: req.shopOwner.id,
-      },
-      data: {
-        cashBalance: (requestType === "cashIn" && {
-          increment: cashInBalance,
-        }) || {
-          decrement: cashOutBalance,
+    let updatedCash;
+    if(requestType === "cashIn"){
+       updatedCash = await prisma.cash.update({
+        where: {
+          shopOwnerId: req.shopOwner.id,
         },
-        cashInHistory: requestType === "cashIn" && {
-          create: {
-            cashInAmount: cashInBalance,
-            cashInFor: note,
-            shopOwnerId: req.shopOwner.id,
-            cashInDate: date || new Date(),
+        data: {
+          cashBalance: {
+            increment: cashInBalance,
+          },
+          cashInHistory: {
+            create: {
+              cashInAmount: cashInBalance,
+              cashInFor: note,
+              shopOwnerId: req.shopOwner.id,
+              cashInDate: date || new Date(),
+            },
           },
         },
-        cashOutHistory: requestType === "cashOut" && {
-          create: {
-            cashOutAmount: cashOutBalance,
-            cashOutFor: note,
-            shopOwnerId: req.shopOwner.id,
-            cashOutDate: new Date(),
+      });
+    }else if(requestType === "cashOut"){
+       updatedCash = await prisma.cash.update({
+        where: {
+          shopOwnerId: req.shopOwner.id,
+        },
+        data: {
+          cashBalance:  {
+            decrement: cashOutBalance,
+          },
+          cashOutHistory:  {
+            create: {
+              cashOutAmount: cashOutBalance,
+              cashOutFor: note,
+              shopOwnerId: req.shopOwner.id,
+              cashOutDate: new Date(),
+            },
           },
         },
-      },
-    });
+      });
+    }
+   
 
     return res.status(200).json({
       success: true,
@@ -89,6 +102,7 @@ const crateCash = async (req: ExtendedRequest, res: Response) => {
       cash: updatedCash,
     });
   } catch (error) {
+    console.log({error})
     return res.status(500).json({
       success: false,
       errors: [
