@@ -173,7 +173,7 @@ router.delete(
 router.post("/lone-provider", checkValidUser, createLoneProvider);
 
 // get all lone providers
-router.get("/lone-providers", checkValidUser, getAllLoneProviders);
+router.get("/lone-provider", checkValidUser, getAllLoneProviders);
 
 // get single lone provider
 router.get("/lone-provider/:id", checkValidUser, getSingleLoneProvider);

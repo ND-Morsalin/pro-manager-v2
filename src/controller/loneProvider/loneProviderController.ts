@@ -10,8 +10,6 @@ const createLoneProvider = async (req: ExtendedRequest, res: Response) => {
       address,
       loneProviderName,
       loneTakenDate,
-      loneDeuAmount,
-      lonePaidAmount,
       totalLoneTaken,
     } = req.body as LoneProvider;
 
@@ -34,6 +32,9 @@ const createLoneProvider = async (req: ExtendedRequest, res: Response) => {
       loneProvider: newLoneProvider,
     });
   } catch (error) {
+    console.log({
+      error,
+    });
     return res.status(500).json({
       success: false,
       errors: [

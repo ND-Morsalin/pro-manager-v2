@@ -68,7 +68,7 @@ paths:
               required:
                 - mobile
       responses:
-        '200':
+        "200":
           description: SMS sent successfully
           content:
             application/json:
@@ -84,7 +84,7 @@ paths:
                   smsPost:
                     type: object
                     description: The response from the SMS provider
-        '404':
+        "404":
           description: User not found
           content:
             application/json:
@@ -97,8 +97,8 @@ paths:
                   errors:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Error'
-        '500':
+                      $ref: "#/components/schemas/Error"
+        "500":
           description: Internal server error
           content:
             application/json:
@@ -111,7 +111,7 @@ paths:
                   errors:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Error'
+                      $ref: "#/components/schemas/Error"
   /api/check-otp:
     post:
       summary: Check if the OTP matches for password reset
@@ -132,7 +132,7 @@ paths:
                 - mobile
                 - otp
       responses:
-        '200':
+        "200":
           description: OTP matched
           content:
             application/json:
@@ -145,7 +145,7 @@ paths:
                   message:
                     type: string
                     description: A message indicating the status of the OTP verification
-        '404':
+        "404":
           description: User not found
           content:
             application/json:
@@ -158,8 +158,8 @@ paths:
                   errors:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Error'
-        '400':
+                      $ref: "#/components/schemas/Error"
+        "400":
           description: Invalid OTP
           content:
             application/json:
@@ -172,8 +172,8 @@ paths:
                   errors:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Error'
-        '500':
+                      $ref: "#/components/schemas/Error"
+        "500":
           description: Internal server error
           content:
             application/json:
@@ -186,7 +186,7 @@ paths:
                   errors:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Error'
+                      $ref: "#/components/schemas/Error"
   /api/reset-password:
     post:
       summary: Reset password
@@ -211,7 +211,7 @@ paths:
                 - pincode
                 # - otp
       responses:
-        '200':
+        "200":
           description: Password reset successfully
           content:
             application/json:
@@ -224,7 +224,7 @@ paths:
                   message:
                     type: string
                     description: A message indicating the status of the operation
-        '400':
+        "400":
           description: Invalid OTP
           content:
             application/json:
@@ -237,8 +237,8 @@ paths:
                   errors:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Error'
-        '404':
+                      $ref: "#/components/schemas/Error"
+        "404":
           description: User not found
           content:
             application/json:
@@ -251,8 +251,8 @@ paths:
                   errors:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Error'
-        '500':
+                      $ref: "#/components/schemas/Error"
+        "500":
           description: Internal server error
           content:
             application/json:
@@ -265,7 +265,7 @@ paths:
                   errors:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Error'
+                      $ref: "#/components/schemas/Error"
   /api/products:
     post:
       summary: Create a new product
@@ -1061,7 +1061,7 @@ paths:
           schema:
             type: string
           description: JWT token of the shop owner
-      
+
       tags:
         - ProductVoicer
       requestBody:
@@ -1588,7 +1588,7 @@ components:
             shopName:
               type: string
         token:
-          type: string          
+          type: string
     Product:
       type: object
       properties:
@@ -1671,7 +1671,7 @@ components:
           type: string
         phoneNumber:
           type: string
-        
+
         deuAmount:
           type: number
         paidAmount:
@@ -1742,22 +1742,22 @@ components:
     LoneProvider:
       type: object
       properties:
-        providerName:
+        loneProviderName:
           type: string
-        providerMobile:
+        phoneNumber:
           type: string
-        providerAddress:
+        address:
           type: string
-        providerType:
+        loneTakenDate:
           type: string
-        shopOwnerId:
-          type: string
+        totalLoneTaken:
+          type: number
       required:
-        - providerName
-        - providerMobile
-        - providerAddress
-        - providerType
-        - shopOwnerId
+        - phoneNumber
+        - address
+        - loneProviderName
+        - loneTakenDate
+        - totalLoneTaken
     LoneProviderResponse:
       type: object
       properties:
@@ -1766,7 +1766,45 @@ components:
         message:
           type: string
         loneProvider:
-          $ref: "#/components/schemas/LoneProvider"
+          type: object
+          properties:
+            id:
+              type: string
+              example: 6655c7524049a2d4e1cb8381
+            loneProviderName:
+              type: string
+              example: Loan
+            phoneNumber:
+              type: string
+              example: 01646653053
+            address:
+              type: string
+              example: address
+            loneTakenDate:
+              type: string
+              format: date-time
+              example: 2024-05-28T00:00:00.000Z
+            totalLoneTaken:
+              type: integer
+              example: 40000
+            loneDeuAmount:
+              type: integer
+              example: 40000
+            lonePaidAmount:
+              type: integer
+              example: 0
+            shopOwnerId:
+              type: string
+              example: 6648457abf60b05c4d1d64b1
+            createdAt:
+              type: string
+              format: date-time
+              example: 2024-05-28T12:00:18.004Z
+            updatedAt:
+              type: string
+              format: date-time
+              example: 2024-05-28T12:00:18.004Z
+
     LoneProvidersResponse:
       type: object
       properties:
