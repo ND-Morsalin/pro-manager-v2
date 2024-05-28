@@ -659,7 +659,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
     get:
-      summary: Get all customer payment history
+      summary: Get All payment history of this customer
       tags:
         - Customer Payment History
       parameters:
@@ -983,7 +983,15 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/LoneProvider"
+              type: object
+              properties:
+                givingLoneDeuAmount:
+                  type: number
+
+                lonePaymentStatus:
+                  type: string
+                  example: "SHOPOWNERGIVE"
+                  description: SHOPOWNERGIVE | SHOPOWNERRECIVED will be the value of this field
       responses:
         "200":
           description: Lone provider updated successfully
