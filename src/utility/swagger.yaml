@@ -492,6 +492,136 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+  /customer-by-phone/{phone}:
+    get:
+      summary: Get a single customer by phone
+      tags:
+        - Customer
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+        - in: path
+          name: phone
+          required: true
+          schema:
+            type: string
+          description: Phone number of the customer to get
+      responses:
+        "200":
+          description: Customer found by phone
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CustomerResponse"
+        "401":
+          description: Unauthorized, Token is not found on header
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Customer not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    put:
+      summary: Update a customer by ID
+      tags:
+        - Customer
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID of the customer to update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                deuAmount:
+                  type: number
+                paidAmount:
+                  type: number
+              required:
+                - mobile
+                - paidAmount
+      responses:
+        "200":
+          description: Customer updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CustomerResponse"
+        "401":
+          description: Unauthorized, Token is not found on header
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    delete:
+      summary: Delete a customer by ID
+      tags:
+        - Customer
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID of the customer to delete
+      responses:
+        "200":
+          description: Customer deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CustomerResponse"
+        "401":
+          description: Unauthorized, Token is not found on header
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
   /api/customer/{id}:
     get:
       summary: Get a single customer by ID
@@ -621,6 +751,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+
   /api/customer-payment-history:
     post:
       summary: Create a new customer payment history

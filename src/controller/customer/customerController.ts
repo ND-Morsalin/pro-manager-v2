@@ -150,6 +150,38 @@ const getSingleCustomer = async (req: ExtendedRequest, res: Response) => {
   }
 };
 
+const getSingleCustomerByPhone = async (req: ExtendedRequest, res: Response) => {
+  try {
+    const { phone } = req.params;
+
+    const customer = await prisma.customer.findUnique({
+      where: {
+        phoneNumber: phone as string,
+        shopOwnerId: req.shopOwner.id,
+      },
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Single customer by phone number",
+      customer,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      errors: [
+        {
+          type: "server error",
+          value: "",
+          msg: "Internal server error",
+          path: "server",
+          location: "getSingleCustomer function",
+        },
+      ],
+    });
+  }
+};
+
 // TODO If give customer any stokeAmount then update the paidAmount and deuAmount and create customerPaymentHistory
 const updateCustomer = async (req: ExtendedRequest, res: Response) => {
   try {
@@ -304,6 +336,7 @@ const deleteCustomer = async (req: ExtendedRequest, res: Response) => {
 export {
   addCustomer,
   getAllCustomers,
+  getSingleCustomerByPhone,
   getSingleCustomer,
   updateCustomer,
   deleteCustomer,

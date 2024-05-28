@@ -20,6 +20,7 @@ import {
   deleteCustomer,
   getAllCustomers,
   getSingleCustomer,
+  getSingleCustomerByPhone,
   updateCustomer,
 } from "../controller/customer/customerController";
 import {
@@ -116,6 +117,8 @@ router.get("/customer", checkValidUser, getAllCustomers);
 
 // get single customer
 router.get("/customer/:id", checkValidUser, getSingleCustomer);
+// get single customer phone number
+router.get("/customer-by-phone/:phone", checkValidUser, getSingleCustomerByPhone);
 
 // update customer
 router.put("/customer/:id", checkValidUser, updateCustomer);
