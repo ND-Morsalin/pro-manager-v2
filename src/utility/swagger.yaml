@@ -1127,7 +1127,7 @@ paths:
                 sellingProducts:
                   type: array
                   items:
-                    $ref: "#/components/schemas/SellingProduct"
+                    $ref: "#/components/schemas/SellingProductVoicer"
                 customerId:
                   type: string
                 paidAmount:
@@ -1909,6 +1909,28 @@ components:
         shopOwnerId:
           type: string
           description: The ID of the shop owner
+    
+    SellingProductVoicer:
+      type: object
+      properties:
+        productId:
+          type: string
+          description: The ID of the selling product
+        productName:
+          type: string
+          description: The name of the product
+        sellingPrice:
+          type: number
+          description: The selling price of the product
+        quantity:
+          type: integer
+          description: The quantity of the product
+        totalPrice:
+          type: number
+          description: The total price of the product
+        unit:
+          type: string
+          description: The unit of the product
     BusinessContactInfo:
       type: object
       properties:
