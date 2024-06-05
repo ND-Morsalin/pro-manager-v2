@@ -157,7 +157,7 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
     };
 
     // Compile Handlebars template
-    const hbsFileName = path.join(__dirname, "../../utility/invoice_template.hbs");
+    const hbsFileName = path.join("../../utility/invoice_template.hbs");
     const source = fs.readFileSync(hbsFileName, "utf8");
     const template = Handlebars.compile(source);
     const html = template(data);
