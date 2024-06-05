@@ -30,6 +30,10 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.use("/api/", router);
 
+// static folder
+app.use("/public", express.static("public"));
+
+
 // test route
 app.get("/test", async (req, res) => {
   /*  await prisma.user.create({
