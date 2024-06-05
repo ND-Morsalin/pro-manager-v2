@@ -196,6 +196,7 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
     });
     return res.status(500).json({
       success: false,
+      obj: error,
       errors: [
         {
           type: "server error",
