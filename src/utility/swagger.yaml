@@ -492,7 +492,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-  /customer-by-phone/{phone}:
+  /api/customer-by-phone/{phone}:
     get:
       summary: Get a single customer by phone
       tags:
@@ -1032,6 +1032,10 @@ paths:
               properties:
                 givingLoneDeuAmount:
                   type: number
+                  description: The amount of lone the shop owner is giving here to the lonePaymentStatus will be SHOPOWNERGIVE
+                receivingNewLoneAmount:
+                  type: number
+                  description: The amount of new lone the shop owner is receiving here to the lonePaymentStatus will be SHOPOWNERRECIVED
 
                 lonePaymentStatus:
                   type: string

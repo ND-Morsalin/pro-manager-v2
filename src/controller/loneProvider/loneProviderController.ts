@@ -143,37 +143,66 @@ const getSingleLoneProvider = async (req: ExtendedRequest, res: Response) => {
 
 const updateLoneProvider = async (req: ExtendedRequest, res: Response) => {
   try {
-    const { loneProviderId } = req.params;
-    const { givingLoneDeuAmount, lonePaymentStatus } = req.body as {
-      givingLoneDeuAmount: string;
+    const { id: loneProviderId } = req.params;
+    const { givingLoneDeuAmount, receivingNewLoneAmount, lonePaymentStatus } =
+      req.body as {
+        givingLoneDeuAmount: string;
+        receivingNewLoneAmount: string;
+        lonePaymentStatus: "SHOPOWNERGIVE" | "SHOPOWNERRECIVED";
+      };
+    let updatedLoneProvider;
 
-      lonePaymentStatus: "SHOPOWNERGIVE" | "SHOPOWNERRECIVED";
-    };
-
-    const updatedLoneProvider = await prisma.loneProvider.update({
-      where: {
-        id: loneProviderId as string,
-        shopOwnerId: req.shopOwner.id,
-      },
-      data: {
-        loneDeuAmount: {
-          decrement: parseInt(givingLoneDeuAmount),
+    if (givingLoneDeuAmount && lonePaymentStatus === "SHOPOWNERGIVE") {
+      updatedLoneProvider = await prisma.loneProvider.update({
+        where: {
+          id: loneProviderId as string,
+          shopOwnerId: req.shopOwner.id,
         },
-        lonePaidAmount: {
-          increment: parseInt(givingLoneDeuAmount),
+        data: {
+          loneDeuAmount: {
+            decrement: parseInt(givingLoneDeuAmount),
+          },
+          lonePaidAmount: {
+            increment: parseInt(givingLoneDeuAmount),
+          },
         },
-      },
-    });
+      });
+      // create lone provider history
+      await prisma.lonePaymentHistory.create({
+        data: {
+          lonePaymentStatus,
+          givingAmount: parseInt(givingLoneDeuAmount),
+          loneProviderId: updatedLoneProvider.id,
+          shopOwnerId: req.shopOwner.id,
+        },
+      });
+    }
 
-    // create lone provider history
-    await prisma.lonePaymentHistory.create({
-      data: {
-        lonePaymentStatus,
-        givingAmount: parseInt(givingLoneDeuAmount),
-        loneProviderId: updatedLoneProvider.id,
-        shopOwnerId: req.shopOwner.id,
-      },
-    });
+    if (receivingNewLoneAmount && lonePaymentStatus === "SHOPOWNERRECIVED") {
+      updatedLoneProvider = await prisma.loneProvider.update({
+        where: {
+          id: loneProviderId as string,
+          shopOwnerId: req.shopOwner.id,
+        },
+        data: {
+          loneDeuAmount: {
+            increment: parseInt(receivingNewLoneAmount),
+          },
+          totalLoneTaken: {
+            increment: parseInt(receivingNewLoneAmount),
+          },
+        },
+      });
+      // create lone provider history
+      await prisma.lonePaymentHistory.create({
+        data: {
+          lonePaymentStatus,
+          givingAmount: parseInt(receivingNewLoneAmount),
+          loneProviderId: updatedLoneProvider.id,
+          shopOwnerId: req.shopOwner.id,
+        },
+      });
+    }
 
     return res.status(200).json({
       success: true,
@@ -181,6 +210,10 @@ const updateLoneProvider = async (req: ExtendedRequest, res: Response) => {
       loneProvider: updatedLoneProvider,
     });
   } catch (error) {
+    console.log(
+      "🚀 ~ file: loneProviderController.ts ~ line 203 ~ updateLoneProvider ~ error",
+      error
+    );
     return res.status(500).json({
       success: false,
       errors: [
