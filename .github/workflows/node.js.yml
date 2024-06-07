@@ -23,7 +23,7 @@ jobs:
 
       - name: pnpm install
         run: pnpm install
-
+      - run: pnpm  build --if-present
       - name: Change Directory
         run: cd /home/flutter-api/actions-runner/_work/flutter-shop-management-api/flutter-shop-management-api
 
