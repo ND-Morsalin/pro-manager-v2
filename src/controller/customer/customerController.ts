@@ -199,7 +199,6 @@ const updateCustomer = async (req: ExtendedRequest, res: Response) => {
           deuAmount: {
             increment: deuAmount,
           },
-          paidAmount,
           customerPaymentHistories: {
             create: {
               paymentAmount: deuAmount,

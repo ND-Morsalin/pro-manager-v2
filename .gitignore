@@ -1,8 +1,8 @@
 # node moduls
 node_modules
 
-.env
-.env.local
+# .env
+# .env.local
 public
 
 .vercel
