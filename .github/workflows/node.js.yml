@@ -22,7 +22,7 @@ jobs:
           cache: "pnpm" # Change cache to pnpm
 
       - name: pnpm install
-        run: pnpm install --frozen-lockfile
+        run: pnpm install
 
       - name: Change Directory
         run: cd /home/flutter-api/actions-runner/_work/flutter-shop-management-api/flutter-shop-management-api
