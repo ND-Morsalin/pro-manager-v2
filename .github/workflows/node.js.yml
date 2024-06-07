@@ -25,6 +25,6 @@ jobs:
         run: pnpm install
       - run: pnpm  build --if-present
       - name: Change Directory
-        run: cd /home/flutter-api/actions-runner/_work/flutter-shop-management-api/flutter-shop-management-api
+        run: cd /home/flutter-api/actions-runner/_work/flutter-shop-management-api/flutter-shop-management-api/dist
 
       - run: pm2 restart 0
