@@ -1,0 +1,30 @@
+name: Node.js CI/CD flutter-shop-management-api
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  build:
+    runs-on: self-hosted
+
+    strategy:
+      matrix:
+        node-version: [20.14.0]
+        
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "npm"
+
+      - name: npm ci
+        run: npm ci
+
+      - name: Change Directory
+        run: cd /home/flutter-api/actions-runner/_work/flutter-shop-management-api/flutter-shop-management-api
+      - run: pm2 restart 0
