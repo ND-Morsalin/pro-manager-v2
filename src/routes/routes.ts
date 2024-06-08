@@ -50,6 +50,7 @@ import forgetPassword from "../controller/shopOwner/forgetPass";
 import resetPassword from "../controller/shopOwner/resetPassword";
 import checkOtp from "../controller/shopOwner/checkOtp";
 import createPdf from "../utility/pdf";
+import { dailySellingReport } from "../controller/report/dailySellingReport";
 
 const router = Router();
 
@@ -242,6 +243,7 @@ router.delete(
 router.post("/cash", checkValidUser, crateCash);
 
 router.get("/cash", checkValidUser, getAllCash);
+router.get("/daily-sell", checkValidUser, dailySellingReport);
 
 /**
  * Cash ROUTES end

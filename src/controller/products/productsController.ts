@@ -50,9 +50,13 @@ const addProduct = async (req: ExtendedRequest, res: Response) => {
   }
 };
 
-const getAllProducts = async (req: Request, res: Response) => {
+const getAllProducts = async (req: ExtendedRequest, res: Response) => {
   try {
-    const products = await prisma.product.findMany(); // todo get product by shopOwnerId
+    const products = await prisma.product.findMany({
+      where:{
+        shopOwnerId:req.shopOwner.id
+      }
+    });
 
     return res.status(200).json({
       success: true,
