@@ -155,7 +155,10 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
       nowPaying: paidAmount,
       remainingDue: totalBill - paidAmount + customer.deuAmount,
     };
-
+   // Register the Handlebars helper
+   Handlebars.registerHelper('incrementedIndex', function(index) {
+    return index + 1;
+  });
     // Compile Handlebars template
     const hbsFileName = path.join(__dirname, "../../utility/invoice_template.hbs");
     const source = fs.readFileSync(hbsFileName, "utf8");
@@ -171,8 +174,8 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
 
     // Generate PDF
     const pdfBuffer = await page.pdf({
-      format: "A6",
-      width: "3in",
+      format: "A4",
+      // width: "3in",
       height: "auto",
     });
 

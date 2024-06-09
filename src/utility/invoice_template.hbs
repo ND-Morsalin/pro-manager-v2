@@ -7,16 +7,14 @@
     <style>
         body {
             
-            margin: 0.1in;
+            margin: 1in;
             padding: 0;
-            font-size: 10px;
-            width: 3in;
+            font-size: 16px;
             box-sizing: border-box;
         }
 
         .invoice {
-            width:
-                2.8in;
+            
             margin: auto;
             padding: 10px;
             border: 1px solid #ccc;
@@ -33,7 +31,7 @@
         .header h2 {
             margin: 0;
             padding: 0;
-            font-size: 12px;
+            font-size: 20px;
             text-align: center;
         }
 
@@ -43,16 +41,16 @@
 
         .customer-info h3 {
             margin-bottom: 2px;
-            font-size: 10px;
+            font-size: 18px;
         }
 
         .customer-info p {
             margin-bottom: 1px;
-            font-size: 8px;
+            font-size: 16px;
         }
 
         .company-info p {
-            font-size: 8px;
+            font-size: 16px;
         }
 
         .products {
@@ -62,7 +60,7 @@
         .products table {
             width: 100%;
             border-collapse: collapse;
-                font-size: 10px;
+                font-size: 16px;
         }
 
        th,
@@ -122,7 +120,7 @@
                 <tbody>
                     {{#each products}}
                     <tr>
-                        <td>{{1 + @index}}</td>
+                        <td>{{incrementedIndex @index}}</td>
                         <td>{{productName}}</td>
                         <td>{{quantity}}</td>
                         <td class="text-right" >{{sellingPrice}}</td>
