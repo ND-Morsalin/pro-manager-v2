@@ -1,141 +1,167 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Invoice</title>
-    <style>
-        body {
-            
-            margin: 1in;
-            padding: 0;
-            font-size: 16px;
-            box-sizing: border-box;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Invoice</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&family=Tiro+Bangla:ital@0;1&display=swap');
 
-        .invoice {
-            
-            margin: auto;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius:
-                5px;
-            background-color: #fff;
-        }
+    @font-face {
+      font-family: "Tiro Bangla", serif;
+      src:
+        url('https://fonts.googleapis.com/css2?family=Tiro+Bangla:ital@0;1&display=swap');
+      ;
+    }
 
-        .header {
-            text-align: center;
-            margin-bottom: 10px;
-        }
+    @font-face {
+      font-family: "Roboto", sans-serif;
+      src:
+        url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
+      format('truetype');
+    }
 
-        .header h2 {
-            margin: 0;
-            padding: 0;
-            font-size: 20px;
-            text-align: center;
-        }
+    body {
+      margin: 1in;
+      font-family: "Roboto", sans-serif;
+      padding: 0;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
 
-        .customer-info {
-            margin-bottom: 10px;
-        }
+    .invoice {
+      margin: auto;
+      padding: 10px;
+      border:
+        1px solid #ccc;
+      border-radius: 5px;
+      background-color: #fff;
+    }
 
-        .customer-info h3 {
-            margin-bottom: 2px;
-            font-size: 18px;
-        }
+    .header {
+      text-align: center;
+      margin-bottom: 10px;
+    }
 
-        .customer-info p {
-            margin-bottom: 1px;
-            font-size: 16px;
-        }
+    .header h2 {
+      margin: 0;
+      padding: 0;
+      font-size: 20px;
+      text-align: center;
+    }
 
-        .company-info p {
-            font-size: 16px;
-        }
+    .customer-info {
+      margin-bottom: 10px;
+    }
 
-        .products {
-            margin-bottom: 10px;
-        }
+    .customer-info h3 {
+      margin-bottom: 2px;
+      font-size:
+        18px;
+    }
 
-        .products table {
-            width: 100%;
-            border-collapse: collapse;
-                font-size: 16px;
-        }
+    .customer-info p {
+      margin-bottom: 1px;
+      font-size: 16px;
+    }
 
-       th,
-         td {
-            border-bottom: 1px solid #ccc;
-            padding: 4px;
-            text-align: left;
-        }
+    .company-info p {
+      font-size: 16px;
+    }
 
-        .footer {
-            text-align: right;
-        }
+    .products {
+      margin-bottom: 10px;
+    }
 
-        .text-right {
-            text-align: right;
-        }
+    .products table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 16px;
+    }
 
-        .header-info {
-            display: flex;
-            justify-content: space-between;
-            align-items: start;
-        }
-    </style>
+    th,
+    td {
+      border-bottom: 1px solid #ccc;
+      padding: 4px;
+      text-align: left;
+    }
+
+    .footer {
+      text-align: right;
+    }
+
+    .text-right {
+      text-align: right;
+    }
+
+    .header-info {
+      display: flex;
+      justify-content: space-between;
+      align-items:
+        start;
+    }
+
+    .products td.bengali {
+      font-family: "Tiro Bangla", serif;
+    }
+
+    .products td.english {
+      font-family: "Roboto", sans-serif;
+    }
+  </style>
 </head>
 
 <body>
-    <div class="invoice">
+  <div class="invoice">
 
-        <div class="header-info">
+    <div class="header-info">
 
-            <div class="customer-info">
-                <p><strong>Customer Name:</strong> {{customerName}}</p>
-                <p><strong>Address:</strong> {{address}}</p>
-                <p><strong>Phone:</strong> {{phone}}</p>
+      <div class="customer-info">
+        <p><strong>Customer Name:</strong> {{customerName}}</p>
+        <p><strong>Address:</strong> {{address}}</p>
+        <p><strong>Phone:</strong> {{phone}}</p>
 
-            </div>
-            {{! name of company }}
-            <div class="company-info">
-                <p class=""> <strong>powered by:</strong> JanGoSoftLtd. </p>
-                <p class=""> <strong> Mobile:</strong> 01629888934 </p>
-            </div>
-            {{! name of company }}
-        </div>
-        <div class="header">
-            <h2>Invoice</h2>
-        </div>
-        <div class="products">
-            <table>
-                <thead>
-                    <tr>
-                        <th>#SL</th>
-                        <th>Name</th>
-                        <th>Quantity</th>
-                        <th>Price</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {{#each products}}
-                    <tr>
-                        <td>{{incrementedIndex @index}}</td>
-                        <td>{{productName}}</td>
-                        <td>{{quantity}}</td>
-                        <td class="text-right" >{{sellingPrice}}</td>
-                    </tr>
-                    {{/each}}
-                </tbody>
-            </table>
-        </div>
-        <div class="footer">
-            <p><strong>Total Price of Products:</strong> {{totalPrice}}</p>
-            <p><strong>Before Due:</strong> {{beforeDue}}</p>
-            <p><strong>Now Paying:</strong> {{nowPaying}}</p>
-            <p><strong>Remaining Due:</strong> {{remainingDue}}</p>
-        </div>
+      </div>
+      {{! name of company }}
+      <div class="company-info">
+        <p class=""> <strong>powered by:</strong> JanGoSoftLtd. </p>
+        <p class=""> <strong> Mobile:</strong> 01629888934 </p>
+      </div>
+      {{! name of company }}
     </div>
+    <div class="header">
+      <h2>Invoice</h2>
+    </div>
+    <div class="products">
+      <table>
+        <thead>
+          <tr>
+            <th>#SL</th>
+            <th>Name</th>
+            <th>Quantity</th>
+            <th>Price</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each products}}
+          <tr>
+            <td>{{incrementedIndex @index}}</td>
+            <td class="{{isBengali productName}}">{{productName}}</td>
+            <td>{{quantity}}</td>
+            <td>{{quantity}}</td>
+            <td class="text-right">{{sellingPrice}}</td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
+    <div class="footer">
+      <p><strong>Total Price of Products:</strong> {{totalPrice}}</p>
+      <p><strong>Before Due:</strong> {{beforeDue}}</p>
+      <p><strong>Now Paying:</strong> {{nowPaying}}</p>
+      <p><strong>Remaining Due:</strong> {{remainingDue}}</p>
+    </div>
+  </div>
 </body>
 
 </html>
