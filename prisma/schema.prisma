@@ -302,3 +302,4 @@ enum PaymentStatus {
   SHOPOWNERRECIVED
   SHOPOWNERGIVE
 }
+  

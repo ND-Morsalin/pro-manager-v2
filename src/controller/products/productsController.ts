@@ -142,9 +142,7 @@ const updateProduct = async (req: Request, res: Response) => {
         shopOwnerId,
       },
       data: {
-        stokeAmount: {
-          increment: stokeAmount,
-        },
+        stokeAmount,
         buyingPrice,
         sellingPrice,
         unit,
