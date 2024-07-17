@@ -14,15 +14,28 @@ const crateCash = async (req: ExtendedRequest, res: Response) => {
       };
 
     // find cash of the shop owner
+    // cash will get of date of today
+    const startTime = new Date(date);
+    startTime.setHours(0, 0, 0, 0);
+    const endTime = new Date(date);
+    endTime.setHours(23, 59, 59, 999);
+
     const cash = await prisma.cash.findUnique({
       where: {
         shopOwnerId: req.shopOwner.id,
+        createdAt: {
+          gte: startTime,
+          lte: endTime,
+        },
       },
     });
     // if cash is not available then create cash
 
     if (!cash) {
-      const newCash = await prisma.cash.create({
+      let newCash;
+      if (requestType === "cashIn") {
+        /* 
+        const newCash = await prisma.cash.create({
         data: {
           shopOwnerId: req.shopOwner.id,
           cashBalance:
@@ -45,6 +58,53 @@ const crateCash = async (req: ExtendedRequest, res: Response) => {
           },
         },
       });
+        */
+        newCash = await prisma.cash.create({
+          data: {
+            cashBalance: cashInBalance,
+            cashInHistory: {
+              create: {
+                cashInAmount: cashInBalance,
+                cashInFor: note,
+                shopOwnerId: req.shopOwner.id,
+                cashInDate: date || new Date(),
+              },
+            },
+            shopOwner: {
+              connect: {
+                id: req.shopOwner.id,
+              },
+            },
+          },
+          include: {
+            cashInHistory: true,
+            cashOutHistory: true,
+          },
+        });
+      } else if (requestType === "cashOut") {
+        newCash = await prisma.cash.create({
+          data: {
+            cashBalance: -cashOutBalance,
+            cashOutHistory: {
+              create: {
+                cashOutAmount: cashOutBalance,
+                cashOutFor: note,
+                shopOwnerId: req.shopOwner.id,
+                cashOutDate: new Date(),
+              },
+            },
+            shopOwner: {
+              connect: {
+                id: req.shopOwner.id,
+              },
+            },
+          },
+          include: {
+            cashInHistory: true,
+            cashOutHistory: true,
+          },
+        });
+      }
 
       return res.status(200).json({
         success: true,
@@ -55,8 +115,8 @@ const crateCash = async (req: ExtendedRequest, res: Response) => {
 
     // if cash is available then update cash
     let updatedCash;
-    if(requestType === "cashIn"){
-       updatedCash = await prisma.cash.update({
+    if (requestType === "cashIn") {
+      updatedCash = await prisma.cash.update({
         where: {
           shopOwnerId: req.shopOwner.id,
         },
@@ -73,21 +133,21 @@ const crateCash = async (req: ExtendedRequest, res: Response) => {
             },
           },
         },
-        include:{
+        include: {
           cashInHistory: true,
           cashOutHistory: true,
-        }
+        },
       });
-    }else if(requestType === "cashOut"){
-       updatedCash = await prisma.cash.update({
+    } else if (requestType === "cashOut") {
+      updatedCash = await prisma.cash.update({
         where: {
           shopOwnerId: req.shopOwner.id,
         },
         data: {
-          cashBalance:  {
+          cashBalance: {
             decrement: cashOutBalance,
           },
-          cashOutHistory:  {
+          cashOutHistory: {
             create: {
               cashOutAmount: cashOutBalance,
               cashOutFor: note,
@@ -96,13 +156,12 @@ const crateCash = async (req: ExtendedRequest, res: Response) => {
             },
           },
         },
-        include:{
+        include: {
           cashInHistory: true,
           cashOutHistory: true,
-        }
+        },
       });
     }
-   
 
     return res.status(200).json({
       success: true,
@@ -110,7 +169,7 @@ const crateCash = async (req: ExtendedRequest, res: Response) => {
       cash: updatedCash,
     });
   } catch (error) {
-    console.log({error})
+    console.log({ error });
     return res.status(500).json({
       success: false,
       errors: [
@@ -171,4 +230,57 @@ const getAllCash = async (req: ExtendedRequest, res: Response) => {
   }
 };
 
-export { crateCash, getAllCash };
+const getTodayCash = async (req: ExtendedRequest, res: Response) => {
+  try {
+    console.log({
+      shopOwnerId: req.shopOwner.id,
+    })
+    const startDate = new Date();
+    startDate.setHours(0, 0, 0, 0);
+    const endDate = new Date();
+    endDate.setHours(23, 59, 59, 999);
+
+    const cash = await prisma.cash.findMany({
+      where: {
+        shopOwnerId: req.shopOwner.id,
+        createdAt: {
+          gte: startDate,
+          lte: endDate,
+        },
+      },
+      include: {
+        cashInHistory: true,
+        cashOutHistory: true,
+      },
+    });
+
+    // if cash is not available then return error
+    if (!cash) {
+      return res.status(404).json({
+        success: false,
+        errors: [
+          {
+            type: "not found",
+            value: "",
+            msg: "Cash not found",
+          },
+        ],
+      });
+    }
+
+    return res.json({ success: true, cash });
+  } catch (error) {
+    console.log(error)
+    return res.status(500).json({
+      success: false,
+      errors: [
+        {
+          type: "server error",
+          value: "",
+          msg: "Internal server error",
+        },
+      ],
+    });
+  }
+};
+export { crateCash, getAllCash, getTodayCash };

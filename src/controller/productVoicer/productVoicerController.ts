@@ -155,19 +155,22 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
       nowPaying: paidAmount,
       remainingDue: totalBill - paidAmount + customer.deuAmount,
     };
-   // Register the Handlebars helper
-   Handlebars.registerHelper('incrementedIndex', function(index) {
-    return index + 1;
-  });
+    // Register the Handlebars helper
+    Handlebars.registerHelper("incrementedIndex", function (index) {
+      return index + 1;
+    });
 
-     // Helper to determine if the text is Bengali
-     Handlebars.registerHelper('isBengali', function (text) {
+    // Helper to determine if the text is Bengali
+    Handlebars.registerHelper("isBengali", function (text) {
       const bengaliRegex = /[\u0980-\u09FF]/;
-      return bengaliRegex.test(text) ? 'bengali' : 'english';
+      return bengaliRegex.test(text) ? "bengali" : "english";
     });
 
     // Compile Handlebars template
-    const hbsFileName = path.join(__dirname, "../../utility/invoice_template.hbs");
+    const hbsFileName = path.join(
+      __dirname,
+      "../../utility/invoice_template.hbs"
+    );
     const source = fs.readFileSync(hbsFileName, "utf8");
     const template = Handlebars.compile(source);
     const html = template(data);

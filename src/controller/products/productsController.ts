@@ -53,9 +53,9 @@ const addProduct = async (req: ExtendedRequest, res: Response) => {
 const getAllProducts = async (req: ExtendedRequest, res: Response) => {
   try {
     const products = await prisma.product.findMany({
-      where:{
-        shopOwnerId:req.shopOwner.id
-      }
+      where: {
+        shopOwnerId: req.shopOwner.id,
+      },
     });
 
     return res.status(200).json({
@@ -104,9 +104,7 @@ const getSingleProduct = async (req: Request, res: Response) => {
       });
     }
 
-    const qrcodeUrl =  await qrcode.toDataURL(JSON.stringify(product));
-    
-
+    const qrcodeUrl = await qrcode.toDataURL(JSON.stringify(product));
 
     return res.status(200).json({
       success: true,
