@@ -97,12 +97,11 @@ const getAllLoneProviders = async (req: ExtendedRequest, res: Response) => {
 
 const getSingleLoneProvider = async (req: ExtendedRequest, res: Response) => {
   try {
-    const { id } = req.params;
+    const { id } = req.params as { id: string };
 
     const loneProvider = await prisma.loneProvider.findUnique({
       where: {
         id: id as string,
-        shopOwnerId: req.shopOwner.id,
       },
     });
 
@@ -231,21 +230,20 @@ const updateLoneProvider = async (req: ExtendedRequest, res: Response) => {
 
 const deleteLoneProvider = async (req: ExtendedRequest, res: Response) => {
   try {
-    const { id } = req.params;
-
-    const deletedLoneProvider = await prisma.loneProvider.delete({
+    const { id } = req.params as { id: string }; 
+    const loneProviderDeleted = await prisma.loneProvider.delete({
       where: {
         id: id as string,
-        shopOwnerId: req.shopOwner.id,
       },
     });
-
+    
     return res.status(200).json({
       success: true,
       message: "Lone provider deleted successfully",
-      loneProvider: deletedLoneProvider,
+      loneProvider: loneProviderDeleted,
     });
   } catch (error) {
+    console.log({ error });
     return res.status(500).json({
       success: false,
       errors: [

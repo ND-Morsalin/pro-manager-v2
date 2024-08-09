@@ -1007,6 +1007,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+  
   /api/lone-provider:
     post:
       summary: Create a new lone provider
@@ -1148,16 +1149,15 @@ paths:
               type: object
               properties:
                 givingLoneDeuAmount:
-                  type: number
-                  description: The amount of lone the shop owner is giving here to the lonePaymentStatus will be SHOPOWNERGIVE
+                  type: string
+                  description: The amount of loan the shop owner is giving. If this field is provided and `lonePaymentStatus` is `SHOPOWNERGIVE`, the loan due amount will decrease.
                 receivingNewLoneAmount:
-                  type: number
-                  description: The amount of new lone the shop owner is receiving here to the lonePaymentStatus will be SHOPOWNERRECIVED
-
+                  type: string
+                  description: The amount of new loan the shop owner is receiving. If this field is provided and `lonePaymentStatus` is `SHOPOWNERRECIVED`, the loan due amount will increase.
                 lonePaymentStatus:
                   type: string
                   example: "SHOPOWNERGIVE"
-                  description: SHOPOWNERGIVE | SHOPOWNERRECIVED will be the value of this field
+                  description: Status of the loan payment. Acceptable values are `SHOPOWNERGIVE` and `SHOPOWNERRECIVED`.
       responses:
         "200":
           description: Lone provider updated successfully
@@ -1225,6 +1225,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+  
   /api/product-voicer:
     post:
       summary: Create a new product voicer
@@ -1836,6 +1837,7 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/Product"
+    
     Customer:
       type: object
       properties:
@@ -1913,6 +1915,7 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/CustomerPaymentHistory"
+    
     LoneProvider:
       type: object
       properties:
@@ -1978,7 +1981,6 @@ components:
               type: string
               format: date-time
               example: 2024-05-28T12:00:18.004Z
-
     LoneProvidersResponse:
       type: object
       properties:
@@ -1990,6 +1992,7 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/LoneProvider"
+    
     ProductVoicer:
       type: object
       properties:

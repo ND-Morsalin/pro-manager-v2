@@ -210,7 +210,7 @@ model LonePaymentHistory {
   shopOwner   ShopOwner @relation(fields: [shopOwnerId], references: [id])
   shopOwnerId String    @db.ObjectId
 
-  loneProvider   LoneProvider @relation(fields: [loneProviderId], references: [id])
+  loneProvider   LoneProvider @relation(fields: [loneProviderId], references: [id], onDelete: Cascade)
   loneProviderId String       @db.ObjectId
 }
 
