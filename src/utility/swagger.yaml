@@ -535,124 +535,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-  /api/today-cash:
-    get:
-      summary: Get today's cash transactions
-      description: Returns all cash transactions for the current day for the authenticated shop owner.
-      tags:
-        - Cash
-      parameters:
-        - in: header
-          name: token
-          required: true
-          schema:
-            type: string
-          description: JWT token of the shop owner
-      responses:
-        200:
-          description: A list of cash transactions
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  cash:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        id:
-                          type: integer
-                          example: 1
-                        amount:
-                          type: number
-                          example: 100.0
-                        createdAt:
-                          type: string
-                          format: date-time
-                          example: '2023-07-17T12:34:56.789Z'
-                        cashInHistory:
-                          type: array
-                          items:
-                            type: object
-                            properties:
-                              id:
-                                type: integer
-                                example: 1
-                              amount:
-                                type: number
-                                example: 50.0
-                              createdAt:
-                                type: string
-                                format: date-time
-                                example: '2023-07-17T10:00:00.000Z'
-                        cashOutHistory:
-                          type: array
-                          items:
-                            type: object
-                            properties:
-                              id:
-                                type: integer
-                                example: 2
-                              amount:
-                                type: number
-                                example: 30.0
-                              createdAt:
-                                type: string
-                                format: date-time
-                                example: '2023-07-17T11:00:00.000Z'
-        404:
-          description: Cash not found
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: false
-                  errors:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        type:
-                          type: string
-                          example: 'not found'
-                        value:
-                          type: string
-                          example: ''
-                        msg:
-                          type: string
-                          example: 'Cash not found'
-        500:
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: false
-                  errors:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        type:
-                          type: string
-                          example: 'server error'
-                        value:
-                          type: string
-                          example: ''
-                        msg:
-                          type: string
-                          example: 'Internal server error'  
-  
+
   /api/customer/{id}:
     get:
       summary: Get a single customer by ID
@@ -1007,7 +890,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-  
+
   /api/lone-provider:
     post:
       summary: Create a new lone provider
@@ -1225,7 +1108,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-  
+
   /api/product-voicer:
     post:
       summary: Create a new product voicer
@@ -1701,6 +1584,68 @@ paths:
                     type: array
                     items:
                       $ref: "#/components/schemas/Error"
+  /api/today-cash/{today}:
+    get:
+      summary: Get today's cash transactions
+      tags:
+        - Cash In Out
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+        - in: path
+          name: today
+          required: true
+          schema:
+            type: string
+            format: date
+          description: The date for filtering today's cash transactions
+      responses:
+        "200":
+          description: List of today's cash transactions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Indicates if the request was successful
+                  cash:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Cash"
+        "404":
+          description: Cash not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Indicates if the request was successful
+                  errors:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Indicates if the request was successful
+                  errors:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Error"
 
 components:
   schemas:
@@ -1837,7 +1782,7 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/Product"
-    
+
     Customer:
       type: object
       properties:
@@ -1915,7 +1860,7 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/CustomerPaymentHistory"
-    
+
     LoneProvider:
       type: object
       properties:
@@ -1992,7 +1937,7 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/LoneProvider"
-    
+
     ProductVoicer:
       type: object
       properties:
@@ -2033,7 +1978,7 @@ components:
         shopOwnerId:
           type: string
           description: The ID of the shop owner
-    
+
     SellingProductVoicer:
       type: object
       properties:
@@ -2073,6 +2018,7 @@ components:
         shopOwnerId:
           type: string
           description: The ID of the shop owner associated with the business contact info
+
     Cash:
       type: object
       properties:

@@ -76,10 +76,7 @@ const crateCash = async (req: ExtendedRequest, res: Response) => {
               },
             },
           },
-          include: {
-            cashInHistory: true,
-            cashOutHistory: true,
-          },
+          
         });
       } else if (requestType === "cashOut") {
         newCash = await prisma.cash.create({
@@ -99,10 +96,7 @@ const crateCash = async (req: ExtendedRequest, res: Response) => {
               },
             },
           },
-          include: {
-            cashInHistory: true,
-            cashOutHistory: true,
-          },
+          
         });
       }
 
@@ -133,10 +127,7 @@ const crateCash = async (req: ExtendedRequest, res: Response) => {
             },
           },
         },
-        include: {
-          cashInHistory: true,
-          cashOutHistory: true,
-        },
+        
       });
     } else if (requestType === "cashOut") {
       updatedCash = await prisma.cash.update({
@@ -156,10 +147,7 @@ const crateCash = async (req: ExtendedRequest, res: Response) => {
             },
           },
         },
-        include: {
-          cashInHistory: true,
-          cashOutHistory: true,
-        },
+        
       });
     }
 
@@ -233,9 +221,11 @@ const getAllCash = async (req: ExtendedRequest, res: Response) => {
 const getTodayCash = async (req: ExtendedRequest, res: Response) => {
   try {
     console.log({
-      shopOwnerId: req.shopOwner.id,
+      today : req.params.today
     })
-    const startDate = new Date();
+
+    const today = req.params.today;
+    const startDate = new Date(today);
     startDate.setHours(0, 0, 0, 0);
     const endDate = new Date();
     endDate.setHours(23, 59, 59, 999);
@@ -283,4 +273,6 @@ const getTodayCash = async (req: ExtendedRequest, res: Response) => {
     });
   }
 };
+
+
 export { crateCash, getAllCash, getTodayCash };

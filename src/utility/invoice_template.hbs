@@ -27,6 +27,7 @@
       padding: 0;
       font-size: 16px;
       box-sizing: border-box;
+      background:url('./bg.png');
     }
 
     .invoice {
@@ -152,7 +153,7 @@
           <tr>
             <td>{{incrementedIndex @index}}</td>
             <td class="{{isBengali productName}}">{{productName}}</td>
-            <td  class="{{isBengali quantity}}" >{{quantity}} <span class="{{isBengali unit}}" >{{unit}}</span> </td>
+            <td  class="{{isBengali quantity}}" >{{quantity}}  <span class="{{isBengali unit}}" >{{unit}}</span> </td>
             <td class="{{isBengali sellingPrice}} text-right">{{sellingPrice}}</td>
           </tr>
           {{/each}}

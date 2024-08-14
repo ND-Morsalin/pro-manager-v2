@@ -243,7 +243,8 @@ router.delete(
 router.post("/cash", checkValidUser, crateCash);
 
 router.get("/cash", checkValidUser, getAllCash);
-router.get("/today-cash", checkValidUser, getTodayCash);
+router.get("/today-cash/:today", checkValidUser, getTodayCash);
+
 router.get("/daily-sell", checkValidUser, dailySellingReport);
 
 /**
