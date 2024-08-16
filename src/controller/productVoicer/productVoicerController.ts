@@ -7,6 +7,17 @@ import path from "path";
 import Handlebars from "handlebars";
 
 import puppeteer from "puppeteer";
+
+// Outside the function, at the top of your file
+let browser;
+
+(async () => {
+  browser = await puppeteer.launch({
+    headless: true,
+    args: ['--no-sandbox', '--disable-setuid-sandbox'],
+  });
+})();
+
 const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
   try {
     const { sellingProducts, customerId, paidAmount } = req.body as {
@@ -144,10 +155,13 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
         },
       },
     });
-const pdfProductData =  sellingProducts.map((product) => ({
-  ...product,
-  totalProductPrice: product.sellingPrice * product.quantity,
-}));
+
+     // ... (previous code remains unchanged)
+    const pdfProductData = sellingProducts.map((product) => ({
+      ...product,
+      totalProductPrice: product.sellingPrice * product.quantity,
+    }));
+    
     const data = {
       customerName: customer.customerName,
       address: customer.address,
@@ -158,12 +172,11 @@ const pdfProductData =  sellingProducts.map((product) => ({
       nowPaying: paidAmount,
       remainingDue: totalBill - paidAmount + customer.deuAmount,
     };
-    // Register the Handlebars helper
+
+    // Register Handlebars helpers (this can be outside the function if reused across requests)
     Handlebars.registerHelper("incrementedIndex", function (index) {
       return index + 1;
     });
-
-    // Helper to determine if the text is Bengali
     Handlebars.registerHelper("isBengali", function (text) {
       const bengaliRegex = /[\u0980-\u09FF]/;
       return bengaliRegex.test(text) ? "bengali" : "english";
@@ -178,33 +191,37 @@ const pdfProductData =  sellingProducts.map((product) => ({
     const template = Handlebars.compile(source);
     const html = template(data);
 
-    // console.log(html);
-    const browser = await puppeteer.launch();
-    const page = await browser.newPage();
-
-    // Set content to the page
-    await page.setContent(html);
-
-    // Generate PDF
-    const pdfBuffer = await page.pdf({
-      format: "A4",
-      // width: "3in",
-      height: "auto",
+    // Optimized Puppeteer launch and PDF generation
+    const browser = await puppeteer.launch({
+      headless: true,
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
     });
 
-    // Close browser
-    await browser.close();
+    // Inside the createProductVoicer function
+const page = await browser.newPage();
+await page.setRequestInterception(true);
 
-    // send pdf to the client
+page.on('request', (request) => {
+  if (['image', 'stylesheet', 'font'].includes(request.resourceType())) {
+    request.abort();
+  } else {
+    request.continue();
+  }
+});
 
-    res.setHeader("Content-Type", "application/pdf");
-    res.setHeader("Content-Disposition", "attachment; filename=invoice.pdf");
-    res.send(pdfBuffer);
-    /* 
-    return res.status(200).json({
-      success: true,
-      productVoicer: newProductVoicer,
-    }); */
+await page.setContent(html);
+
+const pdfBuffer = await page.pdf({
+  format: 'A4',
+  printBackground: true,
+});
+
+await page.close();
+
+res.setHeader("Content-Type", "application/pdf");
+res.setHeader("Content-Disposition", "attachment; filename=invoice.pdf");
+res.send(pdfBuffer);
+
   } catch (error) {
     console.log({
       error,

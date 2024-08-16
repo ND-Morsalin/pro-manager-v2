@@ -30,7 +30,7 @@ const checkValidUser = async (
   try {
     // Verify JWT token using process.env.JWT_SECRET
     const decoded = jwt.verify(token as string, process.env.JWT_SECRET) as DecodedToken;
-    console.log(decoded, "decoded token"); // Log decoded token for debugging
+    // console.log(decoded, "decoded token"); // Log decoded token for debugging
 
     // find shop owner by id
     const shopOwner = await prisma.shopOwner.findUnique({
