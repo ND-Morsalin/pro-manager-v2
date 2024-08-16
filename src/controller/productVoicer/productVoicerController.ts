@@ -144,12 +144,15 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
         },
       },
     });
-
+const pdfProductData =  sellingProducts.map((product) => ({
+  ...product,
+  totalProductPrice: product.sellingPrice * product.quantity,
+}));
     const data = {
       customerName: customer.customerName,
       address: customer.address,
       phone: customer.phoneNumber,
-      products: sellingProducts,
+      products: pdfProductData,
       totalPrice: totalBill,
       beforeDue: customer.deuAmount,
       nowPaying: paidAmount,
