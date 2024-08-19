@@ -6,6 +6,7 @@ import * as dotenv from "dotenv";
 import swaggerUi from "swagger-ui-express";
 import swaggerSpec from "./utility/swagger";
 import YAML from "yamljs";
+import testRoute from "./test/testRoute";
 
 const swaggerDocument = YAML.load("./src/utility/swagger.yaml");
 
@@ -29,6 +30,7 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 // route
 
 app.use("/api/", router);
+app.use("/test/", testRoute);
 
 // static folder
 app.use("/public", express.static("public"));
