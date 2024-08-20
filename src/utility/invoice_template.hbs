@@ -21,22 +21,79 @@
       format('truetype');
     }
 
-    body {
-      margin: 1in;
-      font-family: "Roboto", sans-serif;
+*{
+      margin: 0;
       padding: 0;
-      font-size: 16px;
       box-sizing: border-box;
-      background:url('./bg.png');
+}
+    body {
+      padding: 1in;
+      font-family: "Roboto",
+        sans-serif;
+      font-size: 18px;
+      box-sizing: border-box;
+      overflow: hidden;
+      position: relative;
+      background-color: transparent;
+    }
+
+    .yellow-top{
+     
+      width: 150%;
+      height: 30rem;
+      background-color: #F8CA41;
+      margin: 0 auto;
+      position: absolute;
+      top: 0;
+      right: -25rem;
+      transform: rotate(25deg) translateY(-70%);
+      z-index: -66;
+    }
+    .yellow-bottom{
+     
+      width: 150%;
+      height: 30rem;
+      background-color: #F8CA41;
+      margin: 0 auto;
+      position: absolute;
+      bottom: 0;
+      left: -25rem;
+      transform: rotate(25deg) translateY(70%);
+      z-index: -66;
+    }
+    .black-top{
+    
+      width: 150%;
+      height: 4rem;
+      background-color: #000000;
+      margin: 0 auto;
+      position: absolute;
+      top: 0;
+      right: -5rem;
+      transform: rotate(25deg) translateY(50%) translateX(10%) ;
+      z-index: -66;
+    }
+    .black-bottom{
+    
+      width: 150%;
+      height: 4rem;
+      background-color: #000000;
+      margin: 0 auto;
+      position: absolute;
+      bottom: 0;
+      left: -2rem;
+      transform: rotate(25deg) translateY(-50%) translateX(-20%) ;
+      z-index: -66;
     }
 
     .invoice {
       margin: auto;
-      padding: 10px;
-      border:
-        1px solid #ccc;
-      border-radius: 5px;
-      background-color: #fff;
+      padding: 2.5rem;
+      border: 1px solid #ccc;
+      border-radius: 15px;
+      background-color: #ffffff;
+      width: 100%;
+      height: 100%;
     }
 
     .header {
@@ -45,9 +102,9 @@
     }
 
     .header h2 {
-      margin: 0;
+      margin:0;
       padding: 0;
-      font-size: 20px;
+      font-size: 2rem;
       text-align: center;
     }
 
@@ -58,32 +115,32 @@
     .customer-info h3 {
       margin-bottom: 2px;
       font-size:
-        18px;
+        24px;
     }
 
     .customer-info p {
       margin-bottom: 1px;
-      font-size: 16px;
+      font-size: 18px;
     }
 
     .company-info p {
-      font-size: 16px;
+      font-size: 18px;
     }
 
     .products {
-      margin-bottom: 10px;
+      margin-bottom: 16px;
     }
 
     .products table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 16px;
+      font-size: 18px;
     }
 
     th,
     td {
       border-bottom: 1px solid #ccc;
-      padding: 4px;
+      padding: 6px;
       text-align: left;
     }
 
@@ -105,47 +162,61 @@
     .products td.bengali {
       font-family: "Tiro Bangla", serif;
     }
-.bengali {
+
+    .bengali {
       font-family: "Tiro Bangla", serif;
     }
+
     .products td.english {
       font-family: "Roboto", sans-serif;
     }
+
     .english {
-      font-family: "Roboto", sans-serif;
+      font-family: "Roboto",
+        sans-serif;
     }
   </style>
 </head>
 
 <body>
+<div class="yellow-top"></div>
+<div class="black-top"></div>
+<div class="black-bottom"></div>
+<div class="yellow-bottom"></div>
   <div class="invoice">
-
     <div class="header-info">
 
       <div class="customer-info">
-        <p  class="{{isBengali customerName}}" ><strong>Customer Name:</strong> {{customerName}}</p>
-        <p  class="{{isBengali address}}" ><strong>Address:</strong> {{address}}</p>
-        <p  class="{{isBengali phone}}" ><strong>Phone:</strong> {{phone}}</p>
+        <p><strong class="bengali">গ্রাহকের নাম:</strong>
+          <span class="{{isBengali customerName}}">
+            {{customerName}}</span>
+        </p>
+        <p><strong class="bengali">ঠিকাণা: </strong>
+          <span class="{{isBengali address}}"> {{address}}</span>
+        </p>
+        <p><strong class="bengali">মোবাইল নং:</strong>
+          <span class="{{isBengali phone}}">{{phone}}</span>
+        </p>
 
       </div>
       {{! name of company }}
       <div class="company-info">
-        <p class=""> <strong>powered by:</strong> JanGoSoftLtd. </p>
-        <p class=""> <strong> Mobile:</strong> 01629888934 </p>
+        <p class=""> <strong>নাম:</strong> {{shopOwnerName}}. </p>
+        <p class=""> <strong> মোবাইল নং</strong> {{shopOwnerPhone}} </p>
       </div>
       {{! name of company }}
     </div>
     <div class="header">
-      <h2>Invoice</h2>
+      <h2 class="bengali">পণ্য তালিকা</h2>
     </div>
     <div class="products">
       <table>
         <thead>
-          <tr>
-            <th>#SL</th>
-            <th>Name</th>
-            <th>Quantity</th>
-            <th>Price</th>
+          <tr class="bengali">
+            <th>#নং</th>
+            <th>নাম</th>
+            <th>পরিমাণ</th>
+            <th>মূল্য</th>
           </tr>
         </thead>
         <tbody>
@@ -153,7 +224,9 @@
           <tr>
             <td>{{incrementedIndex @index}}</td>
             <td class="{{isBengali productName}}">{{productName}}</td>
-            <td  class="{{isBengali quantity}}" >{{quantity}}  <span class="{{isBengali unit}}" >{{unit}}</span> </td>
+            <td class="{{isBengali quantity}}">{{quantity}}
+              <span class="{{isBengali unit}}">{{unit}}</span>
+            </td>
             <td class="{{isBengali totalProductPrice}} text-right">{{totalProductPrice}}</td>
           </tr>
           {{/each}}
@@ -161,10 +234,13 @@
       </table>
     </div>
     <div class="footer">
-      <p class="{{isBengali totalPrice}}" ><strong>Total Price of Products:</strong> {{totalPrice}}</p>
-      <p class="{{isBengali beforeDue}}"><strong>Before Due:</strong> {{beforeDue}}</p>
-      <p class="{{isBengali nowPaying}}"><strong>Now Paying:</strong> {{nowPaying}}</p>
-      <p class="{{isBengali remainingDue}}"><strong>Remaining Due:</strong> {{remainingDue}}</p>
+      <p><strong class="bengali">মোট পণ্য ক্রয়:</strong> {{totalPrice}}</p>
+      <p><strong class="bengali"> আগের বকেয়া:</strong>
+        <span class="{{isBengali totalPrice}}"> {{beforeDue}}</span>
+      </p>
+      <p><strong class="bengali">পরিশোধ:</strong><span class="{{isBengali totalPrice}}">{{nowPaying}}</span>
+      </p>
+      <p><strong class="bengali">বকেয়া আছে:</strong><span class="{{isBengali totalPrice}}"> {{remainingDue}}</span></p>
     </div>
   </div>
 </body>

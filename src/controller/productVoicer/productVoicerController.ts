@@ -171,6 +171,8 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
       beforeDue: customer.deuAmount,
       nowPaying: paidAmount,
       remainingDue: totalBill - paidAmount + customer.deuAmount,
+      shopOwnerName: req.shopOwner.shopName,
+      shopOwnerPhone: req.shopOwner.mobile,
     };
 
     // Register Handlebars helpers (this can be outside the function if reused across requests)
