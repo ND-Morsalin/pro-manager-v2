@@ -76,7 +76,6 @@ const crateCash = async (req: ExtendedRequest, res: Response) => {
               },
             },
           },
-          
         });
       } else if (requestType === "cashOut") {
         newCash = await prisma.cash.create({
@@ -96,7 +95,6 @@ const crateCash = async (req: ExtendedRequest, res: Response) => {
               },
             },
           },
-          
         });
       }
 
@@ -127,7 +125,6 @@ const crateCash = async (req: ExtendedRequest, res: Response) => {
             },
           },
         },
-        
       });
     } else if (requestType === "cashOut") {
       updatedCash = await prisma.cash.update({
@@ -147,7 +144,6 @@ const crateCash = async (req: ExtendedRequest, res: Response) => {
             },
           },
         },
-        
       });
     }
 
@@ -173,17 +169,41 @@ const crateCash = async (req: ExtendedRequest, res: Response) => {
   }
 };
 
+const createManyCash = async (req: ExtendedRequest, res: Response) => {
+  try {
+    const  createIt =
+      req.body as {
+        cashInBalance: number;
+        cashOutBalance: number;
+        note: string;
+        requestType: "cashIn" | "cashOut";
+        date: Date;
+      }[];
+
+      const cash = await prisma.cash.findMany({
+        distinct: ['shopOwnerId'],
+      })
+      
+console.log(cash)
+return res.json({success: true, cash})
+    } catch (error) {
+    console.log({ error });
+    return res.status(500).json({
+      success: false,
+      errors: [
+        {
+          type: "server error",
+          value: "",
+          msg: "Internal server error",
+        }
+      ]
+    });
+  }
+}
+
 const getAllCash = async (req: ExtendedRequest, res: Response) => {
   try {
-    const cash = await prisma.cash.findMany({
-      where: {
-        shopOwnerId: req.shopOwner.id,
-      },
-      include: {
-        cashInHistory: true,
-        cashOutHistory: true,
-      },
-    });
+    const cash = await prisma.cash.findMany();
 
     // if cash is not available then return error
     if (!cash) {
@@ -200,9 +220,10 @@ const getAllCash = async (req: ExtendedRequest, res: Response) => {
         ],
       });
     }
-
-    return res.json({ success: true, cash });
+    console.log({ cashLen: cash.length });
+    return res.json({ success: true, cashLen: cash.length });
   } catch (error) {
+    console.log({ error });
     return res.status(500).json({
       success: false,
       errors: [
@@ -221,8 +242,8 @@ const getAllCash = async (req: ExtendedRequest, res: Response) => {
 const getTodayCash = async (req: ExtendedRequest, res: Response) => {
   try {
     console.log({
-      today : req.params.today
-    })
+      today: req.params.today,
+    });
 
     const today = req.params.today;
     const startDate = new Date(today);
@@ -260,7 +281,7 @@ const getTodayCash = async (req: ExtendedRequest, res: Response) => {
 
     return res.json({ success: true, cash });
   } catch (error) {
-    console.log(error)
+    console.log(error);
     return res.status(500).json({
       success: false,
       errors: [
@@ -274,5 +295,4 @@ const getTodayCash = async (req: ExtendedRequest, res: Response) => {
   }
 };
 
-
-export { crateCash, getAllCash, getTodayCash };
+export { crateCash, getAllCash, getTodayCash, createManyCash };

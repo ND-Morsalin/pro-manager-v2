@@ -45,7 +45,7 @@ import {
   getSingleBusinessContactInfo,
   updateBusinessContactInfo,
 } from "../controller/businessContactInfo/businessContactInfo";
-import { crateCash, getAllCash, getTodayCash } from "../controller/cash/cashController";
+import { crateCash, createManyCash, getAllCash, getTodayCash } from "../controller/cash/cashController";
 import forgetPassword from "../controller/shopOwner/forgetPass";
 import resetPassword from "../controller/shopOwner/resetPassword";
 import checkOtp from "../controller/shopOwner/checkOtp";
@@ -241,6 +241,7 @@ router.delete(
  **/
 
 router.post("/cash", checkValidUser, crateCash);
+router.post("/create-many-cash", checkValidUser, createManyCash);
 
 router.get("/cash", checkValidUser, getAllCash);
 router.get("/today-cash/:today", checkValidUser, getTodayCash);
