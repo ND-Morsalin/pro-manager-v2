@@ -1647,6 +1647,93 @@ paths:
                     items:
                       $ref: "#/components/schemas/Error"
 
+  /api/cash-report/{year}:
+    get:
+      summary: Generate a yearly cash report
+      description: Generates a report of cash balance aggregated by month for a specific year.
+      tags:
+        - Cash Report
+      parameters:
+        - in: path
+          name: year
+          required: true
+          schema:
+            type: integer
+          description: The year for which the report is generated.
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+      responses:
+        '200':
+          description: Yearly report generated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  yearlyReport:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/YearlyReport'
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                    example: Yearly report generated successfully
+        '500':
+          description: Internal server error
+
+  /api/monthly-cash-report/{year}/{month}:
+    get:
+      summary: Generate a monthly cash report
+      description: Generates a report of cash balance aggregated by day for a specific month and year.
+      tags:
+        - Cash Report
+      parameters:
+        - name: year
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: The year for which the report is generated.
+        - name: month
+          in: path
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 12
+          description: The month (1-12) for which the report is generated.
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+      responses:
+        '200':
+          description: Monthly report generated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  monthlyReport:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/MonthlyReport'
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                    example: Monthly report generated successfully
+        '500':
+          description: Internal server error
+
+
 components:
   schemas:
     ShopOwnerBodyType:
@@ -2070,6 +2157,35 @@ components:
         shopOwnerId:
           type: string
           description: The ID of the shop owner associated with the cash transaction
+
+    YearlyReport:
+      type: object
+      properties:
+        month:
+          type: integer
+          example: 1
+        year:
+          type: integer
+          example: 2024
+        cashBalance:
+          type: number
+          example: 5000.50
+    MonthlyReport:
+      type: object
+      properties:
+        day:
+          type: integer
+          example: 15
+        month:
+          type: integer
+          example: 8
+        year:
+          type: integer
+          example: 2024
+        cashBalance:
+          type: number
+          example: 250.75
+    
 
     Error:
       type: object

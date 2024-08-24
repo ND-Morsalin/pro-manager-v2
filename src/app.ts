@@ -30,7 +30,7 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 // route
 
 app.use("/api/", router);
-app.use("/test/", testRoute);
+app.use("/test/:year/:month", testRoute);
 
 // static folder
 app.use("/public", express.static("public"));

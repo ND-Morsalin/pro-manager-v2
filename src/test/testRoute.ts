@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import prisma from "../utility/prisma";
 
 const testRoute = async (req: Request, res: Response) => {
+  const { year,month } = req.params;
   /* 
   * its working fine
   const report = await prisma.cash.aggregateRaw({
@@ -80,11 +81,13 @@ const testRoute = async (req: Request, res: Response) => {
       
   console.log(report);
   return res.json({ success: true, message: "test successful", report }); */
-
-  const year = 2024;
+ 
   const months = Array.from({ length: 12 }, (_, i) => i + 1); // [1, 2, ..., 12]
   
-
+console.log({
+  month,
+  year,
+})
   /* const pipeline = [
      
       
@@ -152,25 +155,55 @@ const testRoute = async (req: Request, res: Response) => {
   })
 
   //! this is working fine
-  
-const cashMonthlyReport = await prisma.cash.findMany({
-    where:{
-      createdAt:{
-        gte: new Date(`${year}-01-01`),
-        lte: new Date(`${year}-12-31`)
-      }
+  const monthlyReport = await prisma.cash.aggregateRaw({
+    options: {
+      toJSON: true,
     },
-    select:{
-      cashBalance: true,
-      createdAt: true
-    }
-})
+    pipeline: [
+      {
+        $match: {
+          $expr: {
+            $and: [
+              { $eq: [{ $year: "$createdAt" }, parseInt(year)] },
+              { $eq: [{ $month: "$createdAt" }, parseInt(month)] },
+              // { $eq: ["$shopOwnerId", req.shopOwner.id] }
+            ]
+          }
+        }
+      },
+      {
+        $group: {
+          _id: {
+            day: { $dayOfMonth: "$createdAt" },
+            month: { $month: "$createdAt" },
+            year: { $year: "$createdAt" },
+          },
+          totalCashBalance: { $sum: "$cashBalance" },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          day: "$_id.day",
+          month: "$_id.month",
+          year: "$_id.year",
+          cashBalance: "$totalCashBalance",
+        },
+      },
+      {
+        $sort: { day: 1 },
+      },
+    ],
+  });
 
- 
+  return res
+    .status(200)
+    .json({
+      monthlyReport,
+      success: true,
+      message: "Monthly report generated successfully",
+    });
 
-  console.log({ cashMonthlyReport });
-
-  return res.json({ success: true, message: "test successful", cashMonthlyReport });
 };
 
 export default testRoute;

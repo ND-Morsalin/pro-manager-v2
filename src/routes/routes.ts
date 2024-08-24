@@ -51,6 +51,7 @@ import resetPassword from "../controller/shopOwner/resetPassword";
 import checkOtp from "../controller/shopOwner/checkOtp";
 import createPdf from "../utility/pdf";
 import { dailySellingReport } from "../controller/report/dailySellingReport";
+import { monthlyCashReport, yearlyCashReport } from "../controller/report/cashReport";
 
 const router = Router();
 
@@ -250,6 +251,16 @@ router.get("/daily-sell", checkValidUser, dailySellingReport);
 
 /**
  * Cash ROUTES end
+ **/
+
+
+/**
+ * Cash Report ROUTES start
+ **/
+router.get("/cash-report/:year", checkValidUser, yearlyCashReport);
+router.get("/monthly-cash-report/:year/:month", checkValidUser, monthlyCashReport);
+/**
+ * Cash Report ROUTES end
  **/
 
 export default router;
