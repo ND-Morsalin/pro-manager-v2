@@ -45,13 +45,21 @@ import {
   getSingleBusinessContactInfo,
   updateBusinessContactInfo,
 } from "../controller/businessContactInfo/businessContactInfo";
-import { crateCash, createManyCash, getAllCash, getTodayCash } from "../controller/cash/cashController";
+import {
+  crateCash,
+  createManyCash,
+  getAllCash,
+  getTodayCash,
+} from "../controller/cash/cashController";
 import forgetPassword from "../controller/shopOwner/forgetPass";
 import resetPassword from "../controller/shopOwner/resetPassword";
 import checkOtp from "../controller/shopOwner/checkOtp";
 import createPdf from "../utility/pdf";
 import { dailySellingReport } from "../controller/report/dailySellingReport";
-import { monthlyCashReport, yearlyCashReport } from "../controller/report/cashReport";
+import {
+  monthlyCashReport,
+  yearlyCashReport,
+} from "../controller/report/cashReport";
 
 const router = Router();
 
@@ -120,7 +128,11 @@ router.get("/customer", checkValidUser, getAllCustomers);
 // get single customer
 router.get("/customer/:id", checkValidUser, getSingleCustomer);
 // get single customer phone number
-router.get("/customer-by-phone/:phone", checkValidUser, getSingleCustomerByPhone);
+router.get(
+  "/customer-by-phone/:phone",
+  checkValidUser,
+  getSingleCustomerByPhone
+);
 
 // update customer
 router.put("/customer/:id", checkValidUser, updateCustomer);
@@ -253,12 +265,15 @@ router.get("/daily-sell", checkValidUser, dailySellingReport);
  * Cash ROUTES end
  **/
 
-
 /**
  * Cash Report ROUTES start
  **/
 router.get("/cash-report/:year", checkValidUser, yearlyCashReport);
-router.get("/monthly-cash-report/:year/:month", checkValidUser, monthlyCashReport);
+router.get(
+  "/monthly-cash-report/:year/:month",
+  checkValidUser,
+  monthlyCashReport
+);
 /**
  * Cash Report ROUTES end
  **/

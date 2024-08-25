@@ -4,6 +4,7 @@ import { Response } from "express";
 
 const yearlyCashReport = async (req: ExtendedRequest, res: Response) => {
   const { year } = req.params;
+ 
   try {
     const yearlyReport = await prisma.cash.aggregateRaw({
       options: {
@@ -12,11 +13,13 @@ const yearlyCashReport = async (req: ExtendedRequest, res: Response) => {
       pipeline: [
         {
           $match: {
+            shopOwnerId: { $oid: req.shopOwner.id },
+          },
+        },
+        {
+          $match: {
             $expr: {
-              $and: [
-                { $eq: [{ $year: "$createdAt" }, year] },
-                { $eq: ["$shopOwnerId", req.shopOwner.id] },
-              ],
+              $and: [{ $eq: [{ $year: "$createdAt" }, parseInt(year)] }],
             },
           },
         },
@@ -43,11 +46,13 @@ const yearlyCashReport = async (req: ExtendedRequest, res: Response) => {
         },
       ],
     });
+   
 
     return res.status(200).json({
       yearlyReport,
       success: true,
       message: "Yearly report generated successfully",
+      
     });
   } catch (error) {
     console.log(error);
