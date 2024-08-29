@@ -101,7 +101,7 @@ model Customer {
   shopOwner   ShopOwner @relation(fields: [shopOwnerId], references: [id])
   shopOwnerId String    @db.ObjectId
 
-  customerPaymentHistories CustomerPaymentHistory[]
+  customerPaymentHistories CustomerPaymentHistory[] 
 
   invoiceHistory ProductVoicer[]
 
@@ -118,7 +118,7 @@ model CustomerPaymentHistory {
   shopOwner   ShopOwner @relation(fields: [shopOwnerId], references: [id])
   shopOwnerId String    @db.ObjectId
 
-  customer   Customer @relation(fields: [customerId], references: [id])
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade )
   customerId String   @db.ObjectId
 
   createdAt DateTime @default(now())
@@ -143,10 +143,10 @@ model ProductVoicer {
   shopOwner   ShopOwner @relation(fields: [shopOwnerId], references: [id])
   shopOwnerId String    @db.ObjectId
 
-  customer   Customer @relation(fields: [customerId], references: [id])
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade )
   customerId String   @db.ObjectId
 
-  sellingProducts SellingProduct[]
+  sellingProducts SellingProduct[] 
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -167,7 +167,7 @@ model SellingProduct {
   shopOwner   ShopOwner @relation(fields: [shopOwnerId], references: [id])
   shopOwnerId String    @db.ObjectId
 
-  productVoicer   ProductVoicer @relation(fields: [productVoicerId], references: [id])
+  productVoicer   ProductVoicer @relation(fields: [productVoicerId], references: [id],onDelete: Cascade )
   productVoicerId String        @db.ObjectId
 
   createdAt DateTime @default(now())

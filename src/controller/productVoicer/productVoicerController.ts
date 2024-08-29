@@ -20,10 +20,11 @@ let browser;
 
 const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
   try {
-    const { sellingProducts, customerId, paidAmount } = req.body as {
+    const { sellingProducts, customerId, paidAmount,date } = req.body as {
       sellingProducts: SellingProduct[];
       customerId: string;
       paidAmount: number;
+      date : Date;
     };
 
     // find user by Customer id
@@ -91,12 +92,23 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
       });
     }
 
+
+    // cash will get of date of today
+    const startTime = new Date(date);
+    startTime.setHours(0, 0, 0, 0);
+    const endTime = new Date(date);
+    endTime.setHours(23, 59, 59, 999);
+
     // update cash balance and cash in history
 
     // check if cash is available or not
     const cash = await prisma.cash.findUnique({
       where: {
         shopOwnerId: req.shopOwner.id,
+        createdAt: {
+          gte: startTime,
+          lte: endTime,
+        },
       },
     });
 
@@ -104,7 +116,7 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
       await prisma.cash.create({
         data: {
           shopOwnerId: req.shopOwner.id,
-          cashBalance: totalBill,
+          cashBalance: paidAmount,
           cashInHistory: {
             create: {
               cashInAmount: paidAmount,
@@ -120,14 +132,18 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
       await prisma.cash.update({
         where: {
           shopOwnerId: req.shopOwner.id,
+          createdAt: {
+            gte: startTime,
+            lte: endTime,
+          },
         },
         data: {
           cashBalance: {
-            increment: totalBill,
+            increment: paidAmount,
           },
           cashInHistory: {
             create: {
-              cashInAmount: totalBill,
+              cashInAmount: paidAmount,
               cashInFor: "Product sell",
               shopOwnerId: req.shopOwner.id,
               cashInDate: new Date(),

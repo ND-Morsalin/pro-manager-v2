@@ -220,6 +220,9 @@ const updateCustomer = async (req: ExtendedRequest, res: Response) => {
           paidAmount: {
             increment: paidAmount,
           },
+          deuAmount:{
+            decrement: paidAmount
+          },
           customerPaymentHistories: {
             create: {
               paymentAmount: paidAmount,
@@ -317,6 +320,7 @@ const deleteCustomer = async (req: ExtendedRequest, res: Response) => {
       customer: deletedCustomer,
     });
   } catch (error) {
+    console.log({error})
     return res.status(500).json({
       success: false,
       errors: [

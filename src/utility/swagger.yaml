@@ -266,6 +266,7 @@ paths:
                     type: array
                     items:
                       $ref: "#/components/schemas/Error"
+  
   /api/products:
     post:
       summary: Create a new product
@@ -425,6 +426,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+  
   /api/customer:
     post:
       summary: Create a new customer
@@ -1137,6 +1139,10 @@ paths:
                   type: string
                 paidAmount:
                   type: number
+                date:
+                  type: string
+                  format: date-time
+                  description: The date of the transaction
               required:
                 - sellingProducts
                 - customerId
@@ -1219,6 +1225,7 @@ paths:
                           type: string
                           example: createProductVoicer
                           description: The location of the error in the code
+  
   /api/business-contact-info:
     post:
       summary: Create a new business contact info
@@ -1499,6 +1506,7 @@ paths:
                 - cashOutBalance
                 - note
                 - requestType
+                - date
       responses:
         "200":
           description: Cash transaction created successfully

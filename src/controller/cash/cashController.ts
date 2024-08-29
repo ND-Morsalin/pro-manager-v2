@@ -147,10 +147,19 @@ const crateCash = async (req: ExtendedRequest, res: Response) => {
       });
     }
 
+    const cashNew = await prisma.cash.findUnique({
+      where: {
+        shopOwnerId: req.shopOwner.id,
+        createdAt: {
+          gte: startTime,
+          lte: endTime,
+        },
+      },
+    });
     return res.status(200).json({
       success: true,
       message: "cash updated",
-      cash: updatedCash,
+      cash: cashNew,
     });
   } catch (error) {
     console.log({ error });
@@ -221,7 +230,7 @@ const getAllCash = async (req: ExtendedRequest, res: Response) => {
       });
     }
     console.log({ cashLen: cash.length });
-    return res.json({ success: true, cashLen: cash.length });
+    return res.json({ success: true, cashLen: cash.length,cash });
   } catch (error) {
     console.log({ error });
     return res.status(500).json({
@@ -294,5 +303,5 @@ const getTodayCash = async (req: ExtendedRequest, res: Response) => {
     });
   }
 };
-
+prisma.$disconnect();
 export { crateCash, getAllCash, getTodayCash, createManyCash };
