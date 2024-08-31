@@ -91,15 +91,15 @@ model Product {
 model Customer {
   id           String @id @default(auto()) @map("_id") @db.ObjectId
   customerName String
-  phoneNumber  String @unique
+  phoneNumber  String
   address      String
   deuAmount    Float
   paidAmount   Float
   // customer payment history
 
   // ShopOwner id
-  shopOwner   ShopOwner @relation(fields: [shopOwnerId], references: [id])
-  shopOwnerId String    @db.ObjectId
+  shopOwner   ShopOwner @relation(fields: [shopOwnerId], references: [id]) 
+  shopOwnerId String    @db.ObjectId @unique
 
   customerPaymentHistories CustomerPaymentHistory[] 
 

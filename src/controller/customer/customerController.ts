@@ -11,6 +11,7 @@ const addCustomer = async (req: ExtendedRequest, res: Response) => {
     const oldCustomer = await prisma.customer.findUnique({
       where: {
         phoneNumber: phoneNumber as string,
+        shopOwnerId: req.shopOwner.id
       },
     });
 
