@@ -210,6 +210,7 @@ const crateCash = async (req: ExtendedRequest, res: Response) => {
       cashInHistory,
       cashOutHistory,
     });
+
   } catch (error) {
     console.log({ error });
     return res.status(500).json({
@@ -225,6 +226,7 @@ const crateCash = async (req: ExtendedRequest, res: Response) => {
       ],
     });
   }
+
 };
 
 const createManyCash = async (req: ExtendedRequest, res: Response) => {
@@ -308,17 +310,13 @@ const getTodayCash = async (req: ExtendedRequest, res: Response) => {
     const endDate = new Date();
     endDate.setHours(23, 59, 59, 999);
 
-    const cash = await prisma.cash.findMany({
+    const cash = await prisma.cash.findUnique({
       where: {
         shopOwnerId: req.shopOwner.id,
         createdAt: {
           gte: startDate,
           lte: endDate,
         },
-      },
-      include: {
-        cashInHistory: true,
-        cashOutHistory: true,
       },
     });
 
@@ -336,7 +334,48 @@ const getTodayCash = async (req: ExtendedRequest, res: Response) => {
       });
     }
 
-    return res.json({ success: true, cash });
+    // Today Cash In History
+    const cashInHistory = await prisma.cashInHistory.findMany({
+      where: {
+        shopOwnerId: req.shopOwner.id,
+        cashInDate: {
+          gte: startDate,
+          lte: endDate,
+        },
+      },
+    });
+
+    // Today Cash Out History
+    const cashOutHistory = await prisma.cashOutHistory.findMany({
+      where: {
+        shopOwnerId: req.shopOwner.id,
+        cashOutDate: {
+          gte: startDate,
+          lte: endDate,
+        },
+      },
+    });
+
+    const todayTotalCashIn = cashInHistory.reduce(
+      (acc, curr) => acc + curr.cashInAmount,
+      0
+    );
+
+    const todayTotalCashOut = cashOutHistory.reduce(
+      (acc, curr) => acc + curr.cashOutAmount,
+      0
+    );
+
+    return res.json({
+      success: true,
+      message: "cash updated successfully",
+      todayCashBalance: cash.cashBalance,
+      todayTotalCashOut,
+      todayTotalCashIn,
+      cashInHistory,
+      cashOutHistory,
+    });
+
   } catch (error) {
     console.log(error);
     return res.status(500).json({

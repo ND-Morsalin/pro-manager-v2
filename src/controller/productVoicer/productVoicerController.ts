@@ -7,6 +7,7 @@ import path from "path";
 import Handlebars from "handlebars";
 
 import puppeteer from "puppeteer";
+import purchaseConfirmBySms from "../../utility/purchaseConfirmBySms";
 
 // Outside the function, at the top of your file
 let browser;
@@ -14,17 +15,17 @@ let browser;
 (async () => {
   browser = await puppeteer.launch({
     headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    args: ["--no-sandbox", "--disable-setuid-sandbox"],
   });
 })();
 
 const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
   try {
-    const { sellingProducts, customerId, paidAmount,date } = req.body as {
+    const { sellingProducts, customerId, paidAmount, date } = req.body as {
       sellingProducts: SellingProduct[];
       customerId: string;
       paidAmount: number;
-      date : Date;
+      date: Date;
     };
 
     // find user by Customer id
@@ -91,7 +92,6 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
         },
       });
     }
-
 
     // cash will get of date of today
     const startTime = new Date(date);
@@ -172,12 +172,12 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
       },
     });
 
-     // ... (previous code remains unchanged)
+    // ... (previous code remains unchanged)
     const pdfProductData = sellingProducts.map((product) => ({
       ...product,
       totalProductPrice: product.sellingPrice * product.quantity,
     }));
-    
+
     const data = {
       customerName: customer.customerName,
       address: customer.address,
@@ -190,6 +190,15 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
       shopOwnerName: req.shopOwner.shopName,
       shopOwnerPhone: req.shopOwner.mobile,
     };
+
+    // send message to customer
+    purchaseConfirmBySms({
+      mobile: customer.phoneNumber,
+      totalAmount: totalBill,
+      dueAmount: totalBill - paidAmount + customer.deuAmount,
+      shopName: req.shopOwner.shopName,
+    });
+    // send message to customer end
 
     // Register Handlebars helpers (this can be outside the function if reused across requests)
     Handlebars.registerHelper("incrementedIndex", function (index) {
@@ -212,34 +221,33 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
     // Optimized Puppeteer launch and PDF generation
     const browser = await puppeteer.launch({
       headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      args: ["--no-sandbox", "--disable-setuid-sandbox"],
     });
 
     // Inside the createProductVoicer function
-const page = await browser.newPage();
-await page.setRequestInterception(true);
+    const page = await browser.newPage();
+    await page.setRequestInterception(true);
 
-page.on('request', (request) => {
-  if (['image', 'stylesheet', 'font'].includes(request.resourceType())) {
-    request.abort();
-  } else {
-    request.continue();
-  }
-});
+    page.on("request", (request) => {
+      if (["image", "stylesheet", "font"].includes(request.resourceType())) {
+        request.abort();
+      } else {
+        request.continue();
+      }
+    });
 
-await page.setContent(html);
+    await page.setContent(html);
 
-const pdfBuffer = await page.pdf({
-  format: 'A4',
-  printBackground: true,
-});
+    const pdfBuffer = await page.pdf({
+      format: "A4",
+      printBackground: true,
+    });
 
-await page.close();
+    await page.close();
 
-res.setHeader("Content-Type", "application/pdf");
-res.setHeader("Content-Disposition", "attachment; filename=invoice.pdf");
-res.send(pdfBuffer);
-
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", "attachment; filename=invoice.pdf");
+    res.send(pdfBuffer);
   } catch (error) {
     console.log({
       error,

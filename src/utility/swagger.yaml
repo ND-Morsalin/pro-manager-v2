@@ -1628,7 +1628,7 @@ paths:
           description: The date for filtering today's cash transactions
       responses:
         "200":
-          description: List of today's cash transactions
+          description: Today cash transactions
           content:
             application/json:
               schema:
@@ -1637,24 +1637,26 @@ paths:
                   success:
                     type: boolean
                     description: Indicates if the request was successful
-                  cash:
+                  message:
+                    type: string
+                    description: A message indicating the status of the operation
+                  todayCashBalance:
+                    type: number
+                    description: The cash balance for today
+                  todayTotalCashOut:
+                    type: number
+                    description: The total cash-out for today
+                  todayTotalCashIn:
+                    type: number
+                    description: The total cash-in for today
+                  cashInHistory:
                     type: array
                     items:
-                      $ref: "#/components/schemas/Cash"
-        "404":
-          description: Cash not found
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    description: Indicates if the request was successful
-                  errors:
+                      $ref: "#/components/schemas/CashTransaction"
+                  cashOutHistory:
                     type: array
                     items:
-                      $ref: "#/components/schemas/Error"
+                      $ref: "#/components/schemas/CashTransaction"
         "500":
           description: Internal server error
           content:
