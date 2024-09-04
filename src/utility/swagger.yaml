@@ -1521,8 +1521,23 @@ paths:
                   message:
                     type: string
                     description: A message indicating the status of the operation
-                  cash:
-                    $ref: "#/components/schemas/Cash"
+                  todayCashBalance:
+                    type: number
+                    description: The cash balance for today
+                  todayTotalCashOut:
+                    type: number
+                    description: The total cash-out for today
+                  todayTotalCashIn:
+                    type: number
+                    description: The total cash-in for today
+                  cashInHistory:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/CashTransaction"
+                  cashOutHistory:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/CashTransaction"
         "500":
           description: Internal server error
           content:
@@ -1804,6 +1819,7 @@ components:
               type: string
         token:
           type: string
+    
     Product:
       type: object
       properties:

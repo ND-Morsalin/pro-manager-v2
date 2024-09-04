@@ -50,6 +50,8 @@ import {
   createManyCash,
   getAllCash,
   getTodayCash,
+  getTodayCashInHistory,
+  getTodayCashOutHistory,
 } from "../controller/cash/cashController";
 import forgetPassword from "../controller/shopOwner/forgetPass";
 import resetPassword from "../controller/shopOwner/resetPassword";
@@ -260,6 +262,9 @@ router.get("/cash", checkValidUser, getAllCash);
 router.get("/today-cash/:today", checkValidUser, getTodayCash);
 
 router.get("/daily-sell", checkValidUser, dailySellingReport);
+
+router.get("/today-cash-in/:today", checkValidUser, getTodayCashInHistory);
+router.get("/today-cash-out/:today", checkValidUser, getTodayCashOutHistory);
 
 /**
  * Cash ROUTES end
