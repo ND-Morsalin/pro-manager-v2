@@ -16,10 +16,10 @@ const purchaseConfirmBySms = async ({
 
 try {
     const smsPost = await axios.get(
-        `http://bulksmsbd.net/api/smsapi?api_key=3CuemU2YW4dCNqDJulbJ&type=text&number=88${'01646653053'}&senderid=8809617618303&message=Your Manager.com 
-        দোকানের নাম: ${shopName}
-        মোট পণ্য ক্রয়: ${totalAmount} টাকা
-        বকেয়া আছে: ${dueAmount} টাকা
+        `http://bulksmsbd.net/api/smsapi?api_key=3CuemU2YW4dCNqDJulbJ&type=text&number=88${mobile}&senderid=8809617618303&message=ProManager
+${shopName}
+পণ্য ক্রয়: ${totalAmount} ৳
+বকেয়া: ${dueAmount} ৳
         `
       );
      console.log({

@@ -189,6 +189,9 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
       remainingDue: totalBill - paidAmount + customer.deuAmount,
       shopOwnerName: req.shopOwner.shopName,
       shopOwnerPhone: req.shopOwner.mobile,
+      date: newProductVoicer.createdAt.toDateString(),
+      // invoiceId will be 6 digit 
+      invoiceId: newProductVoicer.id.toString().slice(0, 10),
     };
 
     // send message to customer
