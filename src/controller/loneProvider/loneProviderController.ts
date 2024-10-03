@@ -22,7 +22,7 @@ const createLoneProvider = async (req: ExtendedRequest, res: Response) => {
         phoneNumber,
         totalLoneTaken,
         shopOwnerId: req.shopOwner.id,
-        loneTakenDate: loneTakenDate || new Date(),
+        loneTakenDate:  new Date(loneTakenDate),
       },
     });
 

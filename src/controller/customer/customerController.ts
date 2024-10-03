@@ -11,7 +11,7 @@ const addCustomer = async (req: ExtendedRequest, res: Response) => {
     const oldCustomer = await prisma.customer.findUnique({
       where: {
         phoneNumber: phoneNumber as string,
-        shopOwnerId: req.shopOwner.id
+        shopOwnerId: req.shopOwner.id,
       },
     });
 
@@ -130,10 +130,43 @@ const getSingleCustomer = async (req: ExtendedRequest, res: Response) => {
       },
     });
 
+    // if customer not found
+    if (!customer) {
+      return res.status(404).json({
+        success: false,
+        errors: [
+          {
+            type: "not found",
+            value: "",
+            msg: "Customer not found",
+          },
+        ],
+      });
+    }
+
+    // if customer found then find all invoice history payment history of this customer
+    const invoiceHistory = await prisma.productVoicer.findMany({
+      where: {
+        customerId: id as string,
+        shopOwnerId: req.shopOwner.id,
+      },
+    });
+
+    const customerPaymentHistory = await prisma.customerPaymentHistory.findMany(
+      {
+        where: {
+          customerId: id as string,
+          shopOwnerId: req.shopOwner.id,
+        },
+      }
+    );
+
     return res.status(200).json({
       success: true,
       message: "Single customer",
       customer,
+      invoiceHistory,
+      customerPaymentHistory,
     });
   } catch (error) {
     return res.status(500).json({
@@ -151,7 +184,10 @@ const getSingleCustomer = async (req: ExtendedRequest, res: Response) => {
   }
 };
 
-const getSingleCustomerByPhone = async (req: ExtendedRequest, res: Response) => {
+const getSingleCustomerByPhone = async (
+  req: ExtendedRequest,
+  res: Response
+) => {
   try {
     const { phone } = req.params;
 
@@ -162,10 +198,44 @@ const getSingleCustomerByPhone = async (req: ExtendedRequest, res: Response) => 
       },
     });
 
+    // if customer not found
+    if (!customer) {
+      return res.status(404).json({
+        success: false,
+        errors: [
+          {
+            type: "not found",
+            value: "",
+            msg: "Customer not found",
+          },
+        ],
+      });
+    }
+
+    // if customer found then find all invoice history payment history of this customer
+    const invoiceHistory = await prisma.productVoicer.findMany({
+      where: {
+        customerId: customer.id,
+        shopOwnerId: req.shopOwner.id,
+      },
+    });
+
+    const customerPaymentHistory = await prisma.customerPaymentHistory.findMany(
+      {
+        where: {
+          customerId: customer.id,
+          shopOwnerId: req.shopOwner.id,
+        },
+      }
+    );
+
+
     return res.status(200).json({
       success: true,
       message: "Single customer by phone number",
       customer,
+      invoiceHistory,
+      customerPaymentHistory,
     });
   } catch (error) {
     return res.status(500).json({
@@ -187,7 +257,12 @@ const getSingleCustomerByPhone = async (req: ExtendedRequest, res: Response) => 
 const updateCustomer = async (req: ExtendedRequest, res: Response) => {
   try {
     const { id } = req.params;
-    const { deuAmount, paidAmount } = req.body as Customer;
+    const { deuAmount, paidAmount,date ,note} = req.body as  {
+      deuAmount: number;
+      paidAmount: number;
+      date: string;
+      note: string;
+    } ;
 
     const updatedCustomerDeu =
       deuAmount &&
@@ -221,8 +296,8 @@ const updateCustomer = async (req: ExtendedRequest, res: Response) => {
           paidAmount: {
             increment: paidAmount,
           },
-          deuAmount:{
-            decrement: paidAmount
+          deuAmount: {
+            decrement: paidAmount,
           },
           customerPaymentHistories: {
             create: {
@@ -235,6 +310,12 @@ const updateCustomer = async (req: ExtendedRequest, res: Response) => {
       }));
 
     // update cash balance
+
+    const startTime = new Date(date);
+    startTime.setHours(0, 0, 0, 0);
+    const endTime = new Date(date);
+    endTime.setHours(23, 59, 59, 999);
+
     const cash = await prisma.cash.findUnique({
       where: {
         shopOwnerId: req.shopOwner.id,
@@ -245,6 +326,10 @@ const updateCustomer = async (req: ExtendedRequest, res: Response) => {
       await prisma.cash.update({
         where: {
           shopOwnerId: req.shopOwner.id,
+          createdAt: {
+            gte: startTime,
+            lte: endTime,
+          },
         },
         data: {
           cashBalance: {
@@ -263,12 +348,59 @@ const updateCustomer = async (req: ExtendedRequest, res: Response) => {
       await prisma.cash.create({
         data: {
           cashBalance: paidAmount,
-          shopOwnerId: req.shopOwner.id,
           cashInHistory: {
             create: {
               cashInAmount: paidAmount,
-              cashInFor: `Customer give his/her previous due `,
+              cashInFor: note,
               shopOwnerId: req.shopOwner.id,
+              cashInDate: new Date(date),
+            },
+          },
+          shopOwner: {
+            connect: {
+              id: req.shopOwner.id,
+            },
+          },
+        },
+      });
+    } else if (deuAmount > 0 && cash) {
+      await prisma.cash.update({
+        where: {
+          shopOwnerId: req.shopOwner.id,
+          createdAt: {
+            gte: startTime,
+            lte: endTime,
+          },
+        },
+        data: {
+          cashBalance: {
+            decrement: deuAmount,
+          },
+          cashOutHistory: {
+            create: {
+              cashOutAmount: deuAmount,
+              cashOutFor: note,
+              shopOwnerId: req.shopOwner.id,
+              cashOutDate: new Date(date),
+            },
+          },
+        },
+      });
+    } else if (deuAmount > 0) {
+      await prisma.cash.create({
+        data: {
+          cashBalance: -deuAmount,
+          cashOutHistory: {
+            create: {
+              cashOutAmount: deuAmount,
+              cashOutFor: note,
+              shopOwnerId: req.shopOwner.id,
+              cashOutDate: new Date( date),
+            },
+          },
+          shopOwner: {
+            connect: {
+              id: req.shopOwner.id,
             },
           },
         },
@@ -321,7 +453,7 @@ const deleteCustomer = async (req: ExtendedRequest, res: Response) => {
       customer: deletedCustomer,
     });
   } catch (error) {
-    console.log({error})
+    console.log({ error });
     return res.status(500).json({
       success: false,
       errors: [

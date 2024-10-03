@@ -1925,6 +1925,15 @@ components:
           type: string
         customer:
           $ref: "#/components/schemas/Customer"
+        invoiceHistory: 
+          type: array
+          items:
+            $ref: "#/components/schemas/CustomerPaymentHistory"
+        customerPaymentHistory: 
+          type: array
+          items:
+            $ref: "#/components/schemas/CustomerPaymentHistory"
+        
     CustomersResponse:
       type: object
       properties:

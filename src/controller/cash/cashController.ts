@@ -67,7 +67,7 @@ const crateCash = async (req: ExtendedRequest, res: Response) => {
                 cashInAmount: cashInBalance,
                 cashInFor: note,
                 shopOwnerId: req.shopOwner.id,
-                cashInDate: date || new Date(),
+                cashInDate: new Date(date),
               },
             },
             shopOwner: {
@@ -86,7 +86,7 @@ const crateCash = async (req: ExtendedRequest, res: Response) => {
                 cashOutAmount: cashOutBalance,
                 cashOutFor: note,
                 shopOwnerId: req.shopOwner.id,
-                cashOutDate: new Date(),
+                cashOutDate: new Date(date),
               },
             },
             shopOwner: {
@@ -307,7 +307,7 @@ const getTodayCash = async (req: ExtendedRequest, res: Response) => {
     const today = req.params.today;
     const startDate = new Date(today);
     startDate.setHours(0, 0, 0, 0);
-    const endDate = new Date();
+    const endDate = new Date(today);
     endDate.setHours(23, 59, 59, 999);
 
     const cash = await prisma.cash.findUnique({
