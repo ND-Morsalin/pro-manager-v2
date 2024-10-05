@@ -609,6 +609,12 @@ paths:
                   type: number
                 paidAmount:
                   type: number
+                date:
+                  type: string
+                  format: date-time
+                  description: The date of the transaction
+                note:
+                  type: string
               required:
                 - mobile
                 - paidAmount

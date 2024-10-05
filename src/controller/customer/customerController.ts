@@ -229,7 +229,6 @@ const getSingleCustomerByPhone = async (
       }
     );
 
-
     return res.status(200).json({
       success: true,
       message: "Single customer by phone number",
@@ -257,12 +256,12 @@ const getSingleCustomerByPhone = async (
 const updateCustomer = async (req: ExtendedRequest, res: Response) => {
   try {
     const { id } = req.params;
-    const { deuAmount, paidAmount,date ,note} = req.body as  {
+    const { deuAmount, paidAmount, date, note } = req.body as {
       deuAmount: number;
       paidAmount: number;
       date: string;
       note: string;
-    } ;
+    };
 
     const updatedCustomerDeu =
       deuAmount &&
@@ -395,7 +394,7 @@ const updateCustomer = async (req: ExtendedRequest, res: Response) => {
               cashOutAmount: deuAmount,
               cashOutFor: note,
               shopOwnerId: req.shopOwner.id,
-              cashOutDate: new Date( date),
+              cashOutDate: new Date(date),
             },
           },
           shopOwner: {

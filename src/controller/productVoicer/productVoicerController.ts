@@ -35,6 +35,10 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
         shopOwnerId: req.shopOwner.id,
       },
     });
+    console.log({
+      customer,
+      customerId,
+    })
 
     if (!customer) {
       return res.status(404).json({

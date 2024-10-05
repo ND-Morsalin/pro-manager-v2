@@ -134,16 +134,24 @@ const updateProduct = async (req: Request, res: Response) => {
     const { stokeAmount, buyingPrice, sellingPrice, unit, shopOwnerId } =
       req.body as Product;
 
+    const oldProduct = await prisma.product.findUnique({
+      where: {
+        id,
+        shopOwnerId,
+      },
+    });
+
     const product = await prisma.product.update({
       where: {
         id,
         shopOwnerId,
       },
       data: {
-        stokeAmount,
-        buyingPrice,
-        sellingPrice,
-        unit,
+        // if the value is not provided, it will not be updated
+        stokeAmount: stokeAmount || oldProduct?.stokeAmount,
+        buyingPrice: buyingPrice || oldProduct?.buyingPrice,
+        sellingPrice: sellingPrice || oldProduct?.sellingPrice,
+        unit: unit || oldProduct?.unit,
       },
     });
 
@@ -153,6 +161,7 @@ const updateProduct = async (req: Request, res: Response) => {
       product,
     });
   } catch (error) {
+    console.log(error);
     return res.status(500).json({
       success: false,
       errors: [
