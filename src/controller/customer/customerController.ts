@@ -318,9 +318,16 @@ const updateCustomer = async (req: ExtendedRequest, res: Response) => {
     const cash = await prisma.cash.findUnique({
       where: {
         shopOwnerId: req.shopOwner.id,
+        createdAt: {
+          gte: startTime,
+          lte: endTime,
+        },
       },
     });
-
+console.log({
+  paidAmount,
+  cash
+})
     if (paidAmount > 0 && cash) {
       await prisma.cash.update({
         where: {
@@ -411,6 +418,10 @@ const updateCustomer = async (req: ExtendedRequest, res: Response) => {
         shopOwnerId: req.shopOwner.id,
         id,
       },
+      include:{
+        customerPaymentHistories: true,
+        invoiceHistory: true,
+      }
     });
 
     return res.status(200).json({
