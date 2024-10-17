@@ -262,7 +262,15 @@ const createManyCash = async (req: ExtendedRequest, res: Response) => {
 
 const getAllCash = async (req: ExtendedRequest, res: Response) => {
   try {
-    const cash = await prisma.cash.findMany();
+    const cash = await prisma.cash.findMany({
+      where: {
+        shopOwnerId: req.shopOwner.id,
+      },
+      include: {
+        cashInHistory: true,
+        cashOutHistory: true,
+      }
+    });
 
     // if cash is not available then return error
     if (!cash) {
@@ -279,8 +287,7 @@ const getAllCash = async (req: ExtendedRequest, res: Response) => {
         ],
       });
     }
-    console.log({ cashLen: cash.length });
-    return res.json({ success: true, cashLen: cash.length, cash });
+    res.json({ success: true, cash });
   } catch (error) {
     console.log({ error });
     return res.status(500).json({

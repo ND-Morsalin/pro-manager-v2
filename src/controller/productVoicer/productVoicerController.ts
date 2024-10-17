@@ -21,12 +21,14 @@ let browser;
 
 const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
   try {
-    const { sellingProducts, customerId, paidAmount, date } = req.body as {
-      sellingProducts: SellingProduct[];
-      customerId: string;
-      paidAmount: number;
-      date: Date;
-    };
+    const { sellingProducts, customerId, paidAmount, date, discountAmount } =
+      req.body as {
+        sellingProducts: SellingProduct[];
+        customerId: string;
+        paidAmount: number;
+        date: Date;
+        discountAmount: number | undefined;
+      };
 
     // find user by Customer id
     const customer = await prisma.customer.findUnique({
@@ -38,7 +40,7 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
     console.log({
       customer,
       customerId,
-    })
+    });
 
     if (!customer) {
       return res.status(404).json({
@@ -66,7 +68,9 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
         shopOwnerId: req.shopOwner.id,
         totalBillAmount: totalBill,
         paidAmount,
-        remainingDue: totalBill - paidAmount + customer.deuAmount,
+        remainingDue:
+          totalBill - paidAmount + customer.deuAmount - discountAmount,
+        discountAmount,
         sellingProducts: {
           create: sellingProducts.map((product) => {
             return {
@@ -126,7 +130,7 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
               cashInAmount: paidAmount,
               cashInFor: `Product sell to ${customer.customerName}`,
               shopOwnerId: req.shopOwner.id,
-              cashInDate:  new Date(date),
+              cashInDate: new Date(date),
             },
           },
         },
@@ -164,7 +168,7 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
       },
       data: {
         deuAmount: {
-          increment: totalBill - paidAmount,
+          increment: totalBill - (paidAmount + discountAmount),
         },
         customerPaymentHistories: {
           create: {
@@ -194,8 +198,9 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
       shopOwnerName: req.shopOwner.shopName,
       shopOwnerPhone: req.shopOwner.mobile,
       date: newProductVoicer.createdAt.toDateString(),
-      // invoiceId will be 6 digit 
+      // invoiceId will be 6 digit
       invoiceId: newProductVoicer.id.toString().slice(0, 10),
+      discountAmount: discountAmount||0 ,
     };
 
     // send message to customer

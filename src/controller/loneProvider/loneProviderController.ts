@@ -22,7 +22,22 @@ const createLoneProvider = async (req: ExtendedRequest, res: Response) => {
         phoneNumber,
         totalLoneTaken,
         shopOwnerId: req.shopOwner.id,
-        loneTakenDate:  new Date(loneTakenDate),
+        loneTakenDate: new Date(loneTakenDate),
+      },
+    });
+
+    const loneHistory = await prisma.lonePaymentHistory.create({
+      data: {
+        lonePaymentStatus: "SHOPOWNERRECIVED",
+        givingAmount: totalLoneTaken,
+        loneProviderId: newLoneProvider.id,
+        shopOwnerId: req.shopOwner.id,
+      },
+    });
+
+    const loneProviderHistory = await prisma.lonePaymentHistory.findMany({
+      where: {
+        loneProviderId: newLoneProvider.id,
       },
     });
 
@@ -30,6 +45,7 @@ const createLoneProvider = async (req: ExtendedRequest, res: Response) => {
       success: true,
       message: "Lone provider created successfully",
       loneProvider: newLoneProvider,
+      loneProviderHistory
     });
   } catch (error) {
     console.log({
@@ -120,9 +136,16 @@ const getSingleLoneProvider = async (req: ExtendedRequest, res: Response) => {
       });
     }
 
+    const loneProviderHistory = await prisma.lonePaymentHistory.findMany({
+      where: {
+        loneProviderId: id,
+      },
+    });
+
     return res.status(200).json({
       success: true,
       loneProvider,
+      loneProviderHistory,
     });
   } catch (error) {
     return res.status(500).json({
@@ -144,7 +167,7 @@ const updateLoneProvider = async (req: ExtendedRequest, res: Response) => {
   try {
     const { id: loneProviderId } = req.params;
     const { givingLoneDeuAmount, receivingNewLoneAmount, lonePaymentStatus } =
-      req.body as {
+      req.body as {  
         givingLoneDeuAmount: string;
         receivingNewLoneAmount: string;
         lonePaymentStatus: "SHOPOWNERGIVE" | "SHOPOWNERRECIVED";
@@ -203,11 +226,19 @@ const updateLoneProvider = async (req: ExtendedRequest, res: Response) => {
       });
     }
 
+    const loneProviderHistory = await prisma.lonePaymentHistory.findMany({
+      where: {
+        loneProviderId: loneProviderId as string,
+      },
+    });
+
     return res.status(200).json({
       success: true,
       message: "Lone provider updated successfully",
       loneProvider: updatedLoneProvider,
+      loneProviderHistory,
     });
+
   } catch (error) {
     console.log(
       "🚀 ~ file: loneProviderController.ts ~ line 203 ~ updateLoneProvider ~ error",
@@ -230,13 +261,13 @@ const updateLoneProvider = async (req: ExtendedRequest, res: Response) => {
 
 const deleteLoneProvider = async (req: ExtendedRequest, res: Response) => {
   try {
-    const { id } = req.params as { id: string }; 
+    const { id } = req.params as { id: string };
     const loneProviderDeleted = await prisma.loneProvider.delete({
       where: {
         id: id as string,
       },
     });
-    
+
     return res.status(200).json({
       success: true,
       message: "Lone provider deleted successfully",

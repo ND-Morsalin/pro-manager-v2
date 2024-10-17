@@ -138,6 +138,7 @@ model ProductVoicer {
   totalBillAmount Float
   paidAmount Float
   remainingDue Float
+  discountAmount Float?
 
   // ShopOwner id
   shopOwner   ShopOwner @relation(fields: [shopOwnerId], references: [id])

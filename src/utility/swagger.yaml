@@ -266,7 +266,7 @@ paths:
                     type: array
                     items:
                       $ref: "#/components/schemas/Error"
-  
+
   /api/products:
     post:
       summary: Create a new product
@@ -426,7 +426,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-  
+
   /api/customer:
     post:
       summary: Create a new customer
@@ -1231,7 +1231,7 @@ paths:
                           type: string
                           example: createProductVoicer
                           description: The location of the error in the code
-  
+
   /api/business-contact-info:
     post:
       summary: Create a new business contact info
@@ -1526,16 +1526,16 @@ paths:
                     description: Indicates if the request was successful
                   message:
                     type: string
-                    description: A message indicating the status of the operation
+                    description: Status of the operation
                   todayCashBalance:
                     type: number
-                    description: The cash balance for today
+                    description: Cash balance for today
                   todayTotalCashOut:
                     type: number
-                    description: The total cash-out for today
+                    description: Total cash-out for today
                   todayTotalCashIn:
                     type: number
-                    description: The total cash-in for today
+                    description: Total cash-in for today
                   cashInHistory:
                     type: array
                     items:
@@ -1553,7 +1553,6 @@ paths:
                 properties:
                   success:
                     type: boolean
-                    description: Indicates if the request was successful
                   errors:
                     type: array
                     items:
@@ -1580,7 +1579,6 @@ paths:
                 properties:
                   success:
                     type: boolean
-                    description: Indicates if the request was successful
                   cash:
                     type: array
                     items:
@@ -1594,7 +1592,6 @@ paths:
                 properties:
                   success:
                     type: boolean
-                    description: Indicates if the request was successful
                   errors:
                     type: array
                     items:
@@ -1608,11 +1605,59 @@ paths:
                 properties:
                   success:
                     type: boolean
-                    description: Indicates if the request was successful
                   errors:
                     type: array
                     items:
                       $ref: "#/components/schemas/Error"
+
+  /api/create-many-cash:
+    post:
+      summary: Create multiple cash transactions
+      tags:
+        - Cash In Out
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "#/components/schemas/CashTransaction"
+      responses:
+        "200":
+          description: Multiple cash transactions created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Indicates if the request was successful
+                  message:
+                    type: string
+                    description: Status of the operation
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  errors:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Error"
+
   /api/today-cash/{today}:
     get:
       summary: Get today's cash transactions
@@ -1631,10 +1676,10 @@ paths:
           schema:
             type: string
             format: date
-          description: The date for filtering today's cash transactions
+          description: Date for filtering today's cash transactions
       responses:
         "200":
-          description: Today cash transactions
+          description: Today's cash transactions
           content:
             application/json:
               schema:
@@ -1642,19 +1687,18 @@ paths:
                 properties:
                   success:
                     type: boolean
-                    description: Indicates if the request was successful
                   message:
                     type: string
-                    description: A message indicating the status of the operation
+                    description: Status of the operation
                   todayCashBalance:
                     type: number
-                    description: The cash balance for today
+                    description: Today's cash balance
                   todayTotalCashOut:
                     type: number
-                    description: The total cash-out for today
+                    description: Today's total cash-out
                   todayTotalCashIn:
                     type: number
-                    description: The total cash-in for today
+                    description: Today's total cash-in
                   cashInHistory:
                     type: array
                     items:
@@ -1672,7 +1716,106 @@ paths:
                 properties:
                   success:
                     type: boolean
-                    description: Indicates if the request was successful
+                  errors:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Error"
+
+  /api/today-cash-in/{today}:
+    get:
+      summary: Get today's cash-in transactions
+      tags:
+        - Cash In Out
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+        - in: path
+          name: today
+          required: true
+          schema:
+            type: string
+            format: date
+          description: Date for filtering today's cash-in transactions
+      responses:
+        "200":
+          description: Today's cash-in transactions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                    description: Status of the operation
+                  cashInHistory:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/CashTransaction"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  errors:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Error"
+
+  /api/today-cash-out/{today}:
+    get:
+      summary: Get today's cash-out transactions
+      tags:
+        - Cash In Out
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+        - in: path
+          name: today
+          required: true
+          schema:
+            type: string
+            format: date
+          description: Date for filtering today's cash-out transactions
+      responses:
+        "200":
+          description: Today's cash-out transactions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                    description: Status of the operation
+                  cashOutHistory:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/CashTransaction"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
                   errors:
                     type: array
                     items:
@@ -1698,7 +1841,7 @@ paths:
             type: string
           description: JWT token of the shop owner
       responses:
-        '200':
+        "200":
           description: Yearly report generated successfully
           content:
             application/json:
@@ -1708,13 +1851,13 @@ paths:
                   yearlyReport:
                     type: array
                     items:
-                      $ref: '#/components/schemas/YearlyReport'
+                      $ref: "#/components/schemas/YearlyReport"
                   success:
                     type: boolean
                   message:
                     type: string
                     example: Yearly report generated successfully
-        '500':
+        "500":
           description: Internal server error
 
   /api/monthly-cash-report/{year}/{month}:
@@ -1745,7 +1888,7 @@ paths:
             type: string
           description: JWT token of the shop owner
       responses:
-        '200':
+        "200":
           description: Monthly report generated successfully
           content:
             application/json:
@@ -1755,15 +1898,14 @@ paths:
                   monthlyReport:
                     type: array
                     items:
-                      $ref: '#/components/schemas/MonthlyReport'
+                      $ref: "#/components/schemas/MonthlyReport"
                   success:
                     type: boolean
                   message:
                     type: string
                     example: Monthly report generated successfully
-        '500':
+        "500":
           description: Internal server error
-
 
 components:
   schemas:
@@ -1827,7 +1969,7 @@ components:
               type: string
         token:
           type: string
-    
+
     Product:
       type: object
       properties:
@@ -1931,15 +2073,15 @@ components:
           type: string
         customer:
           $ref: "#/components/schemas/Customer"
-        invoiceHistory: 
+        invoiceHistory:
           type: array
           items:
             $ref: "#/components/schemas/CustomerPaymentHistory"
-        customerPaymentHistory: 
+        customerPaymentHistory:
           type: array
           items:
             $ref: "#/components/schemas/CustomerPaymentHistory"
-        
+
     CustomersResponse:
       type: object
       properties:
@@ -2054,6 +2196,10 @@ components:
               type: string
               format: date-time
               example: 2024-05-28T12:00:18.004Z
+            loneProviderHistory:
+              type: array
+              items:
+                $ref: "#/components/schemas/LoneProviderHistory"
     LoneProvidersResponse:
       type: object
       properties:
@@ -2064,7 +2210,24 @@ components:
         loneProviders:
           type: array
           items:
-            $ref: "#/components/schemas/LoneProvider"
+            $ref: "#/components/schemas/LoneProviderResponse"
+    LoneProviderHistory:
+      type: object
+      properties:
+        id:
+          type: string
+        givingAmount:
+          type: number
+        lonePaymentStatus:
+          type: string
+          enum: [SHOPOWNERGIVE, SHOPOWNERRECIVED]
+        lonePaymentDate:
+          type: string
+          format: date-time
+        shopOwnerId:
+          type: string
+        loneProviderId:
+          type: string
 
     ProductVoicer:
       type: object
@@ -2226,7 +2389,6 @@ components:
         cashBalance:
           type: number
           example: 250.75
-    
 
     Error:
       type: object

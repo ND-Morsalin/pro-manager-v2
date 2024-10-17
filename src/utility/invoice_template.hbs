@@ -260,13 +260,15 @@
       </table>
     </div>
     <div class="footer">
-      <p><strong class="bengali">মোট পণ্য ক্রয়:</strong> {{totalPrice}}</p>
-      <p><strong class="bengali"> আগের বকেয়া:</strong>
+      <p><strong class="bengali">মোট পণ্য ক্রয়: </strong> {{totalPrice}}</p>
+      <p><strong class="bengali"> আগের বকেয়া: </strong>
         <span class="{{isBengali totalPrice}}"> {{beforeDue}}</span>
       </p>
-      <p><strong class="bengali">পরিশোধ:</strong><span class="{{isBengali totalPrice}}">{{nowPaying}}</span>
+      <p><strong class="bengali">পরিশোধ: </strong><span class="{{isBengali totalPrice}}">{{nowPaying}}</span>
       </p>
-      <p><strong class="bengali">বকেয়া আছে:</strong><span class="{{isBengali totalPrice}}"> {{remainingDue}}</span></p>
+      <p><strong class="bengali"> ডিসকাউন্ট: </strong><span class="{{isBengali discountAmount}}">{{nowPaying}}</span>
+      </p>
+      <p><strong class="bengali">বকেয়া আছে: </strong><span class="{{isBengali totalPrice}}"> {{remainingDue}}</span></p>
     </div>
   </div>
 </body>
