@@ -279,6 +279,7 @@ const updateCustomer = async (req: ExtendedRequest, res: Response) => {
               paymentAmount: deuAmount,
               paymentStatus: "SHOPOWNERGIVE",
               shopOwnerId: req.shopOwner.id,
+              note,
             },
           },
         },
@@ -303,6 +304,7 @@ const updateCustomer = async (req: ExtendedRequest, res: Response) => {
               paymentAmount: paidAmount,
               paymentStatus: "SHOPOWNERRECIVED",
               shopOwnerId: req.shopOwner.id,
+              note,
             },
           },
         },
@@ -344,7 +346,7 @@ console.log({
           cashInHistory: {
             create: {
               cashInAmount: paidAmount,
-              cashInFor: "customer give his/her previous deu",
+              cashInFor: note || "customer give his/her previous deu",
               shopOwnerId: req.shopOwner.id,
             },
           },
