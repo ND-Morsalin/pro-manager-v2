@@ -2,7 +2,7 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
   previewFeatures = ["groupBy"]
 }
 
@@ -15,9 +15,9 @@ datasource db {
 // Shop Owner Model start
 //**************************/
 model ShopOwner {
-  id       String @id @default(auto()) @map("_id") @db.ObjectId
+  id       String  @id @default(auto()) @map("_id") @db.ObjectId
   shopName String
-  mobile   String @unique
+  mobile   String  @unique
   pincode  String
   otp      String?
   //  relations with product, customer, loneProvider, businessContactInfo model
@@ -98,10 +98,10 @@ model Customer {
   // customer payment history
 
   // ShopOwner id
-  shopOwner   ShopOwner @relation(fields: [shopOwnerId], references: [id]) 
-  shopOwnerId String    @db.ObjectId @unique
+  shopOwner   ShopOwner @relation(fields: [shopOwnerId], references: [id])
+  shopOwnerId String    @unique @db.ObjectId
 
-  customerPaymentHistories CustomerPaymentHistory[] 
+  customerPaymentHistories CustomerPaymentHistory[]
 
   invoiceHistory ProductVoicer[]
 
@@ -114,11 +114,12 @@ model CustomerPaymentHistory {
   paymentAmount Float
   paymentStatus PaymentStatus
   paymentDate   DateTime      @default(now())
+  note          String?
 
   shopOwner   ShopOwner @relation(fields: [shopOwnerId], references: [id])
   shopOwnerId String    @db.ObjectId
 
-  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade )
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
   customerId String   @db.ObjectId
 
   createdAt DateTime @default(now())
@@ -136,18 +137,18 @@ model ProductVoicer {
   id String @id @default(auto()) @map("_id") @db.ObjectId
 
   totalBillAmount Float
-  paidAmount Float
-  remainingDue Float
-  discountAmount Float?
+  paidAmount      Float
+  remainingDue    Float
+  discountAmount  Float?
 
   // ShopOwner id
   shopOwner   ShopOwner @relation(fields: [shopOwnerId], references: [id])
   shopOwnerId String    @db.ObjectId
 
-  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade )
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
   customerId String   @db.ObjectId
 
-  sellingProducts SellingProduct[] 
+  sellingProducts SellingProduct[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -162,13 +163,13 @@ model SellingProduct {
   totalPrice   Float // sellingPrice * stokeAmount
 
   // product   Product @relation(fields: [productId], references: [id])
-  productId String  @db.ObjectId
+  productId String @db.ObjectId
 
   // ShopOwner id
   shopOwner   ShopOwner @relation(fields: [shopOwnerId], references: [id])
   shopOwnerId String    @db.ObjectId
 
-  productVoicer   ProductVoicer @relation(fields: [productVoicerId], references: [id],onDelete: Cascade )
+  productVoicer   ProductVoicer @relation(fields: [productVoicerId], references: [id], onDelete: Cascade)
   productVoicerId String        @db.ObjectId
 
   createdAt DateTime @default(now())
@@ -254,7 +255,7 @@ model Cash {
 
   // ShopOwner id
   shopOwner   ShopOwner @relation(fields: [shopOwnerId], references: [id])
-  shopOwnerId String    @db.ObjectId @unique
+  shopOwnerId String    @unique @db.ObjectId
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -304,4 +305,3 @@ enum PaymentStatus {
   SHOPOWNERRECIVED
   SHOPOWNERGIVE
 }
-  

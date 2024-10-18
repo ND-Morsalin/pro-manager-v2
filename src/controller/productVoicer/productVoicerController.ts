@@ -7,7 +7,7 @@ import path from "path";
 import Handlebars from "handlebars";
 
 import puppeteer from "puppeteer";
-import purchaseConfirmBySms from "../../utility/purchaseConfirmBySms";
+// import purchaseConfirmBySms from "../../utility/purchaseConfirmBySms";
 
 // Outside the function, at the top of your file
 let browser;
@@ -204,12 +204,12 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
     };
 
     // send message to customer
-    purchaseConfirmBySms({
-      mobile: customer.phoneNumber,
-      totalAmount: totalBill,
-      dueAmount: totalBill - paidAmount + customer.deuAmount,
-      shopName: req.shopOwner.shopName,
-    });
+    // purchaseConfirmBySms({
+    //   mobile: customer.phoneNumber,
+    //   totalAmount: totalBill,
+    //   dueAmount: totalBill - paidAmount + customer.deuAmount,
+    //   shopName: req.shopOwner.shopName,
+    // });
     // send message to customer end
 
     // Register Handlebars helpers (this can be outside the function if reused across requests)

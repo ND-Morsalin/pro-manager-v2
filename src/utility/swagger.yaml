@@ -2078,7 +2078,23 @@ components:
         invoiceHistory:
           type: array
           items:
-            $ref: "#/components/schemas/CustomerPaymentHistory"
+            schema:
+              type: object
+              properties:
+                sellingProducts:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/SellingProductVoicer"
+                customerId:
+                  type: string
+                paidAmount:
+                  type: number
+                discountAmount:
+                  type: number
+                date:
+                  type: string
+                  format: date-time
+                  description: The date of the transaction
         customerPaymentHistory:
           type: array
           items:
@@ -2106,6 +2122,8 @@ components:
         paymentAmount:
           type: number
         customerId:
+          type: string
+        note:
           type: string
       required:
         - paymentDate
