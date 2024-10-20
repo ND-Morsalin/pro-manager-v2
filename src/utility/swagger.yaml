@@ -615,6 +615,13 @@ paths:
                   description: The date of the transaction
                 note:
                   type: string
+                address:
+                  type: string
+                phoneNumber:
+                  type: string
+                customerName:
+                  type: string
+
               required:
                 - mobile
                 - paidAmount

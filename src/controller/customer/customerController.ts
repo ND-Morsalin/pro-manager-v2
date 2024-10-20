@@ -256,9 +256,20 @@ const getSingleCustomerByPhone = async (
 const updateCustomer = async (req: ExtendedRequest, res: Response) => {
   try {
     const { id } = req.params;
-    const { deuAmount, paidAmount, date, note } = req.body as {
+    const {
+      deuAmount,
+      paidAmount,
+      date,
+      note,
+      address,
+      customerName,
+      phoneNumber,
+    } = req.body as {
       deuAmount: number;
       paidAmount: number;
+      address: string;
+      customerName: string;
+      phoneNumber: string;
       date: string;
       note: string;
     };
@@ -274,6 +285,9 @@ const updateCustomer = async (req: ExtendedRequest, res: Response) => {
           deuAmount: {
             increment: deuAmount,
           },
+          address,
+          customerName,
+          phoneNumber,
           customerPaymentHistories: {
             create: {
               paymentAmount: deuAmount,
@@ -326,10 +340,10 @@ const updateCustomer = async (req: ExtendedRequest, res: Response) => {
         },
       },
     });
-console.log({
-  paidAmount,
-  cash
-})
+    console.log({
+      paidAmount,
+      cash,
+    });
     if (paidAmount > 0 && cash) {
       await prisma.cash.update({
         where: {
@@ -420,10 +434,10 @@ console.log({
         shopOwnerId: req.shopOwner.id,
         id,
       },
-      include:{
+      include: {
         customerPaymentHistories: true,
         invoiceHistory: true,
-      }
+      },
     });
 
     return res.status(200).json({
