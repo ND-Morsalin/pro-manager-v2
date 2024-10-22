@@ -27,4 +27,4 @@ jobs:
       - name: Change Directory
         run: cd /home/flutter-api/actions-runner/_work/flutter-shop-management-api/flutter-shop-management-api
 
-      - run: pm2 restart 0
+      - run: pm2 restart all
