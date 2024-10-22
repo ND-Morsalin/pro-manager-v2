@@ -77,6 +77,9 @@ model Product {
 
   // sellingHistory SellingProduct[]
 
+  productGive ProductGive[]
+  productRecive ProductReceive[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -104,6 +107,9 @@ model Customer {
   customerPaymentHistories CustomerPaymentHistory[]
 
   invoiceHistory ProductVoicer[]
+
+  productGive ProductGive[]
+  productRecive ProductReceive[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -304,4 +310,28 @@ model CashOutHistory {
 enum PaymentStatus {
   SHOPOWNERRECIVED
   SHOPOWNERGIVE
+}
+
+
+model ProductGive {
+  id String @id @default(auto()) @map("_id") @db.ObjectId 
+  shopOwnerId String @db.ObjectId
+  product Product @relation(fields: [productId], references: [id])
+  productId String @db.ObjectId
+
+  customer Customer @relation(fields: [customerId], references: [id])
+  customerId String @db.ObjectId
+  amount Float 
+
+}
+
+
+model ProductReceive {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  shopOwnerId String @db.ObjectId
+  product Product @relation(fields: [productId], references: [id])
+  productId String @db.ObjectId
+  customerId String @db.ObjectId
+  customer Customer @relation(fields: [customerId], references: [id])
+  amount Float 
 }

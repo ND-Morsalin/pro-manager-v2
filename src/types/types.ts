@@ -32,6 +32,12 @@ interface ExtendedRequest extends Request {
   };
 }
 
+export interface ProductGiveBodyType {
+  productId: string;
+  amount: number;
+  customerId: string;
+}
+
 export {
   shopOwnerBodyType,
   LoginBodyType,

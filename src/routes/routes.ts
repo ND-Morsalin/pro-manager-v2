@@ -62,6 +62,16 @@ import {
   monthlyCashReport,
   yearlyCashReport,
 } from "../controller/report/cashReport";
+import {
+  deleteProductGive,
+  deleteProductReceive,
+  getProductGive,
+  getProductReceive,
+  getSingleProductGive,
+  getSingleProductReceive,
+  updateProductGive,
+  updateProductReceive,
+} from "../controller/productGiveTake/productGiveTake";
 
 const router = Router();
 
@@ -282,5 +292,16 @@ router.get(
 /**
  * Cash Report ROUTES end
  **/
+
+router.get("/product-receive", checkValidUser, getProductReceive);
+router.get("/product-give", checkValidUser, getProductGive);
+router.get("/product-receive/:id", checkValidUser, getSingleProductReceive);
+router.get("/product-give/:id", checkValidUser, getSingleProductGive);
+
+router.put("/product-receive/:id", checkValidUser, updateProductReceive);
+router.put("/product-give/:id", checkValidUser, updateProductGive);
+
+router.delete("/product-receive/:id", checkValidUser, deleteProductReceive);
+router.delete("/product-give/:id", checkValidUser, deleteProductGive);
 
 export default router;
