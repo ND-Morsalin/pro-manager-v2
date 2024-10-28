@@ -118,6 +118,7 @@ model Customer {
 model CustomerPaymentHistory {
   id            String        @id @default(auto()) @map("_id") @db.ObjectId
   paymentAmount Float
+  deuAmount     Float?
   paymentStatus PaymentStatus
   paymentDate   DateTime      @default(now())
   note          String?

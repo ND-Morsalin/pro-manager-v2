@@ -177,6 +177,7 @@ console.log({
             paymentAmount: paidAmount,
             paymentStatus: "SHOPOWNERGIVE",
             shopOwnerId: req.shopOwner.id,
+            deuAmount: totalBill - (paidAmount + discountAmount),
           },
         },
       },
