@@ -174,7 +174,7 @@ console.log({
         },
         customerPaymentHistories: {
           create: {
-            paymentAmount: totalBill - paidAmount,
+            paymentAmount: paidAmount,
             paymentStatus: "SHOPOWNERGIVE",
             shopOwnerId: req.shopOwner.id,
           },
