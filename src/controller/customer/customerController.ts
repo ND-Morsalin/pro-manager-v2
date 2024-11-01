@@ -290,7 +290,8 @@ const updateCustomer = async (req: ExtendedRequest, res: Response) => {
           phoneNumber,
           customerPaymentHistories: {
             create: {
-              paymentAmount: deuAmount,
+              deuAmount: deuAmount,
+              paymentAmount: 0,
               paymentStatus: "SHOPOWNERGIVE",
               shopOwnerId: req.shopOwner.id,
               note,
@@ -315,6 +316,7 @@ const updateCustomer = async (req: ExtendedRequest, res: Response) => {
           },
           customerPaymentHistories: {
             create: {
+              deuAmount: 0,
               paymentAmount: paidAmount,
               paymentStatus: "SHOPOWNERRECIVED",
               shopOwnerId: req.shopOwner.id,

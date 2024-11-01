@@ -2473,23 +2473,21 @@ components:
         invoiceHistory:
           type: array
           items:
-            schema:
-              type: object
-              properties:
-                sellingProducts:
-                  type: array
-                  items:
-                    $ref: "#/components/schemas/SellingProductVoicer"
-                customerId:
-                  type: string
-                paidAmount:
-                  type: number
-                discountAmount:
-                  type: number
-                date:
-                  type: string
-                  format: date-time
-                  description: The date of the transaction
+            properties:
+              sellingProducts:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SellingProductVoicer"
+              customerId:
+                type: string
+              paidAmount:
+                type: number
+              discountAmount:
+                type: number
+              date:
+                type: string
+                format: date-time
+                description: The date of the transaction
         customerPaymentHistory:
           type: array
           items:
@@ -2516,6 +2514,8 @@ components:
           type: string
         paymentAmount:
           type: number
+        deuAmount:
+          type: number
         customerId:
           type: string
         note:
@@ -2524,6 +2524,7 @@ components:
         - paymentDate
         - paymentStatus
         - paymentAmount
+        - deuAmount
         - customerId
     CustomerPaymentHistoryResponse:
       type: object
