@@ -3,6 +3,558 @@ info:
   title: "Your API Title"
   version: "1.0.0"
   description: "Description of your API"
+
+components:
+  schemas:
+    ShopOwnerBodyType:
+      type: object
+      properties:
+        shopName:
+          type: string
+        mobile:
+          type: string
+        pincode:
+          type: string
+        confirmPincode:
+          type: string
+      required:
+        - shopName
+        - mobile
+        - pincode
+        - confirmPincode
+    LoginBodyType:
+      type: object
+      properties:
+        mobile:
+          type: string
+        pincode:
+          type: string
+      required:
+        - mobile
+        - pincode
+    ShopOwnerResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        data:
+          type: object
+          properties:
+            id:
+              type: string
+            mobile:
+              type: string
+            shopName:
+              type: string
+            smsAmount:   
+              type: number
+            smsPrice:    
+              type: number
+            expireDate:  
+              type: string
+              format: date-time
+              description: The date of the transaction
+              
+    logInResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        data:
+          type: object
+          properties:
+            id:
+              type: string
+            mobile:
+              type: string
+            shopName:
+              type: string
+        token:
+          type: string
+
+    Product:
+      type: object
+      properties:
+        productName:
+          type: string
+        stokeAmount:
+          type: number
+        buyingPrice:
+          type: number
+        sellingPrice:
+          type: number
+        categoryId:
+          type: string
+        productBrand:
+          type: string
+        unit:
+          type: string
+      required:
+        - productName
+        - stokeAmount
+        - buyingPrice
+        - sellingPrice
+        - productCategory
+        - productBrand
+        - unit
+        - categoryId
+    ProductResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        product:
+          type: object
+          properties:
+            productName:
+              type: string
+            stokeAmount:
+              type: number
+            buyingPrice:
+              type: number
+            sellingPrice:
+              type: number
+            categoryId:
+              type: string
+            productBrand:
+              type: string
+            unit:
+              type: string
+          
+    SingleProductResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        product:
+          type: object
+          properties:
+            qrcodeUrl:
+              type: string
+            productName:
+              type: string
+            stokeAmount:
+              type: number
+            buyingPrice:
+              type: number
+            sellingPrice:
+              type: number
+            productCategory:
+              type: string
+            productCategoryID:
+              type: string
+            productBrand:
+              type: string
+            unit:
+              type: string
+            shopOwnerId:
+              type: string
+    ProductsResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        products:
+          type: array
+          items:
+            $ref: "#/components/schemas/Product"
+
+    Customer:
+      type: object
+      properties:
+        address:
+          type: string
+        customerName:
+          type: string
+        phoneNumber:
+          type: string
+
+        deuAmount:
+          type: number
+        paidAmount:
+          type: number
+      required:
+        - address
+        - customerName
+        - phoneNumber
+        - deuAmount
+        - paidAmount
+    CustomerResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        customer:
+          $ref: "#/components/schemas/Customer"
+        invoiceHistory:
+          type: array
+          items:
+            properties:
+              sellingProducts:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SellingProductVoicer"
+              customerId:
+                type: string
+              paidAmount:
+                type: number
+              discountAmount:
+                type: number
+              date:
+                type: string
+                format: date-time
+                description: The date of the transaction
+        customerPaymentHistory:
+          type: array
+          items:
+            $ref: "#/components/schemas/CustomerPaymentHistory"
+
+    CustomersResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        customers:
+          type: array
+          items:
+            $ref: "#/components/schemas/Customer"
+    CustomerPaymentHistory:
+      type: object
+      properties:
+        paymentDate:
+          type: string
+          format: date
+        paymentStatus:
+          type: string
+        paymentAmount:
+          type: number
+        deuAmount:
+          type: number
+        customerId:
+          type: string
+        note:
+          type: string
+      required:
+        - paymentDate
+        - paymentStatus
+        - paymentAmount
+        - deuAmount
+        - customerId
+    CustomerPaymentHistoryResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        customerPaymentHistory:
+          $ref: "#/components/schemas/CustomerPaymentHistory"
+    CustomerPaymentHistoriesResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        customerPaymentHistories:
+          type: array
+          items:
+            $ref: "#/components/schemas/CustomerPaymentHistory"
+
+    LoneProvider:
+      type: object
+      properties:
+        loneProviderName:
+          type: string
+        phoneNumber:
+          type: string
+        address:
+          type: string
+        loneTakenDate:
+          type: string
+        totalLoneTaken:
+          type: number
+      required:
+        - phoneNumber
+        - address
+        - loneProviderName
+        - loneTakenDate
+        - totalLoneTaken
+    LoneProviderResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        loneProvider:
+          type: object
+          properties:
+            id:
+              type: string
+              example: 6655c7524049a2d4e1cb8381
+            loneProviderName:
+              type: string
+              example: Loan
+            phoneNumber:
+              type: string
+              example: 01646653053
+            address:
+              type: string
+              example: address
+            loneTakenDate:
+              type: string
+              format: date-time
+              example: 2024-05-28T00:00:00.000Z
+            totalLoneTaken:
+              type: integer
+              example: 40000
+            loneDeuAmount:
+              type: integer
+              example: 40000
+            lonePaidAmount:
+              type: integer
+              example: 0
+            shopOwnerId:
+              type: string
+              example: 6648457abf60b05c4d1d64b1
+            createdAt:
+              type: string
+              format: date-time
+              example: 2024-05-28T12:00:18.004Z
+            updatedAt:
+              type: string
+              format: date-time
+              example: 2024-05-28T12:00:18.004Z
+            loneProviderHistory:
+              type: array
+              items:
+                $ref: "#/components/schemas/LoneProviderHistory"
+    LoneProvidersResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        loneProviders:
+          type: array
+          items:
+            $ref: "#/components/schemas/LoneProviderResponse"
+    LoneProviderHistory:
+      type: object
+      properties:
+        id:
+          type: string
+        givingAmount:
+          type: number
+        lonePaymentStatus:
+          type: string
+          enum: [SHOPOWNERGIVE, SHOPOWNERRECIVED]
+        lonePaymentDate:
+          type: string
+          format: date-time
+        shopOwnerId:
+          type: string
+        loneProviderId:
+          type: string
+
+    ProductVoicer:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The ID of the product voicer
+        customerId:
+          type: string
+          description: The ID of the customer
+        shopOwnerId:
+          type: string
+          description: The ID of the shop owner
+        totalBillAmount:
+          type: number
+          description: The total bill amount
+        sellingProducts:
+          type: array
+          items:
+            $ref: "#/components/schemas/SellingProduct"
+    SellingProduct:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The ID of the selling product
+        productName:
+          type: string
+          description: The name of the product
+        sellingPrice:
+          type: number
+          description: The selling price of the product
+        quantity:
+          type: integer
+          description: The quantity of the product
+        totalPrice:
+          type: number
+          description: The total price of the product
+        shopOwnerId:
+          type: string
+          description: The ID of the shop owner
+
+    SellingProductVoicer:
+      type: object
+      properties:
+        productId:
+          type: string
+          description: The ID of the selling product
+        productName:
+          type: string
+          description: The name of the product
+        sellingPrice:
+          type: number
+          description: The selling price of the product
+        quantity:
+          type: integer
+          description: The quantity of the product
+        totalPrice:
+          type: number
+          description: The total price of the product
+        unit:
+          type: string
+          description: The unit of the product
+    BusinessContactInfo:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The ID of the business contact info
+        name:
+          type: string
+          description: The name associated with the business contact info
+        organization:
+          type: string
+          description: The organization associated with the business contact info
+        phoneNumber:
+          type: string
+          description: The phone number associated with the business contact info
+        shopOwnerId:
+          type: string
+          description: The ID of the shop owner associated with the business contact info
+
+    Cash:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The ID of the cash transaction
+        cashBalance:
+          type: number
+          description: The balance of the cash transaction
+        cashInHistory:
+          type: array
+          items:
+            $ref: "#/components/schemas/CashTransaction"
+          description: History of cash-in transactions
+        cashOutHistory:
+          type: array
+          items:
+            $ref: "#/components/schemas/CashTransaction"
+          description: History of cash-out transactions
+        shopOwnerId:
+          type: string
+          description: The ID of the shop owner associated with the cash transaction
+    CashTransaction:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The ID of the cash transaction
+        cashInAmount:
+          type: number
+          description: The amount of cash-in transaction
+        cashOutAmount:
+          type: number
+          description: The amount of cash-out transaction
+        cashInFor:
+          type: string
+          description: The purpose of cash-in transaction
+        cashOutFor:
+          type: string
+          description: The purpose of cash-out transaction
+        cashInDate:
+          type: string
+          format: date-time
+          description: The date of cash-in transaction
+        cashOutDate:
+          type: string
+          format: date-time
+          description: The date of cash-out transaction
+        shopOwnerId:
+          type: string
+          description: The ID of the shop owner associated with the cash transaction
+
+    YearlyReport:
+      type: object
+      properties:
+        month:
+          type: integer
+          example: 1
+        year:
+          type: integer
+          example: 2024
+        cashBalance:
+          type: number
+          example: 5000.50
+    MonthlyReport:
+      type: object
+      properties:
+        day:
+          type: integer
+          example: 15
+        month:
+          type: integer
+          example: 8
+        year:
+          type: integer
+          example: 2024
+        cashBalance:
+          type: number
+          example: 250.75
+
+    Error:
+      type: object
+      properties:
+        success:
+          type: boolean
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+              value:
+                type: string
+              msg:
+                type: string
+              path:
+                type: string
+              location:
+                type: string
+
 paths:
   /api/create-shop-owner:
     post:
@@ -2303,526 +2855,126 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-
-components:
-  schemas:
-    ShopOwnerBodyType:
-      type: object
-      properties:
-        shopName:
-          type: string
-        mobile:
-          type: string
-        pincode:
-          type: string
-        confirmPincode:
-          type: string
-      required:
-        - shopName
-        - mobile
-        - pincode
-        - confirmPincode
-    LoginBodyType:
-      type: object
-      properties:
-        mobile:
-          type: string
-        pincode:
-          type: string
-      required:
-        - mobile
-        - pincode
-    ShopOwnerResponse:
-      type: object
-      properties:
-        success:
-          type: boolean
-        message:
-          type: string
-        data:
-          type: object
-          properties:
-            id:
-              type: string
-            mobile:
-              type: string
-            shopName:
-              type: string
-    logInResponse:
-      type: object
-      properties:
-        success:
-          type: boolean
-        message:
-          type: string
-        data:
-          type: object
-          properties:
-            id:
-              type: string
-            mobile:
-              type: string
-            shopName:
-              type: string
-        token:
-          type: string
-
-    Product:
-      type: object
-      properties:
-        productName:
-          type: string
-        stokeAmount:
-          type: number
-        buyingPrice:
-          type: number
-        sellingPrice:
-          type: number
-        productCategory:
-          type: string
-        productBrand:
-          type: string
-        unit:
-          type: string
-      required:
-        - productName
-        - stokeAmount
-        - buyingPrice
-        - sellingPrice
-        - productCategory
-        - productBrand
-        - unit
-    ProductResponse:
-      type: object
-      properties:
-        success:
-          type: boolean
-        message:
-          type: string
-        product:
-          $ref: "#/components/schemas/Product"
-    SingleProductResponse:
-      type: object
-      properties:
-        success:
-          type: boolean
-        message:
-          type: string
-        product:
-          type: object
-          properties:
-            qrcodeUrl:
-              type: string
-            productName:
-              type: string
-            stokeAmount:
-              type: number
-            buyingPrice:
-              type: number
-            sellingPrice:
-              type: number
-            productCategory:
-              type: string
-            productBrand:
-              type: string
-            unit:
-              type: string
-            shopOwnerId:
-              type: string
-    ProductsResponse:
-      type: object
-      properties:
-        success:
-          type: boolean
-        message:
-          type: string
-        products:
-          type: array
-          items:
-            $ref: "#/components/schemas/Product"
-
-    Customer:
-      type: object
-      properties:
-        address:
-          type: string
-        customerName:
-          type: string
-        phoneNumber:
-          type: string
-
-        deuAmount:
-          type: number
-        paidAmount:
-          type: number
-      required:
-        - address
-        - customerName
-        - phoneNumber
-        - deuAmount
-        - paidAmount
-    CustomerResponse:
-      type: object
-      properties:
-        success:
-          type: boolean
-        message:
-          type: string
-        customer:
-          $ref: "#/components/schemas/Customer"
-        invoiceHistory:
-          type: array
-          items:
-            properties:
-              sellingProducts:
-                type: array
-                items:
-                  $ref: "#/components/schemas/SellingProductVoicer"
-              customerId:
-                type: string
-              paidAmount:
-                type: number
-              discountAmount:
-                type: number
-              date:
-                type: string
-                format: date-time
-                description: The date of the transaction
-        customerPaymentHistory:
-          type: array
-          items:
-            $ref: "#/components/schemas/CustomerPaymentHistory"
-
-    CustomersResponse:
-      type: object
-      properties:
-        success:
-          type: boolean
-        message:
-          type: string
-        customers:
-          type: array
-          items:
-            $ref: "#/components/schemas/Customer"
-    CustomerPaymentHistory:
-      type: object
-      properties:
-        paymentDate:
-          type: string
-          format: date
-        paymentStatus:
-          type: string
-        paymentAmount:
-          type: number
-        deuAmount:
-          type: number
-        customerId:
-          type: string
-        note:
-          type: string
-      required:
-        - paymentDate
-        - paymentStatus
-        - paymentAmount
-        - deuAmount
-        - customerId
-    CustomerPaymentHistoryResponse:
-      type: object
-      properties:
-        success:
-          type: boolean
-        message:
-          type: string
-        customerPaymentHistory:
-          $ref: "#/components/schemas/CustomerPaymentHistory"
-    CustomerPaymentHistoriesResponse:
-      type: object
-      properties:
-        success:
-          type: boolean
-        message:
-          type: string
-        customerPaymentHistories:
-          type: array
-          items:
-            $ref: "#/components/schemas/CustomerPaymentHistory"
-
-    LoneProvider:
-      type: object
-      properties:
-        loneProviderName:
-          type: string
-        phoneNumber:
-          type: string
-        address:
-          type: string
-        loneTakenDate:
-          type: string
-        totalLoneTaken:
-          type: number
-      required:
-        - phoneNumber
-        - address
-        - loneProviderName
-        - loneTakenDate
-        - totalLoneTaken
-    LoneProviderResponse:
-      type: object
-      properties:
-        success:
-          type: boolean
-        message:
-          type: string
-        loneProvider:
-          type: object
-          properties:
-            id:
-              type: string
-              example: 6655c7524049a2d4e1cb8381
-            loneProviderName:
-              type: string
-              example: Loan
-            phoneNumber:
-              type: string
-              example: 01646653053
-            address:
-              type: string
-              example: address
-            loneTakenDate:
-              type: string
-              format: date-time
-              example: 2024-05-28T00:00:00.000Z
-            totalLoneTaken:
-              type: integer
-              example: 40000
-            loneDeuAmount:
-              type: integer
-              example: 40000
-            lonePaidAmount:
-              type: integer
-              example: 0
-            shopOwnerId:
-              type: string
-              example: 6648457abf60b05c4d1d64b1
-            createdAt:
-              type: string
-              format: date-time
-              example: 2024-05-28T12:00:18.004Z
-            updatedAt:
-              type: string
-              format: date-time
-              example: 2024-05-28T12:00:18.004Z
-            loneProviderHistory:
-              type: array
-              items:
-                $ref: "#/components/schemas/LoneProviderHistory"
-    LoneProvidersResponse:
-      type: object
-      properties:
-        success:
-          type: boolean
-        message:
-          type: string
-        loneProviders:
-          type: array
-          items:
-            $ref: "#/components/schemas/LoneProviderResponse"
-    LoneProviderHistory:
-      type: object
-      properties:
-        id:
-          type: string
-        givingAmount:
-          type: number
-        lonePaymentStatus:
-          type: string
-          enum: [SHOPOWNERGIVE, SHOPOWNERRECIVED]
-        lonePaymentDate:
-          type: string
-          format: date-time
-        shopOwnerId:
-          type: string
-        loneProviderId:
-          type: string
-
-    ProductVoicer:
-      type: object
-      properties:
-        id:
-          type: string
-          description: The ID of the product voicer
-        customerId:
-          type: string
-          description: The ID of the customer
-        shopOwnerId:
-          type: string
-          description: The ID of the shop owner
-        totalBillAmount:
-          type: number
-          description: The total bill amount
-        sellingProducts:
-          type: array
-          items:
-            $ref: "#/components/schemas/SellingProduct"
-    SellingProduct:
-      type: object
-      properties:
-        id:
-          type: string
-          description: The ID of the selling product
-        productName:
-          type: string
-          description: The name of the product
-        sellingPrice:
-          type: number
-          description: The selling price of the product
-        quantity:
-          type: integer
-          description: The quantity of the product
-        totalPrice:
-          type: number
-          description: The total price of the product
-        shopOwnerId:
-          type: string
-          description: The ID of the shop owner
-
-    SellingProductVoicer:
-      type: object
-      properties:
-        productId:
-          type: string
-          description: The ID of the selling product
-        productName:
-          type: string
-          description: The name of the product
-        sellingPrice:
-          type: number
-          description: The selling price of the product
-        quantity:
-          type: integer
-          description: The quantity of the product
-        totalPrice:
-          type: number
-          description: The total price of the product
-        unit:
-          type: string
-          description: The unit of the product
-    BusinessContactInfo:
-      type: object
-      properties:
-        id:
-          type: string
-          description: The ID of the business contact info
-        name:
-          type: string
-          description: The name associated with the business contact info
-        organization:
-          type: string
-          description: The organization associated with the business contact info
-        phoneNumber:
-          type: string
-          description: The phone number associated with the business contact info
-        shopOwnerId:
-          type: string
-          description: The ID of the shop owner associated with the business contact info
-
-    Cash:
-      type: object
-      properties:
-        id:
-          type: string
-          description: The ID of the cash transaction
-        cashBalance:
-          type: number
-          description: The balance of the cash transaction
-        cashInHistory:
-          type: array
-          items:
-            $ref: "#/components/schemas/CashTransaction"
-          description: History of cash-in transactions
-        cashOutHistory:
-          type: array
-          items:
-            $ref: "#/components/schemas/CashTransaction"
-          description: History of cash-out transactions
-        shopOwnerId:
-          type: string
-          description: The ID of the shop owner associated with the cash transaction
-    CashTransaction:
-      type: object
-      properties:
-        id:
-          type: string
-          description: The ID of the cash transaction
-        cashInAmount:
-          type: number
-          description: The amount of cash-in transaction
-        cashOutAmount:
-          type: number
-          description: The amount of cash-out transaction
-        cashInFor:
-          type: string
-          description: The purpose of cash-in transaction
-        cashOutFor:
-          type: string
-          description: The purpose of cash-out transaction
-        cashInDate:
-          type: string
-          format: date-time
-          description: The date of cash-in transaction
-        cashOutDate:
-          type: string
-          format: date-time
-          description: The date of cash-out transaction
-        shopOwnerId:
-          type: string
-          description: The ID of the shop owner associated with the cash transaction
-
-    YearlyReport:
-      type: object
-      properties:
-        month:
-          type: integer
-          example: 1
-        year:
-          type: integer
-          example: 2024
-        cashBalance:
-          type: number
-          example: 5000.50
-    MonthlyReport:
-      type: object
-      properties:
-        day:
-          type: integer
-          example: 15
-        month:
-          type: integer
-          example: 8
-        year:
-          type: integer
-          example: 2024
-        cashBalance:
-          type: number
-          example: 250.75
-
-    Error:
-      type: object
-      properties:
-        success:
-          type: boolean
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              type:
-                type: string
-              value:
-                type: string
-              msg:
-                type: string
-              path:
-                type: string
-              location:
-                type: string
+  /api/category:
+    post:
+      summary: Create a new category
+      tags:
+        - Category
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                category:
+                  type: string
+      responses:
+        "200":
+          description: Category created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  category:
+                    type: string
+                  success: 
+                    type: boolean
+                  message:
+                    type: string
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    get:
+      summary: Get all categories
+      tags:
+        - Category
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+      responses:
+        "200":
+          description: All categories
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  categories:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        shopOwnerId:
+                          type: string
+                        category:
+                          type: string
+        "404":
+          description: No category found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /api/category/{id}:
+    delete:
+      summary: Delete a category by ID
+      tags:
+        - Category
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID of the category
+      responses:
+        "200":
+          description: Category deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        "404":
+          description: Category not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"

@@ -10,22 +10,38 @@ const addProduct = async (req: ExtendedRequest, res: Response) => {
       productName,
       stokeAmount,
       buyingPrice,
-      sellingPrice,
-      productCategory,
+      sellingPrice, 
+      categoryId,
       productBrand,
       unit,
-    } = req.body as Product;
+    } = req.body as {
+      productName: string;
+      stokeAmount: number;
+      buyingPrice: number;
+      sellingPrice: number;
+      categoryId: string;
+      productBrand: string;
+      unit: string;
+    }
+
+    const category = await prisma.category.findUnique({
+      where: {
+        id: categoryId,
+      },
+    });
+     
 
     const product = await prisma.product.create({
       data: {
         productName,
         stokeAmount,
         buyingPrice,
-        sellingPrice,
-        productCategory,
+        sellingPrice, 
         productBrand,
         unit,
         shopOwnerId: req.shopOwner.id as string,
+        productCategory: category.category,
+        productCategoryID: categoryId,
       },
     });
 

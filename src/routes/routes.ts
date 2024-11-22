@@ -72,6 +72,7 @@ import {
   updateProductGive,
   updateProductReceive,
 } from "../controller/productGiveTake/productGiveTake";
+import { createCategory, deleteCategory, getAllCategory } from "../controller/category/categoryController";
 
 const router = Router();
 
@@ -303,6 +304,11 @@ router.put("/product-give/:id", checkValidUser, updateProductGive);
 
 router.delete("/product-receive/:id", checkValidUser, deleteProductReceive);
 router.delete("/product-give/:id", checkValidUser, deleteProductGive);
+
+// Category routes
+router.post("/category", checkValidUser, createCategory);
+router.get("/category", checkValidUser, getAllCategory);
+router.delete("/category/:id", checkValidUser, deleteCategory);
 
 
 

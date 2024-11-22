@@ -68,7 +68,8 @@ model Product {
   stokeAmount     Float
   buyingPrice     Float
   sellingPrice    Float
-  productCategory String
+  productCategory   String
+  productCategoryID String
   productBrand    String
   unit            String // kg , hali, litter, pic, packate
   //* need to add shop owner id */
@@ -77,7 +78,7 @@ model Product {
 
   // sellingHistory SellingProduct[]
 
-  productGive ProductGive[]
+  productGive   ProductGive[]
   productRecive ProductReceive[]
 
   createdAt DateTime @default(now())
@@ -108,7 +109,7 @@ model Customer {
 
   invoiceHistory ProductVoicer[]
 
-  productGive ProductGive[]
+  productGive   ProductGive[]
   productRecive ProductReceive[]
 
   createdAt DateTime @default(now())
@@ -313,26 +314,42 @@ enum PaymentStatus {
   SHOPOWNERGIVE
 }
 
-
 model ProductGive {
-  id String @id @default(auto()) @map("_id") @db.ObjectId 
-  shopOwnerId String @db.ObjectId
-  product Product @relation(fields: [productId], references: [id])
-  productId String @db.ObjectId
+  id          String  @id @default(auto()) @map("_id") @db.ObjectId
+  shopOwnerId String  @db.ObjectId
+  product     Product @relation(fields: [productId], references: [id])
+  productId   String  @db.ObjectId
 
-  customer Customer @relation(fields: [customerId], references: [id])
-  customerId String @db.ObjectId
-  amount Float 
-
+  customer   Customer @relation(fields: [customerId], references: [id])
+  customerId String   @db.ObjectId
+  amount     Float
 }
 
-
 model ProductReceive {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  shopOwnerId String   @db.ObjectId
+  product     Product  @relation(fields: [productId], references: [id])
+  productId   String   @db.ObjectId
+  customerId  String   @db.ObjectId
+  customer    Customer @relation(fields: [customerId], references: [id])
+  amount      Float
+}
+
+model SMSPurchase {
+  id          String @id @default(auto()) @map("_id") @db.ObjectId
   shopOwnerId String @db.ObjectId
-  product Product @relation(fields: [productId], references: [id])
-  productId String @db.ObjectId
-  customerId String @db.ObjectId
-  customer Customer @relation(fields: [customerId], references: [id])
-  amount Float 
+  smsAmount   Float
+  smsPrice    Float?
+  expireDate  DateTime
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Category {
+  id          String @id @default(auto()) @map("_id") @db.ObjectId
+  shopOwnerId String @db.ObjectId
+  category        String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
