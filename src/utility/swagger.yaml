@@ -75,7 +75,78 @@ components:
               type: string
         token:
           type: string
-
+ProductResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        productName:
+          type: string
+        stokeAmount:
+          type: number
+        buyingPrice:
+          type: number
+        sellingPrice:
+          type: number
+        productCategory:
+          type: string
+        productCategoryID:
+          type: string
+        productBrand:
+          type: string
+        unit:
+          type: string
+        shopOwnerId:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    ProductResponseWithQRCode:
+      allOf:
+        - $ref: '#/components/schemas/ProductResponse'
+        - type: object
+          properties:
+            qrcodeUrl:
+              type: string
+    AddProductRequest:
+      type: object
+      required:
+        - productName
+        - stokeAmount
+        - buyingPrice
+        - sellingPrice
+        - categoryId
+        - productBrand
+        - unit
+      properties:
+        productName:
+          type: string
+        stokeAmount:
+          type: number
+        buyingPrice:
+          type: number
+        sellingPrice:
+          type: number
+        categoryId:
+          type: string
+        productBrand:
+          type: string
+        unit:
+          type: string
+    UpdateProductRequest:
+      type: object
+      properties:
+        stokeAmount:
+          type: number
+        buyingPrice:
+          type: number
+        sellingPrice:
+          type: number
+        unit:
+          type: string
     Product:
       type: object
       properties:
@@ -553,7 +624,52 @@ components:
                 type: string
               location:
                 type: string
-
+responses:
+    ErrorResponse:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+              errors:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                    msg:
+                      type: string
+                    path:
+                      type: string
+                    location:
+                      type: string
+    NotFoundResponse:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+              errors:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                    msg:
+                      type: string
+                    path:
+                      type: string
+                    location:
+                      type: string
+                      
 paths:
   /api/create-shop-owner:
     post:
@@ -818,11 +934,12 @@ paths:
                     items:
                       $ref: "#/components/schemas/Error"
 
-  /api/products:
+
+/api/products:
     post:
       summary: Create a new product
       tags:
-        - Product
+        - Products
       parameters:
         - in: header
           name: token
@@ -835,24 +952,20 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Product"
+              $ref: '#/components/schemas/AddProductRequest'
       responses:
-        "200":
+        '200':
           description: Product created successfully
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ProductResponse"
-        "500":
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+                $ref: '#/components/schemas/ProductResponse'
+        '500':
+          $ref: '#/components/responses/ErrorResponse'
     get:
       summary: Get all products
       tags:
-        - Product
+        - Products
       parameters:
         - in: header
           name: token
@@ -861,123 +974,108 @@ paths:
             type: string
           description: JWT token of the shop owner
       responses:
-        "200":
-          description: All products
+        '200':
+          description: List of all products
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ProductsResponse"
-        "500":
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProductResponse'
+        '500':
+          $ref: '#/components/responses/ErrorResponse'
   /api/product/{id}:
     get:
-      summary: Get a single product by ID
+      summary: Get a single product
       tags:
-        - Product
+        - Products
       parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: string
-          description: ID of the product to get
         - in: header
           name: token
           required: true
           schema:
             type: string
           description: JWT token of the shop owner
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the product to retrieve
       responses:
-        "200":
-          description: Product found
+        '200':
+          description: Product details
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/SingleProductResponse"
-        "404":
-          description: Product not found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-        "500":
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+                $ref: '#/components/schemas/ProductResponseWithQRCode'
+        '404':
+          $ref: '#/components/responses/NotFoundResponse'
+        '500':
+          $ref: '#/components/responses/ErrorResponse'
     put:
-      summary: Update a product by ID
+      summary: Update a product
       tags:
-        - Product
+        - Products
       parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: string
-          description: ID of the product to update
         - in: header
           name: token
           required: true
           schema:
             type: string
           description: JWT token of the shop owner
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the product to update
       requestBody:
         required: true
-        description: update only stokeAmount, buyingPrice, sellingPrice,
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Product"
+              $ref: '#/components/schemas/UpdateProductRequest'
       responses:
-        "200":
+        '200':
           description: Product updated successfully
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ProductResponse"
-        "500":
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+                $ref: '#/components/schemas/ProductResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundResponse'
+        '500':
+          $ref: '#/components/responses/ErrorResponse'
     delete:
-      summary: Delete a product by ID
+      summary: Delete a product
       tags:
-        - Product
+        - Products
       parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: string
-          description: ID of the product to delete
         - in: header
           name: token
           required: true
           schema:
             type: string
           description: JWT token of the shop owner
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the product to delete
       responses:
-        "200":
+        '200':
           description: Product deleted successfully
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ProductResponse"
-        "500":
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-
+                $ref: '#/components/schemas/ProductResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundResponse'
+        '500':
+          $ref: '#/components/responses/ErrorResponse'
+          
   /api/customer:
     post:
       summary: Create a new customer
