@@ -98,7 +98,6 @@ components:
         - stokeAmount
         - buyingPrice
         - sellingPrice
-        - productCategory
         - productBrand
         - unit
         - categoryId
