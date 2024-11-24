@@ -75,7 +75,7 @@ components:
               type: string
         token:
           type: string
-ProductResponse:
+    ProductResponse:
       type: object
       properties:
         id:
@@ -104,6 +104,7 @@ ProductResponse:
         updatedAt:
           type: string
           format: date-time
+
     ProductResponseWithQRCode:
       allOf:
         - $ref: '#/components/schemas/ProductResponse'
@@ -238,7 +239,7 @@ ProductResponse:
           type: array
           items:
             $ref: "#/components/schemas/Product"
-
+            
     Customer:
       type: object
       properties:
@@ -624,52 +625,53 @@ ProductResponse:
                 type: string
               location:
                 type: string
-responses:
-    ErrorResponse:
-      description: Internal server error
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              success:
-                type: boolean
-              errors:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                    msg:
-                      type: string
-                    path:
-                      type: string
-                    location:
-                      type: string
-    NotFoundResponse:
-      description: Resource not found
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              success:
-                type: boolean
-              errors:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                    msg:
-                      type: string
-                    path:
-                      type: string
-                    location:
-                      type: string
-                      
+    
+    responses:
+      ErrorResponse:
+        description: Internal server error
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                errors:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                      msg:
+                        type: string
+                      path:
+                        type: string
+                      location:
+                        type: string
+      NotFoundResponse:
+        description: Resource not found
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                errors:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                      msg:
+                        type: string
+                      path:
+                        type: string
+                      location:
+                        type: string
+                        
 paths:
   /api/create-shop-owner:
     post:
@@ -935,7 +937,7 @@ paths:
                       $ref: "#/components/schemas/Error"
 
 
-/api/products:
+  /api/products:
     post:
       summary: Create a new product
       tags:
@@ -984,6 +986,7 @@ paths:
                   $ref: '#/components/schemas/ProductResponse'
         '500':
           $ref: '#/components/responses/ErrorResponse'
+  
   /api/product/{id}:
     get:
       summary: Get a single product
