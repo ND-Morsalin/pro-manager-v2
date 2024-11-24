@@ -72,7 +72,11 @@ import {
   updateProductGive,
   updateProductReceive,
 } from "../controller/productGiveTake/productGiveTake";
-import { createCategory, deleteCategory, getAllCategory } from "../controller/category/categoryController";
+import {
+  createCategory,
+  deleteCategory,
+  getAllCategory,
+} from "../controller/category/categoryController";
 
 const router = Router();
 
@@ -105,13 +109,7 @@ router.get("/", createPdf);
  **/
 
 // create product
-router.post(
-  "/products",
-  checkValidUser,
-  productBodyChecker,
-  handleValidationErrors,
-  addProduct
-);
+router.post("/products", checkValidUser, addProduct);
 
 // get all products
 router.get("/products", checkValidUser, getAllProducts);
@@ -309,7 +307,5 @@ router.delete("/product-give/:id", checkValidUser, deleteProductGive);
 router.post("/category", checkValidUser, createCategory);
 router.get("/category", checkValidUser, getAllCategory);
 router.delete("/category/:id", checkValidUser, deleteCategory);
-
-
 
 export default router;
