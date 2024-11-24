@@ -78,6 +78,9 @@ import {
   getAllCategory,
 } from "../controller/category/categoryController";
 
+import { sendMessageToAll } from "../controller/sms/smsController";
+
+
 const router = Router();
 
 /**
@@ -307,5 +310,8 @@ router.delete("/product-give/:id", checkValidUser, deleteProductGive);
 router.post("/category", checkValidUser, createCategory);
 router.get("/category", checkValidUser, getAllCategory);
 router.delete("/category/:id", checkValidUser, deleteCategory);
+
+// Send sms to all users
+router.post("/send-message-to-all", checkValidUser, sendMessageToAll);
 
 export default router;
