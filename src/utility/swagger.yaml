@@ -3048,6 +3048,12 @@ paths:
       tags:
         - Category
       parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
         - in: path
           name: id
           required: true
@@ -3078,3 +3084,88 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+
+  /api/send-message-to-all:
+    post:
+      summary: Send SMS to multiple numbers
+      description: Sends a message to the provided list of phone numbers and returns the status of the SMS submission.
+      tags:
+        - SMS
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+      operationId: sendSMS
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                numbers:
+                  type: array
+                  items:
+                    type: string
+                    example: "01646653053"
+                message:
+                  type: string
+                  example: "Hello, this is a test message."
+      responses:
+        '200':
+          description: SMS sent successfully to the provided numbers
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Message send successfully to all of these numbers 01646653053, 01953115725, 01861014132"
+                  smsPost:
+                    type: object
+                    properties:
+                      response_code:
+                        type: integer
+                        example: 202
+                      message_id:
+                        type: integer
+                        example: 33114003
+                      success_message:
+                        type: string
+                        example: "SMS Submitted Successfully 3"
+                      error_message:
+                        type: string
+                        example: ""
+        '400':
+          description: Bad request, invalid input or missing parameters
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Invalid input"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "An error occurred while sending SMS."
