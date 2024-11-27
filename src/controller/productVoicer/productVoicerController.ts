@@ -2,9 +2,6 @@ import { Response } from "express";
 import { ExtendedRequest } from "../../types/types";
 import { SellingProduct } from "@prisma/client";
 import prisma from "../../utility/prisma";
-import fs from "fs";
-import path from "path";
-import Handlebars from "handlebars";
 
 import puppeteer from "puppeteer";
 // import purchaseConfirmBySms from "../../utility/purchaseConfirmBySms";
@@ -29,9 +26,9 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
         date: Date;
         discountAmount: number | undefined;
       };
-console.log({
-  body: req.body,
-})
+    console.log({
+      body: req.body,
+    });
     // find user by Customer id
     const customer = await prisma.customer.findUnique({
       where: {
@@ -197,13 +194,14 @@ console.log({
       totalPrice: totalBill,
       beforeDue: customer.deuAmount,
       nowPaying: paidAmount,
-      remainingDue: (totalBill + customer.deuAmount) - (paidAmount + discountAmount),
+      remainingDue:
+        totalBill + customer.deuAmount - (paidAmount + discountAmount),
       shopOwnerName: req.shopOwner.shopName,
       shopOwnerPhone: req.shopOwner.mobile,
       date: newProductVoicer.createdAt.toDateString(),
       // invoiceId will be 6 digit
       invoiceId: newProductVoicer.id.toString().slice(0, 10),
-      discountAmount: discountAmount ||0 ,
+      discountAmount: discountAmount || 0,
     };
 
     // send message to customer
@@ -216,7 +214,7 @@ console.log({
     // send message to customer end
 
     // Register Handlebars helpers (this can be outside the function if reused across requests)
-    Handlebars.registerHelper("incrementedIndex", function (index) {
+    /*  Handlebars.registerHelper("incrementedIndex", function (index) {
       return index + 1;
     });
     Handlebars.registerHelper("isBengali", function (text) {
@@ -262,7 +260,12 @@ console.log({
 
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader("Content-Disposition", "attachment; filename=invoice.pdf");
-    res.send(pdfBuffer);
+    res.send(pdfBuffer); */
+    return res.status(200).json({
+      success: true,
+      message: "Product voicer created successfully",
+      voicer: data,
+    });
   } catch (error) {
     console.log({
       error,
