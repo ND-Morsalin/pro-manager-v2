@@ -150,6 +150,10 @@ const getSingleCustomer = async (req: ExtendedRequest, res: Response) => {
         customerId: id as string,
         shopOwnerId: req.shopOwner.id,
       },
+      include:{
+        sellingProducts:true,
+        
+      }
     });
 
     const customerPaymentHistory = await prisma.customerPaymentHistory.findMany(
