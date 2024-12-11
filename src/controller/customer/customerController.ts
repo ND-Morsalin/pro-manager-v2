@@ -150,10 +150,9 @@ const getSingleCustomer = async (req: ExtendedRequest, res: Response) => {
         customerId: id as string,
         shopOwnerId: req.shopOwner.id,
       },
-      include:{
-        sellingProducts:true,
-        
-      }
+      include: {
+        sellingProducts: true,
+      },
     });
 
     const customerPaymentHistory = await prisma.customerPaymentHistory.findMany(
@@ -278,6 +277,18 @@ const updateCustomer = async (req: ExtendedRequest, res: Response) => {
       note: string;
     };
 
+    const infoUpdate = await prisma.customer.update({
+      where: {
+        id: id as string,
+        shopOwnerId: req.shopOwner.id,
+      },
+      data: {
+        address,
+        customerName,
+        phoneNumber,
+      },
+    });
+
     const updatedCustomerDeu =
       deuAmount &&
       (await prisma.customer.update({
@@ -289,9 +300,7 @@ const updateCustomer = async (req: ExtendedRequest, res: Response) => {
           deuAmount: {
             increment: deuAmount,
           },
-          address,
-          customerName,
-          phoneNumber,
+
           customerPaymentHistories: {
             create: {
               deuAmount: deuAmount,

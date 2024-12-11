@@ -302,6 +302,7 @@ const getProductVoicersWithoutCustomer = async (
     const productVoicersWithoutCustomer = await prisma.productVoicer.findMany({
       where: {
         customerId: null, // Filter for entries where customerId is null
+        shopOwnerId:req.shopOwner.id
       },
     });
 
