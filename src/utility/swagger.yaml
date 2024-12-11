@@ -1712,7 +1712,6 @@ paths:
                   description: The date of the transaction
               required:
                 - sellingProducts
-                - customerId
                 - paidAmount
       responses:
         "200":
@@ -1839,6 +1838,146 @@ paths:
                           type: string
                           example: createProductVoicer
                           description: The location of the error in the code
+
+  /api/product-voicers-without-customer:
+    get:
+      summary: Get a new product voicer
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+
+      tags:
+        - ProductVoicer
+      responses:
+        "200":
+          description: Product voicer created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  voicer:
+                    type: object
+                    properties:
+                      customerName:
+                        type: string
+                      address:
+                        type: string
+                      phone:
+                        type: string
+                      products:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            productName:
+                              type: string
+                            sellingPrice:
+                              type: number
+                            quantity:
+                              type: number
+                            unit:
+                              type: string
+                            totalProductPrice:
+                              type: number
+                      totalPrice:
+                        type: number
+                      beforeDue:
+                        type: number
+                      nowPaying:
+                        type: number
+                      remainingDue:
+                        type: number
+                      shopOwnerName:
+                        type: string
+                      shopOwnerPhone:
+                        type: string
+                      date:
+                        type: string
+                      invoiceId:
+                        type: string
+                      discountAmount:
+                        type: number
+
+        "404":
+          description: Customer not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Indicates if the request was successful
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          example: validation error
+                          description: The type of error
+                        value:
+                          type: string
+                          example: ""
+                          description: The value of the error
+                        msg:
+                          type: string
+                          example: Customer not found
+                          description: The error message
+                        path:
+                          type: string
+                          example: customerId
+                          description: The path related to the error
+                        location:
+                          type: string
+                          example: createProductVoicer
+                          description: The location of the error in the code
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Indicates if the request was successful
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          example: server error
+                          description: The type of error
+                        value:
+                          type: string
+                          example: ""
+                          description: The value of the error
+                        msg:
+                          type: string
+                          example: Internal server error
+                          description: The error message
+                        path:
+                          type: string
+                          example: server
+                          description: The path related to the error
+                        location:
+                          type: string
+                          example: createProductVoicer
+                          description: The location of the error in the code
+
 
   /api/business-contact-info:
     post:

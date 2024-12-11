@@ -63,18 +63,18 @@ model ShopOwner {
 // Product Model start
 //**************************/
 model Product {
-  id              String    @id @default(auto()) @map("_id") @db.ObjectId
-  productName     String
-  stokeAmount     Float
-  buyingPrice     Float
-  sellingPrice    Float
+  id                String    @id @default(auto()) @map("_id") @db.ObjectId
+  productName       String
+  stokeAmount       Float
+  buyingPrice       Float
+  sellingPrice      Float
   productCategory   String
   productCategoryID String
-  productBrand    String
-  unit            String // kg , hali, litter, pic, packate
+  productBrand      String
+  unit              String // kg , hali, litter, pic, packate
   //* need to add shop owner id */
-  shopOwner       ShopOwner @relation(fields: [shopOwnerId], references: [id])
-  shopOwnerId     String    @db.ObjectId
+  shopOwner         ShopOwner @relation(fields: [shopOwnerId], references: [id])
+  shopOwnerId       String    @db.ObjectId
 
   // sellingHistory SellingProduct[]
 
@@ -153,8 +153,8 @@ model ProductVoicer {
   shopOwner   ShopOwner @relation(fields: [shopOwnerId], references: [id])
   shopOwnerId String    @db.ObjectId
 
-  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  customerId String   @db.ObjectId
+  customer   Customer? @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  customerId String?  @db.ObjectId
 
   sellingProducts SellingProduct[]
 
@@ -336,20 +336,20 @@ model ProductReceive {
 }
 
 model SMSPurchase {
-  id          String @id @default(auto()) @map("_id") @db.ObjectId
-  shopOwnerId String @db.ObjectId
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  shopOwnerId String   @db.ObjectId
   smsAmount   Float
   smsPrice    Float?
   expireDate  DateTime
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Category {
-  id          String @id @default(auto()) @map("_id") @db.ObjectId
-  shopOwnerId String @db.ObjectId
-  category        String
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  shopOwnerId String   @db.ObjectId
+  category    String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }

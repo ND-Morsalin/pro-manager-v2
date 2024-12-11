@@ -21,7 +21,7 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
     const { sellingProducts, customerId, paidAmount, date, discountAmount } =
       req.body as {
         sellingProducts: SellingProduct[];
-        customerId: string;
+        customerId?: string;
         paidAmount: number;
         date: Date;
         discountAmount: number | undefined;
@@ -29,31 +29,34 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
     console.log({
       body: req.body,
     });
-    // find user by Customer id
-    const customer = await prisma.customer.findUnique({
-      where: {
-        id: customerId,
-        shopOwnerId: req.shopOwner.id,
-      },
-    });
-    console.log({
-      customer,
-      customerId,
-    });
-
-    if (!customer) {
-      return res.status(404).json({
-        success: false,
-        errors: [
-          {
-            type: "validation error",
-            value: "",
-            msg: "Customer not found",
-            path: "customerId",
-            location: "createProductVoicer",
-          },
-        ],
+    let customer;
+    if (customerId) {
+      // find user by Customer id
+      customer = await prisma.customer.findUnique({
+        where: {
+          id: customerId,
+          shopOwnerId: req.shopOwner.id,
+        },
       });
+      console.log({
+        customer,
+        customerId,
+      });
+
+      if (!customer) {
+        return res.status(404).json({
+          success: false,
+          errors: [
+            {
+              type: "validation error",
+              value: "",
+              msg: "Customer not found",
+              path: "customerId",
+              location: "createProductVoicer",
+            },
+          ],
+        });
+      }
     }
 
     const totalBill = sellingProducts.reduce((acc, product) => {
@@ -63,12 +66,13 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
     // create product voicer
     const newProductVoicer = await prisma.productVoicer.create({
       data: {
-        customerId,
+        customerId: customer?.id || null,
         shopOwnerId: req.shopOwner.id,
         totalBillAmount: totalBill,
         paidAmount,
-        remainingDue:
-          totalBill - paidAmount + customer.deuAmount - discountAmount,
+        remainingDue: customer?.id
+          ? totalBill - paidAmount + customer.deuAmount - discountAmount
+          : 0,
         discountAmount,
         sellingProducts: {
           create: sellingProducts.map((product) => {
@@ -159,26 +163,28 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
         },
       });
     }
-    // update customer due balance
-    await prisma.customer.update({
-      where: {
-        id: customerId,
-        shopOwnerId: req.shopOwner.id,
-      },
-      data: {
-        deuAmount: {
-          increment: totalBill - (paidAmount + discountAmount),
+    if (customerId) {
+      // update customer due balance
+      await prisma.customer.update({
+        where: {
+          id: customerId,
+          shopOwnerId: req.shopOwner.id,
         },
-        customerPaymentHistories: {
-          create: {
-            paymentAmount: paidAmount,
-            paymentStatus: "SHOPOWNERGIVE",
-            shopOwnerId: req.shopOwner.id,
-            deuAmount: totalBill - (paidAmount + discountAmount),
+        data: {
+          deuAmount: {
+            increment: totalBill - (paidAmount + discountAmount),
+          },
+          customerPaymentHistories: {
+            create: {
+              paymentAmount: paidAmount,
+              paymentStatus: "SHOPOWNERGIVE",
+              shopOwnerId: req.shopOwner.id,
+              deuAmount: totalBill - (paidAmount + discountAmount),
+            },
           },
         },
-      },
-    });
+      });
+    }
 
     // ... (previous code remains unchanged)
     const pdfProductData = sellingProducts.map((product) => ({
@@ -187,15 +193,16 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
     }));
 
     const data = {
-      customerName: customer.customerName,
-      address: customer.address,
-      phone: customer.phoneNumber,
+      customerName: customer?.customerName || "anonymous",
+      address: customer?.address || "anonymous",
+      phone: customer?.phoneNumber || "anonymous",
       products: pdfProductData,
       totalPrice: totalBill,
-      beforeDue: customer.deuAmount,
+      beforeDue: customer?.deuAmount || "anonymous",
       nowPaying: paidAmount,
-      remainingDue:
-        totalBill + customer.deuAmount - (paidAmount + discountAmount),
+      remainingDue: customer?.id
+        ? totalBill + customer?.deuAmount - (paidAmount + discountAmount)
+        : "anonymous",
       shopOwnerName: req.shopOwner.shopName,
       shopOwnerPhone: req.shopOwner.mobile,
       date: newProductVoicer.createdAt.toDateString(),
@@ -287,6 +294,30 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
   }
 };
 
+const getProductVoicersWithoutCustomer = async (
+  req: ExtendedRequest,
+  res: Response
+) => {
+  try {
+    const productVoicersWithoutCustomer = await prisma.productVoicer.findMany({
+      where: {
+        customerId: null, // Filter for entries where customerId is null
+      },
+    });
+
+    return res.status(200).json({
+      success: true,
+      data: productVoicersWithoutCustomer,
+    });
+  } catch (error) {
+    console.error("Error fetching product voicers without customer:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
 const getAllProductVoicer = async (req: ExtendedRequest, res: Response) => {
   try {
   } catch (error) {
@@ -361,6 +392,7 @@ const deleteProductVoicer = async (req: ExtendedRequest, res: Response) => {
 
 export {
   createProductVoicer,
+  getProductVoicersWithoutCustomer,
   //   getAllProductVoicer,
   //   getSingleProductVoicer,
   //   updateProductVoicer,

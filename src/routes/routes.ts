@@ -37,7 +37,7 @@ import {
   getSingleLoneProvider,
   updateLoneProvider,
 } from "../controller/loneProvider/loneProviderController";
-import { createProductVoicer } from "../controller/productVoicer/productVoicerController";
+import { createProductVoicer, getProductVoicersWithoutCustomer } from "../controller/productVoicer/productVoicerController";
 import {
   createBusinessContactInfo,
   deleteBusinessContactInfo,
@@ -224,6 +224,7 @@ router.delete("/lone-provider/:id", checkValidUser, deleteLoneProvider);
  **/
 
 router.post("/product-voicer", checkValidUser, createProductVoicer);
+router.get("/product-voicers-without-customer", checkValidUser, getProductVoicersWithoutCustomer);
 
 /**
  * createProductVoicer ROUTES end
