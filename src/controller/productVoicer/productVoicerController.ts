@@ -131,7 +131,7 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
           cashInHistory: {
             create: {
               cashInAmount: paidAmount,
-              cashInFor: `Product sell to ${customer.customerName}`,
+              cashInFor: `Product sell to ${customer?.customerName || "quick invoice"}`,
               shopOwnerId: req.shopOwner.id,
               cashInDate: new Date(date),
             },
