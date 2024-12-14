@@ -534,6 +534,36 @@ components:
           type: number
           example: 250.75
 
+# note components
+    Note:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "note-id-123"
+        title:
+          type: string
+          example: "Shopping List"
+        note:
+          type: string
+          example: "Buy groceries"
+        isComplete:
+          type: boolean
+          example: false
+        shopOwnerId:
+          type: string
+          example: "shop-owner-id-123"
+        createdAt:
+          type: string
+          format: date-time
+          example: "2024-12-14T10:00:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          example: "2024-12-14T12:00:00Z"
+
+
+
     Error:
       type: object
       properties:
@@ -3053,6 +3083,7 @@ paths:
           schema:
             type: string
           description: JWT token of the shop owner
+      
       requestBody:
         required: true
         content:
@@ -3164,3 +3195,304 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+
+
+
+# note documentations 
+  /api/notes:
+    post:
+      summary: Create a new note
+      tags:
+        - Notes
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+      
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: "Shopping List"
+                note:
+                  type: string
+                  example: "Buy groceries"
+                isComplete:
+                  type: boolean
+                  example: false
+      responses:
+        200:
+          description: Note created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Note'
+        500:
+          description: Internal server error
+    get:
+      summary: Get all notes
+      tags:
+        - Notes
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+      
+      responses:
+        200:
+          description: List of notes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Note'
+        500:
+          description: Internal server error
+  /api/notes/{id}:
+    get:
+      summary: Get a single note
+      tags:
+        - Notes
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+      
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          example: "note-id-123"
+      responses:
+        200:
+          description: Retrieved note
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Note'
+        500:
+          description: Internal server error
+    put:
+      summary: Update a note
+      tags:
+        - Notes
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+      
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          example: "note-id-123"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: "Updated Title"
+                note:
+                  type: string
+                  example: "Updated Note Content"
+                isComplete:
+                  type: boolean
+                  example: true
+      responses:
+        200:
+          description: Updated note successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Note'
+        500:
+          description: Internal server error
+    delete:
+      summary: Delete a note
+      tags:
+        - Notes
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+      
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          example: "note-id-123"
+      responses:
+        200:
+          description: Deleted note successfully
+        500:
+          description: Internal server error
+  /api/notes/delete-many:
+    delete:
+      summary: Delete multiple notes by IDs
+      tags:
+        - Notes
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+      
+      tags:
+        - Notes
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+      
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                ids:
+                  type: array
+                  items:
+                    type: string
+                  example: ["note-id-123", "note-id-456"]
+      responses:
+        200:
+          description: Deleted notes successfully
+        500:
+          description: Internal server error
+  /api/notes/delete-all:
+    delete:
+      summary: Delete all notes for the shop owner
+      tags:
+        - Notes
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+      
+      responses:
+        200:
+          description: Deleted all notes successfully
+        500:
+          description: Internal server error
+  /api/notes/completed:
+    get:
+      summary: Get completed notes
+      tags:
+        - Notes
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+      
+      responses:
+        200:
+          description: List of completed notes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Note'
+        500:
+          description: Internal server error
+  /api/notes/uncompleted:
+    get:
+      summary: Get uncompleted notes
+      tags:
+        - Notes
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+      
+      responses:
+        200:
+          description: List of uncompleted notes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Note'
+        500:
+          description: Internal server error
+  /api/notes/complete-many:
+    patch:
+      summary: Mark multiple notes as complete/incomplete
+      tags:
+        - Notes
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+      
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                ids:
+                  type: array
+                  items:
+                    type: string
+                  example: ["note-id-123", "note-id-456"]
+                isComplete:
+                  type: boolean
+                  example: true
+      responses:
+        200:
+          description: Updated notes successfully
+        500:
+          description: Internal server error

@@ -88,6 +88,9 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
           }),
         },
       },
+      include:{
+        sellingProducts:true
+      }
     });
 
     // update product stoke amount
@@ -187,7 +190,7 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
     }
 
     // ... (previous code remains unchanged)
-    const pdfProductData = sellingProducts.map((product) => ({
+    const pdfProductData = newProductVoicer.sellingProducts.map((product) => ({
       ...product,
       totalProductPrice: product.sellingPrice * product.quantity,
     }));
@@ -304,6 +307,9 @@ const getProductVoicersWithoutCustomer = async (
         customerId: null, // Filter for entries where customerId is null
         shopOwnerId:req.shopOwner.id
       },
+      include:{
+        sellingProducts:true
+      }
     });
 
     return res.status(200).json({

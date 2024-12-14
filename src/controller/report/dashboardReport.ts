@@ -25,6 +25,104 @@ const dashboardReport = async (req: ExtendedRequest, res: Response) => {
         const totalProfit = sellingProducts.reduce((acc, curr) => {
             return acc + (curr.totalPrice - (curr.quantity * curr.product.buyingPrice));
         }, 0);
+
+        const totalLoss = sellingProducts.reduce((acc, curr) => {
+            return acc + ((curr.quantity * curr.product.buyingPrice) - curr.totalPrice);
+        }, 0);
+
+        const numberOfProductOnStock = await prisma.product.count({
+            where: {
+                shopOwnerId: req.shopOwner.id,
+                stokeAmount: {
+                    gt: 0,
+                }
+            }
+        });
+
+        const numberOfProductOutOfStock = await prisma.product.count({
+            where: {
+                shopOwnerId: req.shopOwner.id,
+                stokeAmount: {
+                    lte: 0,
+                }
+            }
+        });
+
+        const totalProduct = await prisma.product.count({
+            where: {
+                shopOwnerId: req.shopOwner.id,
+            }
+        });
+
+        const totalCustomer = await prisma.customer.count({
+            where: {
+                shopOwnerId: req.shopOwner.id,
+            }
+        });
+
+        const customerWithThisPeriod = await prisma.customer.findMany({
+            where: {
+                createdAt: {
+                    gte: startDate,
+                    lte: endDate,
+                },
+                shopOwnerId: req.shopOwner.id,
+            }
+        });
+
+        const customerWithHighestPurchase = await prisma.customer.findFirst({
+            where: {
+                shopOwnerId: req.shopOwner.id,
+            },
+            orderBy: {
+                paidAmount: "desc",
+            }
+        });
+
+        const customerWithHighestDueAmount = await prisma.customer.findFirst({
+            where: {
+                shopOwnerId: req.shopOwner.id,
+            },
+            orderBy: {
+                deuAmount: "desc",
+            }
+        });
+
+        const totalDueAmountWithThisPeriod = customerWithThisPeriod.reduce((acc, curr) => {
+            return acc + curr.deuAmount;
+        }, 0);
+
+        const totalPaidAmountWithThisPeriod = customerWithThisPeriod.reduce((acc, curr) => {
+            return acc + curr.paidAmount;
+        }, 0);
+
+        const totalInvestment = await prisma.product.findMany({
+            where: {
+                shopOwnerId: req.shopOwner.id,
+            }
+        });
+
+        const totalInvestmentAmount = totalInvestment.reduce((acc, curr) => {
+            return acc + (curr.buyingPrice * curr.stokeAmount);
+        }, 0);
+
+        return res.status(200).json({
+            success: true,
+            data: {
+                totalSellingPrice,
+                totalProfit,
+                totalLoss: totalLoss < 0 ? 0 : totalLoss, 
+                numberOfProductOnStock,
+                numberOfProductOutOfStock,
+                totalProduct,
+                totalCustomer,
+                customerWithHighestPurchase,
+                customerWithHighestDueAmount,
+                totalDueAmountWithThisPeriod,
+                totalPaidAmountWithThisPeriod,
+                totalInvestmentAmount,
+            }
+        });
         
 
     } catch (error) {
@@ -44,3 +142,5 @@ const dashboardReport = async (req: ExtendedRequest, res: Response) => {
         });
     }
 }
+
+export default dashboardReport;

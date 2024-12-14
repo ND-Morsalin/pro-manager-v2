@@ -79,6 +79,8 @@ import {
 } from "../controller/category/categoryController";
 
 import { sendMessageToAll } from "../controller/sms/smsController";
+import dashboardReport from "../controller/report/dashboardReport";
+import { createNote, deleteAllNotes, deleteMeanyNotesByGivenId, getCompletedNotes, getNotes, getSingleNote, getUncompletedNotes, updateNote } from "../controller/note/noteController";
 
 
 const router = Router();
@@ -292,6 +294,9 @@ router.get(
   checkValidUser,
   monthlyCashReport
 );
+
+router.get("/dashboard-report", checkValidUser, dashboardReport);
+
 /**
  * Cash Report ROUTES end
  **/
@@ -314,5 +319,20 @@ router.delete("/category/:id", checkValidUser, deleteCategory);
 
 // Send sms to all users
 router.post("/send-message-to-all", checkValidUser, sendMessageToAll);
+
+// note routes start
+router.post("/notes", checkValidUser,createNote );
+router.get("/notes", checkValidUser,getNotes );
+router.get("/notes/:id", checkValidUser,getSingleNote );
+router.put("/notes/:id", checkValidUser,updateNote );
+router.patch("/notes/complete-many", checkValidUser,updateNote );
+router.delete("/notes/:id", checkValidUser,updateNote );
+router.get("/notes/uncompleted", checkValidUser,getUncompletedNotes );
+router.get("/notes/completed", checkValidUser,getCompletedNotes );
+router.delete("/notes/delete-many", checkValidUser,deleteMeanyNotesByGivenId   );
+router.delete("/notes/delete-all", checkValidUser,deleteAllNotes   );
+
+
+// note routes end
 
 export default router;
