@@ -295,7 +295,7 @@ router.get(
   monthlyCashReport
 );
 
-router.get("/dashboard-report", checkValidUser, dashboardReport);
+router.post("/dashboard-report", checkValidUser, dashboardReport);
 
 /**
  * Cash Report ROUTES end

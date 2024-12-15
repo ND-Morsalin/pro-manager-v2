@@ -3496,3 +3496,152 @@ paths:
           description: Updated notes successfully
         500:
           description: Internal server error
+
+# Dashboard report
+
+  /api/dashboard-report:
+    post:
+      summary: Generate a dashboard report
+      description: Retrieves detailed statistics and metrics for the dashboard based on a given date range.
+      tags:
+        - Dashboard
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                startDateUTC:
+                  type: string
+                  format: date-time
+                  description: Start date in UTC.
+                endDateUTC:
+                  type: string
+                  format: date-time
+                  description: End date in UTC.
+              required:
+                - startDateUTC
+                - endDateUTC
+      responses:
+        '200':
+          description: Successfully retrieved dashboard report.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      sellingProducts:
+                        type: array
+                        items:
+                          type: object
+                      totalSellingPrice:
+                        type: number
+                        description: Total selling price of products.
+                      totalProfit:
+                        type: number
+                        description: Total profit earned.
+                      totalLoss:
+                        type: number
+                        description: Total loss incurred.
+                      sellingProductsOnThisPeriod:
+                        type: array
+                        items:
+                          type: object
+                      totalSellingPriceOnThisPeriod:
+                        type: number
+                        description: Total selling price within the specified period.
+                      totalProfitOnThisPeriod:
+                        type: number
+                        description: Total profit within the specified period.
+                      totalLossOnThisPeriod:
+                        type: number
+                        description: Total loss within the specified period.
+                      numberOfProductOnStock:
+                        type: integer
+                        description: Number of products currently in stock.
+                      numberOfProductOnStockOnThisPeriod:
+                        type: integer
+                        description: Number of products added to stock in the specified period.
+                      numberOfProductOutOfStockOnThisPeriod:
+                        type: integer
+                        description: Number of products out of stock in the specified period.
+                      numberOfProductOutOfStock:
+                        type: integer
+                        description: Number of products currently out of stock.
+                      totalProduct:
+                        type: integer
+                        description: Total number of products.
+                      totalCustomer:
+                        type: integer
+                        description: Total number of customers.
+                      customerOnHighestPurchase:
+                        type: object
+                        description: Customer with the highest purchase.
+                      customerOnHighestDueAmount:
+                        type: object
+                        description: Customer with the highest due amount.
+                      totalDueAmountOnThisPeriod:
+                        type: number
+                        description: Total due amount within the specified period.
+                      totalPaidAmountOnThisPeriod:
+                        type: number
+                        description: Total paid amount within the specified period.
+                      totalInvestmentAmount:
+                        type: number
+                        description: Total investment amount.
+                      totalInvestmentAmountPeriod:
+                        type: number
+                        description: Total investment amount within the specified period.
+                      totalInvestmentOnThisPeriod:
+                        type: array
+                        items:
+                          type: object
+                      totalInvoiceNumber:
+                        type: integer
+                        description: Total number of invoices.
+                      totalInvoiceNumberOnThisPeriod:
+                        type: integer
+                        description: Total number of invoices within the specified period.
+                      totalInvoice:
+                        type: array
+                        items:
+                          type: object
+                      totalInvoiceOnThisPeriod:
+                        type: array
+                        items:
+                          type: object
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                        value:
+                          type: string
+                        msg:
+                          type: string
+
+
