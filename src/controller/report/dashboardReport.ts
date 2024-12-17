@@ -216,6 +216,9 @@ const dashboardReport = async (req: ExtendedRequest, res: Response) => {
           lte: endDate,
         },
       },
+      include:{
+        customer:true
+      }
     });
 
     return res.status(200).json({
