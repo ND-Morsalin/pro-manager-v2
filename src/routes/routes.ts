@@ -117,8 +117,8 @@ router.post("/login", logInValidator, handleValidationErrors, logIn);
 router.post("/forget-password", forgetPassword);
 router.post("/check-otp", checkOtp);
 router.post("/reset-password", resetPassword);
-router.post("/update-shop-owner/:id", checkValidUser, updateShopOwner);
-router.post("/delete-shop-owner/:id", checkValidUser, deleteShopOwner);
+router.put("/update-shop-owner/:id", checkValidUser, updateShopOwner);
+router.delete("/delete-shop-owner/:id", checkValidUser, deleteShopOwner);
 
 
 /**
