@@ -143,6 +143,8 @@ const getSingleProduct = async (req: Request, res: Response) => {
   }
 };
 
+
+
 const updateProduct = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
@@ -226,10 +228,68 @@ const deleteProduct = async (req: Request, res: Response) => {
   }
 };
 
+const getSellingProductByDate = async (req: ExtendedRequest, res:Response)=>{
+  try {
+    const { dateUTC } = req.body as {
+      dateUTC:string
+    };
+    // cash will get of date of today
+    const startDate = new Date(dateUTC);
+    startDate.setHours(0, 0, 0, 0);
+    const endDate = new Date(dateUTC);
+    endDate.setHours(23, 59, 59, 999);
+
+    const sellingProductsOnThisPeriod = await prisma.sellingProduct.findMany({
+      where: {
+        createdAt: {
+          gte: startDate,
+          lte: endDate,
+        },
+        shopOwnerId: req.shopOwner.id,
+      },
+      include: {
+        product: true,
+      },
+    });
+const totalSellingPrice = sellingProductsOnThisPeriod.reduce((acc,curr,index)=>{
+  return acc + curr.totalPrice
+},0)
+    const sellingProducts = {
+      totalSellingPrice,
+      sellingProductsOnThisPeriod,
+      date: dateUTC,
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Selling products on this period",
+      sellingProducts,
+    });
+
+
+  } catch (error) {
+    
+    console.log(error)
+     return res.status(500).json({
+      success: false,
+      errors: [
+        {
+          type: "server error",
+          value: "",
+          msg: "Internal server error",
+          path: "server",
+          location: "getSellingProductByDate",
+        },
+      ],
+    });
+  }
+}
+
 export {
   addProduct,
   getAllProducts,
   getSingleProduct,
   updateProduct,
   deleteProduct,
+  getSellingProductByDate
 };

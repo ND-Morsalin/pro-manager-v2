@@ -5,12 +5,12 @@ import prisma from "../../utility/prisma";
 import setCookie from "../../utility/setCookie";
 
 const CreateShopOwner = async (req: Request, res: Response) => {
-  const { shopName, mobile, pincode, confirmPincode } =
+  const { shopName, mobile, pincode, confirmPincode, otherMobiles } =
     req.body as shopOwnerBodyType;
 
   // check pincode and confirm pin code
   if (!(pincode === confirmPincode)) {
-   return res.status(403).json({
+    return res.status(403).json({
       success: false,
       errors: [
         {
@@ -32,7 +32,7 @@ const CreateShopOwner = async (req: Request, res: Response) => {
   });
 
   if (existShopOwner) {
-    console.log({existShopOwner})
+    console.log({ existShopOwner });
     return res.status(405).json({
       success: false,
       errors: [
@@ -57,21 +57,22 @@ const CreateShopOwner = async (req: Request, res: Response) => {
       mobile,
       pincode: hashPin,
       shopName,
+      otherMobiles,
     },
   });
 
   const SMSPurchase = await prisma.sMSPurchase.create({
     data: {
-      shopOwnerId: shopOwner.id, 
+      shopOwnerId: shopOwner.id,
       // from creating date to 30 days
       expireDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-      smsAmount:100,
-      smsPrice:0.40,
+      smsAmount: 100,
+      smsPrice: 0.4,
       createdAt: new Date(),
       updatedAt: new Date(),
     },
   });
-  
+
   return res.json({
     success: true,
     message: "Shop owner created",
@@ -113,7 +114,7 @@ const logIn = async (req: Request, res: Response) => {
   const isMatch = await bcryptjs.compare(pincode, shopOwner.pincode);
 
   if (!isMatch) {
-    return  res.status(404).json({
+    return res.status(404).json({
       success: false,
       errors: [
         {
@@ -133,7 +134,7 @@ const logIn = async (req: Request, res: Response) => {
     id: shopOwner.id,
   });
 
-  return  res.json({
+  return res.json({
     success: true,
     message: "Login successful",
     data: {
@@ -145,6 +146,72 @@ const logIn = async (req: Request, res: Response) => {
   });
 };
 
-const ShowAllShopOwner = async (req: Request, res: Response) => {};
+const ShowAllShopOwner = async (req: Request, res: Response) => {
+  const shopOwners = await prisma.shopOwner.findMany();
 
-export { CreateShopOwner, ShowAllShopOwner, logIn };
+  return res.json({
+    success: true,
+    shopOwners,
+  });
+};
+const updateShopOwner = async (req: Request, res: Response) => {
+  
+  const { shopName, mobile, otherMobiles } =
+    req.body as shopOwnerBodyType;
+
+
+  const shopOwner = await prisma.shopOwner.update({
+    where: {
+      id: req.params.id,
+    },
+    data: {
+      mobile,
+      shopName,
+      otherMobiles,
+    },
+  });
+
+  return res.json({
+    success: true,
+    message: "Shop owner updated",
+    shopOwner: {
+      id: shopOwner.id,
+      mobile: shopOwner.mobile,
+      shopName: shopOwner.shopName,
+      otherMobiles: shopOwner.otherMobiles,
+    },
+  });
+};
+const deleteShopOwner = async (req: Request, res: Response) => {
+  try {
+    await prisma.shopOwner.delete({
+      where: {
+        id: req.params.id,
+      },
+    });
+
+    return res.json({
+      success: true,
+      message: "Shop owner deleted",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      errors: [
+        {
+          type: "server error",
+          value: "",
+          msg: "Internal server error",
+        },
+      ],
+    });
+  }
+};
+
+export {
+  CreateShopOwner,
+  ShowAllShopOwner,
+  logIn,
+  updateShopOwner,
+  deleteShopOwner,
+};

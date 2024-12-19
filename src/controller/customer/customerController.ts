@@ -5,8 +5,14 @@ import prisma from "../../utility/prisma";
 
 const addCustomer = async (req: ExtendedRequest, res: Response) => {
   try {
-    const { address, customerName, phoneNumber, deuAmount, paidAmount } =
-      req.body as Customer;
+    const {
+      address,
+      customerName,
+      phoneNumber,
+      deuAmount,
+      paidAmount,
+      otherMobiles,
+    } = req.body as Customer;
 
     const oldCustomer = await prisma.customer.findUnique({
       where: {
@@ -48,6 +54,7 @@ const addCustomer = async (req: ExtendedRequest, res: Response) => {
               shopOwnerId: req.shopOwner.id,
             },
           },
+          otherMobiles,
         },
       });
     } else {
@@ -59,6 +66,7 @@ const addCustomer = async (req: ExtendedRequest, res: Response) => {
           shopOwnerId: req.shopOwner.id,
           deuAmount,
           paidAmount,
+          otherMobiles,
         },
       });
     }
@@ -267,12 +275,14 @@ const updateCustomer = async (req: ExtendedRequest, res: Response) => {
       address,
       customerName,
       phoneNumber,
+      otherMobiles,
     } = req.body as {
       deuAmount: number;
       paidAmount: number;
       address: string;
       customerName: string;
       phoneNumber: string;
+      otherMobiles: string[];
       date: string;
       note: string;
     };
@@ -286,6 +296,7 @@ const updateCustomer = async (req: ExtendedRequest, res: Response) => {
         address,
         customerName,
         phoneNumber,
+        otherMobiles,
       },
     });
 

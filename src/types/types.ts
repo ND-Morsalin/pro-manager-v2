@@ -5,6 +5,7 @@ interface shopOwnerBodyType {
   mobile: string;
   pincode: string;
   confirmPincode: string;
+  otherMobiles  : string[];
 }
 
 interface LoginBodyType {

@@ -18,6 +18,7 @@ model ShopOwner {
   id       String  @id @default(auto()) @map("_id") @db.ObjectId
   shopName String
   mobile   String  @unique
+  otherMobiles   String[] @default([])  
   pincode  String
   otp      String?
   //  relations with product, customer, loneProvider, businessContactInfo model
@@ -99,6 +100,7 @@ model Customer {
   id           String @id @default(auto()) @map("_id") @db.ObjectId
   customerName String
   phoneNumber  String
+  otherMobiles   String[] @default([])
   address      String
   deuAmount    Float
   paidAmount   Float
@@ -113,7 +115,7 @@ model Customer {
   invoiceHistory ProductVoicer[]
 
   productGive   ProductGive[]
-  productRecive ProductReceive[]
+  productReceive ProductReceive[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

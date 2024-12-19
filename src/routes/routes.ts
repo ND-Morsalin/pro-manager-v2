@@ -1,6 +1,8 @@
 import {
   CreateShopOwner,
+  deleteShopOwner,
   logIn,
+  updateShopOwner,
 } from "../controller/shopOwner/shopOwnerController";
 import { Router } from "express";
 import shopOwnerBodyChecker from "../middleware/shopOwner/shopOwnerValidator";
@@ -11,10 +13,10 @@ import {
   addProduct,
   deleteProduct,
   getAllProducts,
+  getSellingProductByDate,
   getSingleProduct,
   updateProduct,
 } from "../controller/products/productsController";
-import productBodyChecker from "../middleware/products/productValidator";
 import {
   addCustomer,
   deleteCustomer,
@@ -37,7 +39,10 @@ import {
   getSingleLoneProvider,
   updateLoneProvider,
 } from "../controller/loneProvider/loneProviderController";
-import { createProductVoicer, getProductVoicersWithoutCustomer } from "../controller/productVoicer/productVoicerController";
+import {
+  createProductVoicer,
+  getProductVoicersWithoutCustomer,
+} from "../controller/productVoicer/productVoicerController";
 import {
   createBusinessContactInfo,
   deleteBusinessContactInfo,
@@ -80,8 +85,16 @@ import {
 
 import { sendMessageToAll } from "../controller/sms/smsController";
 import dashboardReport from "../controller/report/dashboardReport";
-import { createNote, deleteAllNotes, deleteMeanyNotesByGivenId, getCompletedNotes, getNotes, getSingleNote, getUncompletedNotes, updateNote } from "../controller/note/noteController";
-
+import {
+  createNote,
+  deleteAllNotes,
+  deleteMeanyNotesByGivenId,
+  getCompletedNotes,
+  getNotes,
+  getSingleNote,
+  getUncompletedNotes,
+  updateNote,
+} from "../controller/note/noteController";
 
 const router = Router();
 
@@ -104,10 +117,9 @@ router.post("/login", logInValidator, handleValidationErrors, logIn);
 router.post("/forget-password", forgetPassword);
 router.post("/check-otp", checkOtp);
 router.post("/reset-password", resetPassword);
+router.post("/update-shop-owner/:id", checkValidUser, updateShopOwner);
+router.post("/delete-shop-owner/:id", checkValidUser, deleteShopOwner);
 
-router.get("/", createPdf);
-
-// router.get("/shop-owner", CreateShopOwner);
 
 /**
  * PRODUCT ROUTES start
@@ -127,6 +139,7 @@ router.put("/product/:id", checkValidUser, updateProduct);
 
 // delete product
 router.delete("/product/:id", checkValidUser, deleteProduct);
+router.post("/selling-product-by-date", checkValidUser, getSellingProductByDate);
 
 /**
  * PRODUCT ROUTES end
@@ -226,7 +239,11 @@ router.delete("/lone-provider/:id", checkValidUser, deleteLoneProvider);
  **/
 
 router.post("/product-voicer", checkValidUser, createProductVoicer);
-router.get("/product-voicers-without-customer", checkValidUser, getProductVoicersWithoutCustomer);
+router.get(
+  "/product-voicers-without-customer",
+  checkValidUser,
+  getProductVoicersWithoutCustomer
+);
 
 /**
  * createProductVoicer ROUTES end
@@ -321,17 +338,16 @@ router.delete("/category/:id", checkValidUser, deleteCategory);
 router.post("/send-message-to-all", checkValidUser, sendMessageToAll);
 
 // note routes start
-router.post("/notes", checkValidUser,createNote );
-router.get("/notes", checkValidUser,getNotes );
-router.get("/notes/:id", checkValidUser,getSingleNote );
-router.put("/notes/:id", checkValidUser,updateNote );
-router.patch("/notes/complete-many", checkValidUser,updateNote );
-router.delete("/notes/:id", checkValidUser,updateNote );
-router.get("/notes/uncompleted", checkValidUser,getUncompletedNotes );
-router.get("/notes/completed", checkValidUser,getCompletedNotes );
-router.delete("/notes/delete-many", checkValidUser,deleteMeanyNotesByGivenId   );
-router.delete("/notes/delete-all", checkValidUser,deleteAllNotes   );
-
+router.post("/notes", checkValidUser, createNote);
+router.get("/notes", checkValidUser, getNotes);
+router.get("/notes/:id", checkValidUser, getSingleNote);
+router.put("/notes/:id", checkValidUser, updateNote);
+router.patch("/notes/complete-many", checkValidUser, updateNote);
+router.delete("/notes/:id", checkValidUser, updateNote);
+router.get("/notes/uncompleted", checkValidUser, getUncompletedNotes);
+router.get("/notes/completed", checkValidUser, getCompletedNotes);
+router.delete("/notes/delete-many", checkValidUser, deleteMeanyNotesByGivenId);
+router.delete("/notes/delete-all", checkValidUser, deleteAllNotes);
 
 // note routes end
 
