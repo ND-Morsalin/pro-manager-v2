@@ -168,6 +168,30 @@ const dashboardReport = async (req: ExtendedRequest, res: Response) => {
       0
     );
 
+    const cashOutHistory = await prisma.cashOutHistory.findMany({
+      where: {
+        shopOwnerId: req.shopOwner.id,
+      },
+    });
+
+    const totalCashOut = cashOutHistory.reduce((acc, curr) => {
+      return acc + curr.cashOutAmount;
+    }, 0);
+
+    const cashOutHistoryOnThisPeriod = await prisma.cashOutHistory.findMany({
+      where: {
+        shopOwnerId: req.shopOwner.id,
+        createdAt: {
+          gte: startDate,
+          lte: endDate,
+        },
+      },
+    });
+
+    const totalCashOutOnThisPeriod = cashOutHistoryOnThisPeriod.reduce((acc, curr) => {
+      return acc + curr.cashOutAmount;
+    }, 0);
+
     const totalPaidAmountOnThisPeriod = customerOnThisPeriod.reduce(
       (acc, curr) => {
         return acc + curr.paidAmount;
@@ -216,20 +240,41 @@ const dashboardReport = async (req: ExtendedRequest, res: Response) => {
           lte: endDate,
         },
       },
-      include:{
-        customer:true
+      include: {
+        customer: true,
+      },
+    });
+
+    // Group data by date and calculate totals
+    const groupedByDate: Record<string, number> = {};
+
+    sellingProductsOnThisPeriod.forEach((sale) => {
+      const dateKey = sale.createdAt.toISOString().split("T")[0]; // Format date as YYYY-MM-DD
+      if (!groupedByDate[dateKey]) {
+        groupedByDate[dateKey] = 0;
       }
+      groupedByDate[dateKey] += sale.totalPrice;
     });
 
     return res.status(200).json({
       success: true,
       data: {
-        sellingProducts,
+        totalSellingPriceOnThisPeriod: Object.values(groupedByDate).reduce(
+          (sum, value) => sum + value,
+          0
+        ),
+        dateListOnThisPeriod: Object.entries(groupedByDate).map(([date, sellAmount]) => ({
+          date,
+          sellAmount,
+        })),
+        // sellingProducts,
         totalSellingPrice,
         totalProfit,
         totalLoss,
-        sellingProductsOnThisPeriod,
-        totalSellingPriceOnThisPeriod,
+        totalCashOut,
+        totalCashOutOnThisPeriod,
+        // sellingProductsOnThisPeriod,
+        
         totalProfitOnThisPeriod,
         totalLossOnThisPeriod,
         numberOfProductOnStock,
@@ -244,11 +289,11 @@ const dashboardReport = async (req: ExtendedRequest, res: Response) => {
         totalPaidAmountOnThisPeriod,
         totalInvestmentAmount,
         totalInvestmentAmountPeriod,
-        totalInvestmentOnThisPeriod,
+        // totalInvestmentOnThisPeriod,
         totalInvoiceNumber,
         totalInvoiceNumberOnThisPeriod,
-        totalInvoice,
-        totalInvoiceOnThisPeriod,
+        // totalInvoice,
+        // totalInvoiceOnThisPeriod,
       },
     });
   } catch (error) {
