@@ -218,7 +218,7 @@ const dashboardReport = async (req: ExtendedRequest, res: Response) => {
       },
     });
 
-    const totalInvestmentAmountPeriod = totalInvestment.reduce((acc, curr) => {
+    const totalInvestmentAmountPeriod = totalInvestmentOnThisPeriod.reduce((acc, curr) => {
       return acc + curr.buyingPrice * curr.stokeAmount;
     }, 0);
 
@@ -273,7 +273,7 @@ const dashboardReport = async (req: ExtendedRequest, res: Response) => {
         totalLoss,
         totalCashOut,
         totalCashOutOnThisPeriod,
-        // sellingProductsOnThisPeriod,
+        sellingProductsCountOnThisPeriod: sellingProductsOnThisPeriod.length,
         
         totalProfitOnThisPeriod,
         totalLossOnThisPeriod,
