@@ -3,6 +3,7 @@ import {
   deleteShopOwner,
   logIn,
   updateShopOwner,
+  getShopOwnerById
 } from "../controller/shopOwner/shopOwnerController";
 import { Router } from "express";
 import shopOwnerBodyChecker from "../middleware/shopOwner/shopOwnerValidator";
@@ -118,6 +119,7 @@ router.post("/forget-password", forgetPassword);
 router.post("/check-otp", checkOtp);
 router.post("/reset-password", resetPassword);
 router.put("/update-shop-owner/:id", checkValidUser, updateShopOwner);
+router.get("/shop-owner/:id", checkValidUser, getShopOwnerById);
 router.delete("/delete-shop-owner/:id", checkValidUser, deleteShopOwner);
 
 

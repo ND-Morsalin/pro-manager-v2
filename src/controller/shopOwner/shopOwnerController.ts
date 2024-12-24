@@ -212,6 +212,50 @@ const deleteShopOwner = async (req: Request, res: Response) => {
     });
   }
 };
+const getShopOwnerById = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    const shopOwner = await prisma.shopOwner.findUnique({
+      where: {
+        id,
+      },
+      include: {
+        SMSPurchase: true, // Include related SMSPurchase data if needed
+      },
+    });
+
+    if (!shopOwner) {
+      return res.status(404).json({
+        success: false,
+        errors: [
+          {
+            type: "not_found",
+            value: "",
+            msg: "Shop owner not found",
+            path: "getShopOwnerById",
+          },
+        ],
+      });
+    }
+
+    return res.json({
+      success: true,
+      shopOwner,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      errors: [
+        {
+          type: "server_error",
+          value: "",
+          msg: "Internal server error",
+        },
+      ],
+    });
+  }
+};
 
 export {
   CreateShopOwner,
@@ -219,4 +263,5 @@ export {
   logIn,
   updateShopOwner,
   deleteShopOwner,
+  getShopOwnerById,
 };
