@@ -5,7 +5,7 @@ import prisma from "../../utility/prisma";
 import setCookie from "../../utility/setCookie";
 
 const CreateShopOwner = async (req: Request, res: Response) => {
-  const { shopName, mobile, pincode, confirmPincode, otherMobiles } =
+  const { shopName, mobile, pincode, confirmPincode, otherMobiles,address  } =
     req.body as shopOwnerBodyType;
 
   // check pincode and confirm pin code
@@ -58,6 +58,7 @@ const CreateShopOwner = async (req: Request, res: Response) => {
       pincode: hashPin,
       shopName,
       otherMobiles,
+      address: address||null,
     },
   });
 
@@ -81,6 +82,8 @@ const CreateShopOwner = async (req: Request, res: Response) => {
       mobile: shopOwner.mobile,
       shopName: shopOwner.shopName,
       sms: SMSPurchase,
+      address:shopOwner.address,
+      otherMobiles:shopOwner.otherMobiles
     },
   });
 };
@@ -156,7 +159,7 @@ const ShowAllShopOwner = async (req: Request, res: Response) => {
 };
 const updateShopOwner = async (req: Request, res: Response) => {
   
-  const { shopName, mobile, otherMobiles } =
+  const { shopName, mobile, otherMobiles,address } =
     req.body as shopOwnerBodyType;
 
 
@@ -168,6 +171,7 @@ const updateShopOwner = async (req: Request, res: Response) => {
       mobile,
       shopName,
       otherMobiles,
+      address
     },
   });
 
@@ -179,6 +183,7 @@ const updateShopOwner = async (req: Request, res: Response) => {
       mobile: shopOwner.mobile,
       shopName: shopOwner.shopName,
       otherMobiles: shopOwner.otherMobiles,
+      address:shopOwner.address
     },
   });
 };

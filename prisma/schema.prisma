@@ -19,6 +19,7 @@ model ShopOwner {
   shopName String
   mobile   String  @unique
   otherMobiles   String[] @default([])  
+  address String?
   pincode  String
   otp      String?
   //  relations with product, customer, loneProvider, businessContactInfo model
@@ -201,6 +202,7 @@ model LoneProvider {
   loneProviderName String
   phoneNumber      String
   address          String
+  note String?
   loneTakenDate    DateTime
   totalLoneTaken   Float
   loneDeuAmount    Float
@@ -225,7 +227,7 @@ model LonePaymentHistory {
 
   shopOwner   ShopOwner @relation(fields: [shopOwnerId], references: [id])
   shopOwnerId String    @db.ObjectId
-
+note String?
   loneProvider   LoneProvider @relation(fields: [loneProviderId], references: [id], onDelete: Cascade)
   loneProviderId String       @db.ObjectId
 }

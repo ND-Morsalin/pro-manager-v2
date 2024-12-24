@@ -11,6 +11,7 @@ const createLoneProvider = async (req: ExtendedRequest, res: Response) => {
       loneProviderName,
       loneTakenDate,
       totalLoneTaken,
+      note
     } = req.body as LoneProvider;
 
     const newLoneProvider = await prisma.loneProvider.create({
@@ -20,6 +21,7 @@ const createLoneProvider = async (req: ExtendedRequest, res: Response) => {
         lonePaidAmount: 0,
         loneProviderName,
         phoneNumber,
+        note: note||null,
         totalLoneTaken,
         shopOwnerId: req.shopOwner.id,
         loneTakenDate: new Date(loneTakenDate),
@@ -29,6 +31,7 @@ const createLoneProvider = async (req: ExtendedRequest, res: Response) => {
     const loneHistory = await prisma.lonePaymentHistory.create({
       data: {
         lonePaymentStatus: "SHOPOWNERRECIVED",
+        note:note || null,
         givingAmount: totalLoneTaken,
         loneProviderId: newLoneProvider.id,
         shopOwnerId: req.shopOwner.id,
@@ -166,10 +169,11 @@ const getSingleLoneProvider = async (req: ExtendedRequest, res: Response) => {
 const updateLoneProvider = async (req: ExtendedRequest, res: Response) => {
   try {
     const { id: loneProviderId } = req.params;
-    const { givingLoneDeuAmount, receivingNewLoneAmount, lonePaymentStatus } =
+    const { givingLoneDeuAmount, receivingNewLoneAmount, lonePaymentStatus ,note} =
       req.body as {  
         givingLoneDeuAmount: string;
         receivingNewLoneAmount: string;
+        note?:string;
         lonePaymentStatus: "SHOPOWNERGIVE" | "SHOPOWNERRECIVED";
       };
     let updatedLoneProvider;
@@ -187,6 +191,7 @@ const updateLoneProvider = async (req: ExtendedRequest, res: Response) => {
           lonePaidAmount: {
             increment: parseInt(givingLoneDeuAmount),
           },
+          note,
         },
       });
       // create lone provider history
@@ -196,6 +201,7 @@ const updateLoneProvider = async (req: ExtendedRequest, res: Response) => {
           givingAmount: parseInt(givingLoneDeuAmount),
           loneProviderId: updatedLoneProvider.id,
           shopOwnerId: req.shopOwner.id,
+          note:note||null,
         },
       });
     }
@@ -213,6 +219,7 @@ const updateLoneProvider = async (req: ExtendedRequest, res: Response) => {
           totalLoneTaken: {
             increment: parseInt(receivingNewLoneAmount),
           },
+          note
         },
       });
       // create lone provider history
@@ -222,6 +229,7 @@ const updateLoneProvider = async (req: ExtendedRequest, res: Response) => {
           givingAmount: parseInt(receivingNewLoneAmount),
           loneProviderId: updatedLoneProvider.id,
           shopOwnerId: req.shopOwner.id,
+          note: note||null,
         },
       });
     }

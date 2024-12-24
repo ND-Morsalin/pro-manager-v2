@@ -6,6 +6,7 @@ interface shopOwnerBodyType {
   pincode: string;
   confirmPincode: string;
   otherMobiles  : string[];
+  address?: string;
 }
 
 interface LoginBodyType {
