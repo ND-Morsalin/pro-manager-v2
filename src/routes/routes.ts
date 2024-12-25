@@ -95,6 +95,7 @@ import {
   getSingleNote,
   getUncompletedNotes,
   updateNote,
+  deleteNote
 } from "../controller/note/noteController";
 
 const router = Router();
@@ -345,7 +346,7 @@ router.get("/notes", checkValidUser, getNotes);
 router.get("/notes/:id", checkValidUser, getSingleNote);
 router.put("/notes/:id", checkValidUser, updateNote);
 router.patch("/notes/complete-many", checkValidUser, updateNote);
-router.delete("/notes/:id", checkValidUser, updateNote);
+router.delete("/notes/:id", checkValidUser, deleteNote);
 router.get("/notes/uncompleted", checkValidUser, getUncompletedNotes);
 router.get("/notes/completed", checkValidUser, getCompletedNotes);
 router.delete("/notes/delete-many", checkValidUser, deleteMeanyNotesByGivenId);

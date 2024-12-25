@@ -56,6 +56,8 @@ model ShopOwner {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  SMSPurchase SMSPurchase?
 }
 
 //**************************/
@@ -344,7 +346,8 @@ model ProductReceive {
 
 model SMSPurchase {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  shopOwnerId String   @db.ObjectId
+  shopOwnerId String   @db.ObjectId @unique
+  shopOwner   ShopOwner @relation(fields: [shopOwnerId], references: [id])
   smsAmount   Float
   smsPrice    Float?
   expireDate  DateTime

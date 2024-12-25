@@ -221,7 +221,7 @@ const getShopOwnerById = async (req: Request, res: Response) => {
         id,
       },
       include: {
-        SMSPurchase: true, // Include related SMSPurchase data if needed
+       
       },
     });
 
