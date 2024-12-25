@@ -38,6 +38,8 @@ export interface ProductGiveBodyType {
   productId: string;
   amount: number;
   customerId: string;
+  companyName: string;
+  note: string;
 }
 
 export {

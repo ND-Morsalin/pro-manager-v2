@@ -77,6 +77,8 @@ import {
   getSingleProductReceive,
   updateProductGive,
   updateProductReceive,
+  createProductGive,
+  createProductReceive,
 } from "../controller/productGiveTake/productGiveTake";
 import {
   createCategory,
@@ -321,6 +323,7 @@ router.post("/dashboard-report", checkValidUser, dashboardReport);
  * Cash Report ROUTES end
  **/
 
+
 router.get("/product-receive", checkValidUser, getProductReceive);
 router.get("/product-give", checkValidUser, getProductGive);
 router.get("/product-receive/:id", checkValidUser, getSingleProductReceive);
@@ -331,6 +334,8 @@ router.put("/product-give/:id", checkValidUser, updateProductGive);
 
 router.delete("/product-receive/:id", checkValidUser, deleteProductReceive);
 router.delete("/product-give/:id", checkValidUser, deleteProductGive);
+router.post("/product-receive", checkValidUser, createProductReceive);
+router.post("/product-give", checkValidUser, createProductGive);
 
 // Category routes
 router.post("/category", checkValidUser, createCategory);

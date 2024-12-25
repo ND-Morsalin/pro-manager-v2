@@ -332,6 +332,8 @@ model ProductGive {
   customer   Customer @relation(fields: [customerId], references: [id])
   customerId String   @db.ObjectId
   amount     Float
+  companyName String?
+  note String?
 }
 
 model ProductReceive {
@@ -342,6 +344,9 @@ model ProductReceive {
   customerId  String   @db.ObjectId
   customer    Customer @relation(fields: [customerId], references: [id])
   amount      Float
+
+  companyName String?
+  note String?
 }
 
 model SMSPurchase {

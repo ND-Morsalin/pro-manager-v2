@@ -4,9 +4,17 @@ import prisma from "../../utility/prisma";
 
 const createProductGive = async (req: ExtendedRequest, res: Response) => {
   try {
-    const { productId, amount, customerId } = req.body as ProductGiveBodyType;
+    const { productId, amount, customerId, companyName, note } =
+      req.body as ProductGiveBodyType;
     const productGive = await prisma.productGive.create({
-      data: { amount, customerId, productId,shopOwnerId:req.shopOwner.id },
+      data: {
+        amount,
+        customerId,
+        productId,
+        shopOwnerId: req.shopOwner.id,
+        companyName: companyName || "",
+        note: note || "",
+      },
       include: {
         product: true,
         customer: true,
@@ -34,9 +42,17 @@ const createProductGive = async (req: ExtendedRequest, res: Response) => {
 
 const createProductReceive = async (req: ExtendedRequest, res: Response) => {
   try {
-    const { productId, amount, customerId } = req.body as ProductGiveBodyType;
+    const { productId, amount, customerId, companyName, note } =
+      req.body as ProductGiveBodyType;
     const productTake = await prisma.productReceive.create({
-      data: { amount, customerId, productId,shopOwnerId:req.shopOwner.id },
+      data: {
+        amount,
+        customerId,
+        productId,
+        shopOwnerId: req.shopOwner.id,
+        companyName: companyName || "",
+        note: note || "",
+      },
       include: {
         product: true,
         customer: true,
@@ -68,7 +84,7 @@ const deleteProductGive = async (req: ExtendedRequest, res: Response) => {
     const productGive = await prisma.productGive.delete({
       where: {
         id,
-        shopOwnerId:req.shopOwner.id
+        shopOwnerId: req.shopOwner.id,
       },
     });
 
@@ -85,7 +101,7 @@ const deleteProductReceive = async (req: ExtendedRequest, res: Response) => {
     const productReceive = await prisma.productReceive.delete({
       where: {
         id,
-        shopOwnerId:req.shopOwner.id
+        shopOwnerId: req.shopOwner.id,
       },
     });
 
@@ -99,9 +115,9 @@ const deleteProductReceive = async (req: ExtendedRequest, res: Response) => {
 const getProductGive = async (req: ExtendedRequest, res: Response) => {
   try {
     const productGive = await prisma.productGive.findMany({
-        where:{
-            shopOwnerId:req.shopOwner.id
-        },
+      where: {
+        shopOwnerId: req.shopOwner.id,
+      },
       include: {
         product: true,
         customer: true,
@@ -120,9 +136,9 @@ const getProductReceive = async (req: ExtendedRequest, res: Response) => {
         product: true,
         customer: true,
       },
-      where:{
-        shopOwnerId:req.shopOwner.id
-      }
+      where: {
+        shopOwnerId: req.shopOwner.id,
+      },
     });
     return res.status(200).json({ productReceive });
   } catch (error) {
@@ -137,7 +153,7 @@ const getSingleProductGive = async (req: ExtendedRequest, res: Response) => {
     const productGive = await prisma.productGive.findUnique({
       where: {
         id,
-        shopOwnerId:req.shopOwner.id
+        shopOwnerId: req.shopOwner.id,
       },
       include: {
         product: true,
@@ -157,7 +173,7 @@ const getSingleProductReceive = async (req: ExtendedRequest, res: Response) => {
     const productReceive = await prisma.productReceive.findUnique({
       where: {
         id,
-        shopOwnerId:req.shopOwner.id
+        shopOwnerId: req.shopOwner.id,
       },
       include: {
         product: true,
@@ -173,16 +189,18 @@ const getSingleProductReceive = async (req: ExtendedRequest, res: Response) => {
 const updateProductGive = async (req: ExtendedRequest, res: Response) => {
   try {
     const { id } = req.params;
-    const { amount, customerId, productId } = req.body as ProductGiveBodyType;
+    const { amount, customerId, productId,companyName,note } = req.body as ProductGiveBodyType;
     const productGive = await prisma.productGive.update({
       where: {
         id,
-        shopOwnerId:req.shopOwner.id
+        shopOwnerId: req.shopOwner.id,
       },
       data: {
         amount,
         customerId,
         productId,
+        companyName,
+        note,
       },
       include: {
         product: true,
@@ -199,16 +217,18 @@ const updateProductGive = async (req: ExtendedRequest, res: Response) => {
 const updateProductReceive = async (req: ExtendedRequest, res: Response) => {
   try {
     const { id } = req.params;
-    const { amount, customerId, productId } = req.body as ProductGiveBodyType;
+    const { amount, customerId, productId, companyName,note } = req.body as ProductGiveBodyType;
     const productReceive = await prisma.productReceive.update({
       where: {
         id,
-        shopOwnerId:req.shopOwner.id
+        shopOwnerId: req.shopOwner.id,
       },
       data: {
         amount,
         customerId,
         productId,
+        companyName,
+        note,
       },
       include: {
         product: true,
