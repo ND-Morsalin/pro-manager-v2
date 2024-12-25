@@ -274,7 +274,7 @@ const dashboardReport = async (req: ExtendedRequest, res: Response) => {
         totalCashOut,
         totalCashOutOnThisPeriod,
         sellingProductsCountOnThisPeriod: sellingProductsOnThisPeriod.length,
-        
+        sellingProductsOnThisPeriod,
         totalProfitOnThisPeriod,
         totalLossOnThisPeriod,
         numberOfProductOnStock,
@@ -293,7 +293,7 @@ const dashboardReport = async (req: ExtendedRequest, res: Response) => {
         totalInvoiceNumber,
         totalInvoiceNumberOnThisPeriod,
         // totalInvoice,
-        // totalInvoiceOnThisPeriod,
+        totalInvoiceOnThisPeriod,
       },
     });
   } catch (error) {
