@@ -4,20 +4,23 @@ import prisma from "../../utility/prisma";
 
 const createProductGive = async (req: ExtendedRequest, res: Response) => {
   try {
-    const { productId, amount, customerId, companyName, note } =
+    const { productId, amount, customerId, companyName, note , quantity,reason,status} =
       req.body as ProductGiveBodyType;
     const productGive = await prisma.productGive.create({
       data: {
         amount,
-        customerId,
+        // customerId,
         productId,
         shopOwnerId: req.shopOwner.id,
         companyName: companyName || "",
         note: note || "",
+        reason ,
+        quantity,
+        status,
       },
       include: {
         product: true,
-        customer: true,
+        // customer: true,
       },
     });
 
@@ -42,20 +45,23 @@ const createProductGive = async (req: ExtendedRequest, res: Response) => {
 
 const createProductReceive = async (req: ExtendedRequest, res: Response) => {
   try {
-    const { productId, amount, customerId, companyName, note } =
+    const { productId, amount, customerId, companyName, note,quantity,reason,status } =
       req.body as ProductGiveBodyType;
     const productTake = await prisma.productReceive.create({
       data: {
         amount,
-        customerId,
+        // customerId,
         productId,
         shopOwnerId: req.shopOwner.id,
         companyName: companyName || "",
         note: note || "",
+        reason,
+        quantity,
+        status,
       },
       include: {
         product: true,
-        customer: true,
+        // customer: true,
       },
     });
 
@@ -120,7 +126,7 @@ const getProductGive = async (req: ExtendedRequest, res: Response) => {
       },
       include: {
         product: true,
-        customer: true,
+        // customer: true,
       },
     });
     return res.status(200).json({ productGive });
@@ -134,7 +140,7 @@ const getProductReceive = async (req: ExtendedRequest, res: Response) => {
     const productReceive = await prisma.productReceive.findMany({
       include: {
         product: true,
-        customer: true,
+        // customer: true,
       },
       where: {
         shopOwnerId: req.shopOwner.id,
@@ -157,7 +163,7 @@ const getSingleProductGive = async (req: ExtendedRequest, res: Response) => {
       },
       include: {
         product: true,
-        customer: true,
+        // customer: true,
       },
     });
     return res.status(200).json({ productGive });
@@ -177,7 +183,7 @@ const getSingleProductReceive = async (req: ExtendedRequest, res: Response) => {
       },
       include: {
         product: true,
-        customer: true,
+        // customer: true,
       },
     });
     return res.status(200).json({ productReceive });
@@ -189,7 +195,7 @@ const getSingleProductReceive = async (req: ExtendedRequest, res: Response) => {
 const updateProductGive = async (req: ExtendedRequest, res: Response) => {
   try {
     const { id } = req.params;
-    const { amount, customerId, productId,companyName,note } = req.body as ProductGiveBodyType;
+    const { amount, customerId, productId,companyName,note,quantity,reason,status } = req.body as ProductGiveBodyType;
     const productGive = await prisma.productGive.update({
       where: {
         id,
@@ -197,14 +203,17 @@ const updateProductGive = async (req: ExtendedRequest, res: Response) => {
       },
       data: {
         amount,
-        customerId,
+        // customerId,
         productId,
         companyName,
+        quantity,
+        reason,
+        status,
         note,
       },
       include: {
         product: true,
-        customer: true,
+        // customer: true,
       },
     });
     return res.status(200).json({ productGive });
@@ -217,7 +226,7 @@ const updateProductGive = async (req: ExtendedRequest, res: Response) => {
 const updateProductReceive = async (req: ExtendedRequest, res: Response) => {
   try {
     const { id } = req.params;
-    const { amount, customerId, productId, companyName,note } = req.body as ProductGiveBodyType;
+    const { amount, customerId, productId, companyName,note,quantity,reason,status } = req.body as ProductGiveBodyType;
     const productReceive = await prisma.productReceive.update({
       where: {
         id,
@@ -225,14 +234,14 @@ const updateProductReceive = async (req: ExtendedRequest, res: Response) => {
       },
       data: {
         amount,
-        customerId,
+        // customerId,
         productId,
         companyName,
         note,
       },
       include: {
         product: true,
-        customer: true,
+        // customer: true,
       },
     });
     return res.status(200).json({ productReceive });

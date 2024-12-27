@@ -15,13 +15,13 @@ datasource db {
 // Shop Owner Model start
 //**************************/
 model ShopOwner {
-  id       String  @id @default(auto()) @map("_id") @db.ObjectId
-  shopName String
-  mobile   String  @unique
-  otherMobiles   String[] @default([])  
-  address String?
-  pincode  String
-  otp      String?
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  shopName     String
+  mobile       String   @unique
+  otherMobiles String[] @default([])
+  address      String?
+  pincode      String
+  otp          String?
   //  relations with product, customer, loneProvider, businessContactInfo model
   //  shopOwner can have multiple product, customer, loneProvider, businessContactInfo
 
@@ -100,10 +100,10 @@ model Product {
 // Customer Model start
 //**************************/
 model Customer {
-  id           String @id @default(auto()) @map("_id") @db.ObjectId
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
   customerName String
   phoneNumber  String
-  otherMobiles   String[] @default([])
+  otherMobiles String[] @default([])
   address      String
   deuAmount    Float
   paidAmount   Float
@@ -117,8 +117,8 @@ model Customer {
 
   invoiceHistory ProductVoicer[]
 
-  productGive   ProductGive[]
-  productReceive ProductReceive[]
+  // productGive    ProductGive[]
+  // productReceive ProductReceive[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -204,7 +204,7 @@ model LoneProvider {
   loneProviderName String
   phoneNumber      String
   address          String
-  note String?
+  note             String?
   loneTakenDate    DateTime
   totalLoneTaken   Float
   loneDeuAmount    Float
@@ -227,9 +227,9 @@ model LonePaymentHistory {
   // shopOwnerId
   lonePaymentDate   DateTime      @default(now())
 
-  shopOwner   ShopOwner @relation(fields: [shopOwnerId], references: [id])
-  shopOwnerId String    @db.ObjectId
-note String?
+  shopOwner      ShopOwner    @relation(fields: [shopOwnerId], references: [id])
+  shopOwnerId    String       @db.ObjectId
+  note           String?
   loneProvider   LoneProvider @relation(fields: [loneProviderId], references: [id], onDelete: Cascade)
   loneProviderId String       @db.ObjectId
 }
@@ -329,29 +329,41 @@ model ProductGive {
   product     Product @relation(fields: [productId], references: [id])
   productId   String  @db.ObjectId
 
-  customer   Customer @relation(fields: [customerId], references: [id])
-  customerId String   @db.ObjectId
-  amount     Float
+  // customer    Customer          @relation(fields: [customerId], references: [id])
+  // customerId  String            @db.ObjectId
+  amount      Float
+  reason      String
+  quantity    String?
+  status      ReceiveGiveStatus @default(HANDOVER_TO_CUSTOMER)
   companyName String?
-  note String?
+  note        String?
 }
 
 model ProductReceive {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  shopOwnerId String   @db.ObjectId
-  product     Product  @relation(fields: [productId], references: [id])
-  productId   String   @db.ObjectId
-  customerId  String   @db.ObjectId
-  customer    Customer @relation(fields: [customerId], references: [id])
+  id          String            @id @default(auto()) @map("_id") @db.ObjectId
+  shopOwnerId String            @db.ObjectId
+  product     Product           @relation(fields: [productId], references: [id])
+  productId   String            @db.ObjectId
+  // customerId  String?            @db.ObjectId
+  // customer    Customer          @relation(fields: [customerId], references: [id])
   amount      Float
-
+  reason      String
+  quantity    String?
+  status      ReceiveGiveStatus @default(RECEIVE_FROM_CUSTOMER)
   companyName String?
-  note String?
+  note        String?
+}
+
+enum ReceiveGiveStatus {
+  RECEIVE_FROM_CUSTOMER
+  HANDOVER_TO_CUSTOMER
+  PRODUCT_ON_SHOP
+  PRODUCT_ON_SUPPLIER
 }
 
 model SMSPurchase {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  shopOwnerId String   @db.ObjectId @unique
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  shopOwnerId String    @unique @db.ObjectId
   shopOwner   ShopOwner @relation(fields: [shopOwnerId], references: [id])
   smsAmount   Float
   smsPrice    Float?
@@ -375,7 +387,7 @@ model Note {
   shopOwner   ShopOwner @relation(fields: [shopOwnerId], references: [id])
   title       String
   note        String
-  isComplete  Boolean  @default(false)
+  isComplete  Boolean   @default(false)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 }

@@ -40,7 +40,19 @@ export interface ProductGiveBodyType {
   customerId: string;
   companyName: string;
   note: string;
+  reason: string;
+  quantity: string;
+  status: ReceiveGiveStatus;
 }
+
+enum ReceiveGiveStatus {
+  RECEIVE_FROM_CUSTOMER = "RECEIVE_FROM_CUSTOMER",
+  HANDOVER_TO_CUSTOMER = "HANDOVER_TO_CUSTOMER",
+  PRODUCT_ON_SHOP = "PRODUCT_ON_SHOP",
+  PRODUCT_ON_SUPPLIER = "PRODUCT_ON_SUPPLIER",
+}
+
+
 
 export {
   shopOwnerBodyType,
