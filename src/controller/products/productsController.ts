@@ -195,10 +195,10 @@ const updateProduct = async (req: Request, res: Response) => {
   }
 };
 
-const deleteProduct = async (req: Request, res: Response) => {
+const deleteProduct = async (req: ExtendedRequest, res: Response) => {
   try {
     const { id } = req.params;
-    const { shopOwnerId } = req.body;
+    const  shopOwnerId  = req.shopOwner.id;
 
     const deletedProduct = await prisma.product.delete({
       where: {
