@@ -42,7 +42,9 @@ import {
 } from "../controller/loneProvider/loneProviderController";
 import {
   createProductVoicer,
+  getAllProductVoicer,
   getProductVoicersWithoutCustomer,
+  getSingleProductVoicer,
 } from "../controller/productVoicer/productVoicerController";
 import {
   createBusinessContactInfo,
@@ -247,8 +249,11 @@ router.post("/product-voicer", checkValidUser, createProductVoicer);
 router.get(
   "/product-voicers-without-customer",
   checkValidUser,
-  getProductVoicersWithoutCustomer
+  getProductVoicersWithoutCustomer,
 );
+
+router.get("/product-voicer/:customerid", checkValidUser, getAllProductVoicer);
+router.get("/product-voicer/single/:id", checkValidUser, getSingleProductVoicer);
 
 /**
  * createProductVoicer ROUTES end

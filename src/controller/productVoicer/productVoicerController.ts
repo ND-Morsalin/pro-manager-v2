@@ -327,6 +327,21 @@ const getProductVoicersWithoutCustomer = async (
 
 const getAllProductVoicer = async (req: ExtendedRequest, res: Response) => {
   try {
+    const { customerid } = req.query as { customerid: string };
+    const productVoicers = await prisma.productVoicer.findMany({
+      where: {
+        shopOwnerId: req.shopOwner.id,
+        customerId : customerid,
+      },
+      include:{
+        sellingProducts:true
+      }
+    });
+
+    return res.status(200).json({
+      success: true,
+      data: productVoicers,
+    });
   } catch (error) {
     return res.status(500).json({
       success: false,
@@ -345,6 +360,29 @@ const getAllProductVoicer = async (req: ExtendedRequest, res: Response) => {
 
 const getSingleProductVoicer = async (req: ExtendedRequest, res: Response) => {
   try {
+    const { id } = req.params;
+
+    const productVoicer = await prisma.productVoicer.findUnique({
+      where: {
+        id: id as string,
+      },
+      include:{
+        sellingProducts:true
+      }
+    });
+
+    if (!productVoicer) {
+      return res.status(404).json({
+        success: false,
+        errors: [
+          {
+            type: "validation error",
+            value: "",
+            msg: "Product voicer not found",
+          }
+        ]
+      });
+    }
   } catch (error) {
     return res.status(500).json({
       success: false,
@@ -400,8 +438,8 @@ const deleteProductVoicer = async (req: ExtendedRequest, res: Response) => {
 export {
   createProductVoicer,
   getProductVoicersWithoutCustomer,
-  //   getAllProductVoicer,
-  //   getSingleProductVoicer,
+    getAllProductVoicer,
+    getSingleProductVoicer,
   //   updateProductVoicer,
   //   deleteProductVoicer,
 };
