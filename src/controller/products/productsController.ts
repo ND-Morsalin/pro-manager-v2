@@ -213,6 +213,7 @@ const deleteProduct = async (req: ExtendedRequest, res: Response) => {
       deletedProduct,
     });
   } catch (error) {
+    console.log(error);
     return res.status(500).json({
       success: false,
       errors: [
