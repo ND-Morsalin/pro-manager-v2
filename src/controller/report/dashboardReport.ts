@@ -222,7 +222,11 @@ const dashboardReport = async (req: ExtendedRequest, res: Response) => {
       return acc + curr.buyingPrice * curr.stokeAmount;
     }, 0);
 
-    const totalInvoiceNumber = await prisma.productVoicer.count();
+    const totalInvoiceNumber = await prisma.productVoicer.count({
+      where: {
+        shopOwnerId: req.shopOwner.id,
+      },
+    });
     const totalInvoiceNumberOnThisPeriod = await prisma.productVoicer.count({
       where: {
         createdAt: {
