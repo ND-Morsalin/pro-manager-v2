@@ -14,7 +14,6 @@ const dashboardReport = async (req: ExtendedRequest, res: Response) => {
     const endDate = new Date(endDateUTC);
     endDate.setHours(23, 59, 59, 999);
 
-   
     const sellingProducts = await prisma.sellingProduct.findMany({
       where: {
         shopOwnerId: req.shopOwner.id,
@@ -57,6 +56,11 @@ const dashboardReport = async (req: ExtendedRequest, res: Response) => {
 
     const totalProfitOnThisPeriod = sellingProductsOnThisPeriod.reduce(
       (acc, curr) => {
+        console.log({
+          totalPrice: curr.totalPrice,
+          quantity: curr.quantity,
+          buyingPrice: curr.product.buyingPrice
+        })
         return (
           acc + (curr.totalPrice - curr.quantity * curr.product.buyingPrice)
         );
@@ -183,9 +187,12 @@ const dashboardReport = async (req: ExtendedRequest, res: Response) => {
       },
     });
 
-    const totalCashOutOnThisPeriod = cashOutHistoryOnThisPeriod.reduce((acc, curr) => {
-      return acc + curr.cashOutAmount;
-    }, 0);
+    const totalCashOutOnThisPeriod = cashOutHistoryOnThisPeriod.reduce(
+      (acc, curr) => {
+        return acc + curr.cashOutAmount;
+      },
+      0
+    );
 
     const totalPaidAmountOnThisPeriod = customerOnThisPeriod.reduce(
       (acc, curr) => {
@@ -213,9 +220,12 @@ const dashboardReport = async (req: ExtendedRequest, res: Response) => {
       },
     });
 
-    const totalInvestmentAmountPeriod = totalInvestmentOnThisPeriod.reduce((acc, curr) => {
-      return acc + curr.buyingPrice * curr.stokeAmount;
-    }, 0);
+    const totalInvestmentAmountPeriod = totalInvestmentOnThisPeriod.reduce(
+      (acc, curr) => {
+        return acc + curr.buyingPrice * curr.stokeAmount;
+      },
+      0
+    );
 
     const totalInvoiceNumber = await prisma.productVoicer.count({
       where: {
@@ -264,10 +274,12 @@ const dashboardReport = async (req: ExtendedRequest, res: Response) => {
           (sum, value) => sum + value,
           0
         ),
-        dateListOnThisPeriod: Object.entries(groupedByDate).map(([date, sellAmount]) => ({
-          date,
-          sellAmount,
-        })),
+        dateListOnThisPeriod: Object.entries(groupedByDate).map(
+          ([date, sellAmount]) => ({
+            date,
+            sellAmount,
+          })
+        ),
         // sellingProducts,
         totalSellingPrice,
         totalProfit,
@@ -277,7 +289,8 @@ const dashboardReport = async (req: ExtendedRequest, res: Response) => {
         sellingProductsCountOnThisPeriod: sellingProductsOnThisPeriod.length,
         sellingProductsOnThisPeriod,
         totalProfitOnThisPeriod,
-        totalLossOnThisPeriod : totalLossOnThisPeriod > 0 ? totalLossOnThisPeriod : 0,
+        totalLossOnThisPeriod:
+          totalLossOnThisPeriod > 0 ? totalLossOnThisPeriod : 0,
         numberOfProductOnStock,
         numberOfProductOnStockOnThisPeriod,
         numberOfProductOutOfStockOnThisPeriod,
