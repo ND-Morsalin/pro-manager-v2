@@ -229,6 +229,7 @@ const dashboardReport = async (req: ExtendedRequest, res: Response) => {
     });
     const totalInvoiceNumberOnThisPeriod = await prisma.productVoicer.count({
       where: {
+        shopOwnerId: req.shopOwner.id,
         createdAt: {
           gte: startDate,
           lte: endDate,
