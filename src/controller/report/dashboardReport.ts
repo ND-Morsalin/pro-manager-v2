@@ -14,13 +14,7 @@ const dashboardReport = async (req: ExtendedRequest, res: Response) => {
     const endDate = new Date(endDateUTC);
     endDate.setHours(23, 59, 59, 999);
 
-    console.log({
-      startDate,
-      endDate,
-      startDateUTC,
-      endDateUTC,
-    });
-
+   
     const sellingProducts = await prisma.sellingProduct.findMany({
       where: {
         shopOwnerId: req.shopOwner.id,
@@ -40,6 +34,7 @@ const dashboardReport = async (req: ExtendedRequest, res: Response) => {
     const totalLoss = sellingProducts.reduce((acc, curr) => {
       return acc + (curr.quantity * curr.product.buyingPrice - curr.totalPrice);
     }, 0);
+
     const sellingProductsOnThisPeriod = await prisma.sellingProduct.findMany({
       where: {
         createdAt: {
@@ -276,13 +271,13 @@ const dashboardReport = async (req: ExtendedRequest, res: Response) => {
         // sellingProducts,
         totalSellingPrice,
         totalProfit,
-        totalLoss,
+        totalLoss: totalLoss > 0 ? totalLoss : 0,
         totalCashOut,
         totalCashOutOnThisPeriod,
         sellingProductsCountOnThisPeriod: sellingProductsOnThisPeriod.length,
         sellingProductsOnThisPeriod,
         totalProfitOnThisPeriod,
-        totalLossOnThisPeriod,
+        totalLossOnThisPeriod : totalLossOnThisPeriod > 0 ? totalLossOnThisPeriod : 0,
         numberOfProductOnStock,
         numberOfProductOnStockOnThisPeriod,
         numberOfProductOutOfStockOnThisPeriod,
