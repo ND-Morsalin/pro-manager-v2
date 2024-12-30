@@ -235,6 +235,7 @@ const dashboardReport = async (req: ExtendedRequest, res: Response) => {
     const totalInvoice = await prisma.productVoicer.findMany();
     const totalInvoiceOnThisPeriod = await prisma.productVoicer.findMany({
       where: {
+        shopOwnerId: req.shopOwner.id,
         createdAt: {
           gte: startDate,
           lte: endDate,
