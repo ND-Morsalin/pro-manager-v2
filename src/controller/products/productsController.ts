@@ -149,7 +149,7 @@ const updateProduct = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     // ! update only stokeAmount, buyingPrice, sellingPrice, unit
-    const { stokeAmount, buyingPrice, sellingPrice, unit, shopOwnerId } =
+    const { stokeAmount, buyingPrice, sellingPrice, unit, shopOwnerId,productBrand,productName,productCategory,productCategoryID } =
       req.body as Product;
 
     const oldProduct = await prisma.product.findUnique({
@@ -170,6 +170,11 @@ const updateProduct = async (req: Request, res: Response) => {
         buyingPrice: buyingPrice || oldProduct?.buyingPrice,
         sellingPrice: sellingPrice || oldProduct?.sellingPrice,
         unit: unit || oldProduct?.unit,
+        productBrand: productBrand || oldProduct?.productBrand,
+        productName: productName || oldProduct?.productName,
+        productCategory: productCategory || oldProduct?.productCategory,
+        productCategoryID: productCategoryID || oldProduct?.productCategoryID,
+        
       },
     });
 

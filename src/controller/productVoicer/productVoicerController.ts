@@ -18,13 +18,14 @@ let browser;
 
 const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
   try {
-    const { sellingProducts, customerId, paidAmount, date, discountAmount } =
+    const { sellingProducts, customerId, paidAmount, date, discountAmount,labourCost } =
       req.body as {
         sellingProducts: SellingProduct[];
         customerId?: string;
         paidAmount: number;
         date: Date;
         discountAmount: number | undefined;
+        labourCost : number | undefined;
       };
     console.log({
       body: req.body,
@@ -70,6 +71,7 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
         shopOwnerId: req.shopOwner.id,
         totalBillAmount: totalBill,
         paidAmount,
+        labourCost:labourCost || 0,
         remainingDue: customer?.id
           ? totalBill - paidAmount + customer.deuAmount - discountAmount
           : 0,
@@ -202,6 +204,7 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
       products: pdfProductData,
       totalPrice: totalBill,
       beforeDue: customer?.deuAmount || "anonymous",
+      labourCost:labourCost || 0,
       nowPaying: paidAmount,
       remainingDue: customer?.id
         ? totalBill + customer?.deuAmount - (paidAmount + discountAmount)
