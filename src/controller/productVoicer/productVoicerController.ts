@@ -3,18 +3,6 @@ import { ExtendedRequest } from "../../types/types";
 import { SellingProduct } from "@prisma/client";
 import prisma from "../../utility/prisma";
 
-import puppeteer from "puppeteer";
-// import purchaseConfirmBySms from "../../utility/purchaseConfirmBySms";
-
-// Outside the function, at the top of your file
-let browser;
-
-(async () => {
-  browser = await puppeteer.launch({
-    headless: true,
-    args: ["--no-sandbox", "--disable-setuid-sandbox"],
-  });
-})();
 
 const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
   try {
