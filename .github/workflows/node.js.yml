@@ -10,7 +10,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [20.14.0]
+        node-version: [23.5.0]
 
     steps:
       - uses: actions/checkout@v3
@@ -25,6 +25,6 @@ jobs:
         run: pnpm install
       - run: pnpm build --if-present
       - name: Change Directory
-        run: cd /home/flutter-api/actions-runner/_work/flutter-shop-management-api/flutter-shop-management-api
+        run: cd /home/api/actions-runner/_work/flutter-shop-management-api/flutter-shop-management-api
 
       - run: pm2 restart all
