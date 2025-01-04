@@ -1,0 +1,31 @@
+get:
+  summary: Get a single product voicer by ID
+  description: Retrieve a specific product voicer, including its associated selling products.
+  tags:
+    - Product Voicer
+  parameters:
+    - name: id
+      in: path
+      required: true
+      description: The unique identifier of the product voicer.
+      schema:
+        type: string
+  responses:
+    '200':
+      description: Successfully fetched the product voicer.
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/SuccessResponseSingleVoicer.yaml
+    '404':
+      description: Product voicer not found.
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/ErrorResponse.yaml
+    '500':
+      description: Internal server error.
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/ErrorResponse.yaml

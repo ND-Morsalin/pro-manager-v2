@@ -1,0 +1,55 @@
+post:
+  summary: Create a product voicer
+  description: Endpoint to create a product voicer, update customer dues, and manage cash transactions.
+  tags:
+    - Product Voicer
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../components/schemas/CreateProductVoicerRequest.yaml
+  responses:
+    "200":
+      description: Product voicer created successfully.
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/SuccessResponse.yaml
+    "404":
+      description: Customer not found.
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/NotFoundResponse.yaml
+    "500":
+      description: Internal server error.
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/ErrorResponse.yaml
+get:
+  summary: Get all product voicers
+  description: Fetch all product voicers for a specific customer or all if no customer is specified.
+  tags:
+    - Product Voicer
+  parameters:
+    - name: customerid
+      in: query
+      required: false
+      description: The ID of the customer to filter product voicers.
+      schema:
+        type: string
+  responses:
+    "200":
+      description: Successfully fetched product voicers.
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/SuccessResponseAllVoicers.yaml
+    "500":
+      description: Internal server error.
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/ErrorResponse.yaml

@@ -1,0 +1,16 @@
+CreateProductVoicerRequest:
+  $ref: ./CreateProductVoicerRequest.yaml
+SellingProduct:
+  $ref: ./SellingProduct.yaml
+SuccessResponse:
+  $ref: ./SuccessResponse.yaml
+NotFoundResponse:
+  $ref: ./NotFoundResponse.yaml
+ErrorResponse:
+  $ref: ./ErrorResponse.yaml
+SuccessResponseWithoutCustomer:
+  $ref: ./SuccessResponseWithoutCustomer.yaml
+SuccessResponseAllVoicers:
+  $ref: ./SuccessResponseAllVoicers.yaml
+SuccessResponseSingleVoicer:
+  $ref: ./SuccessResponseSingleVoicer.yaml

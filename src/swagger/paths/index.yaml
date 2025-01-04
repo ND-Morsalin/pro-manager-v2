@@ -1,0 +1,6 @@
+/api/product-voicer:
+  $ref: ./product-voicer.yaml
+/api/product-voicers/without-customer:
+  $ref: ./product-voicers-without-customer.yaml
+/api/product-voicers/{id}:
+  $ref: ./product-voicers-id.yaml

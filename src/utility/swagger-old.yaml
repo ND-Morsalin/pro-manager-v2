@@ -1,0 +1,3647 @@
+openapi: 3.0.0
+info:
+  title: "Your API Title"
+  version: "1.0.0"
+  description: "Description of your API"
+
+components:
+  schemas:
+    ShopOwnerBodyType:
+      type: object
+      properties:
+        shopName:
+          type: string
+        mobile:
+          type: string
+        pincode:
+          type: string
+        confirmPincode:
+          type: string
+      required:
+        - shopName
+        - mobile
+        - pincode
+        - confirmPincode
+    LoginBodyType:
+      type: object
+      properties:
+        mobile:
+          type: string
+        pincode:
+          type: string
+      required:
+        - mobile
+        - pincode
+    ShopOwnerResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        data:
+          type: object
+          properties:
+            id:
+              type: string
+            mobile:
+              type: string
+            shopName:
+              type: string
+            smsAmount:
+              type: number
+            smsPrice:
+              type: number
+            expireDate:
+              type: string
+              format: date-time
+              description: The date of the transaction
+
+    logInResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        data:
+          type: object
+          properties:
+            id:
+              type: string
+            mobile:
+              type: string
+            shopName:
+              type: string
+        token:
+          type: string
+
+    Product:
+      type: object
+      properties:
+        productName:
+          type: string
+        stokeAmount:
+          type: number
+        buyingPrice:
+          type: number
+        sellingPrice:
+          type: number
+        categoryId:
+          type: string
+        productBrand:
+          type: string
+        unit:
+          type: string
+      required:
+        - productName
+        - stokeAmount
+        - buyingPrice
+        - categoryId
+        - sellingPrice
+        - productBrand
+        - unit
+        - categoryId
+    ProductResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        product:
+          type: object
+          properties:
+            productName:
+              type: string
+            stokeAmount:
+              type: number
+            buyingPrice:
+              type: number
+            sellingPrice:
+              type: number
+            productCategory:
+              type: string
+            productBrand:
+              type: string
+            unit:
+              type: string
+
+    SingleProductResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        product:
+          type: object
+          properties:
+            qrcodeUrl:
+              type: string
+            productName:
+              type: string
+            stokeAmount:
+              type: number
+            buyingPrice:
+              type: number
+            sellingPrice:
+              type: number
+            productCategory:
+              type: string
+            productCategoryID:
+              type: string
+            productBrand:
+              type: string
+            unit:
+              type: string
+            shopOwnerId:
+              type: string
+    ProductsResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        products:
+          type: array
+          items:
+            $ref: "#/components/schemas/Product"
+
+    Customer:
+      type: object
+      properties:
+        address:
+          type: string
+        customerName:
+          type: string
+        phoneNumber:
+          type: string
+
+        deuAmount:
+          type: number
+        paidAmount:
+          type: number
+      required:
+        - address
+        - customerName
+        - phoneNumber
+        - deuAmount
+        - paidAmount
+    CustomerResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        customer:
+          $ref: "#/components/schemas/Customer"
+        invoiceHistory:
+          type: array
+          items:
+            properties:
+              sellingProducts:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SellingProductVoicer"
+              customerId:
+                type: string
+              paidAmount:
+                type: number
+              discountAmount:
+                type: number
+              date:
+                type: string
+                format: date-time
+                description: The date of the transaction
+        customerPaymentHistory:
+          type: array
+          items:
+            $ref: "#/components/schemas/CustomerPaymentHistory"
+
+    CustomersResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        customers:
+          type: array
+          items:
+            $ref: "#/components/schemas/Customer"
+    CustomerPaymentHistory:
+      type: object
+      properties:
+        paymentDate:
+          type: string
+          format: date
+        paymentStatus:
+          type: string
+        paymentAmount:
+          type: number
+        deuAmount:
+          type: number
+        customerId:
+          type: string
+        note:
+          type: string
+      required:
+        - paymentDate
+        - paymentStatus
+        - paymentAmount
+        - deuAmount
+        - customerId
+    CustomerPaymentHistoryResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        customerPaymentHistory:
+          $ref: "#/components/schemas/CustomerPaymentHistory"
+    CustomerPaymentHistoriesResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        customerPaymentHistories:
+          type: array
+          items:
+            $ref: "#/components/schemas/CustomerPaymentHistory"
+
+    LoneProvider:
+      type: object
+      properties:
+        loneProviderName:
+          type: string
+        phoneNumber:
+          type: string
+        address:
+          type: string
+        loneTakenDate:
+          type: string
+        totalLoneTaken:
+          type: number
+      required:
+        - phoneNumber
+        - address
+        - loneProviderName
+        - loneTakenDate
+        - totalLoneTaken
+    LoneProviderResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        loneProvider:
+          type: object
+          properties:
+            id:
+              type: string
+              example: 6655c7524049a2d4e1cb8381
+            loneProviderName:
+              type: string
+              example: Loan
+            phoneNumber:
+              type: string
+              example: 01646653053
+            address:
+              type: string
+              example: address
+            loneTakenDate:
+              type: string
+              format: date-time
+              example: 2024-05-28T00:00:00.000Z
+            totalLoneTaken:
+              type: integer
+              example: 40000
+            loneDeuAmount:
+              type: integer
+              example: 40000
+            lonePaidAmount:
+              type: integer
+              example: 0
+            shopOwnerId:
+              type: string
+              example: 6648457abf60b05c4d1d64b1
+            createdAt:
+              type: string
+              format: date-time
+              example: 2024-05-28T12:00:18.004Z
+            updatedAt:
+              type: string
+              format: date-time
+              example: 2024-05-28T12:00:18.004Z
+            loneProviderHistory:
+              type: array
+              items:
+                $ref: "#/components/schemas/LoneProviderHistory"
+    LoneProvidersResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        loneProviders:
+          type: array
+          items:
+            $ref: "#/components/schemas/LoneProviderResponse"
+    LoneProviderHistory:
+      type: object
+      properties:
+        id:
+          type: string
+        givingAmount:
+          type: number
+        lonePaymentStatus:
+          type: string
+          enum: [SHOPOWNERGIVE, SHOPOWNERRECIVED]
+        lonePaymentDate:
+          type: string
+          format: date-time
+        shopOwnerId:
+          type: string
+        loneProviderId:
+          type: string
+
+    ProductVoicer:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The ID of the product voicer
+        customerId:
+          type: string
+          description: The ID of the customer
+        shopOwnerId:
+          type: string
+          description: The ID of the shop owner
+        totalBillAmount:
+          type: number
+          description: The total bill amount
+        sellingProducts:
+          type: array
+          items:
+            $ref: "#/components/schemas/SellingProduct"
+    SellingProduct:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The ID of the selling product
+        productName:
+          type: string
+          description: The name of the product
+        sellingPrice:
+          type: number
+          description: The selling price of the product
+        quantity:
+          type: integer
+          description: The quantity of the product
+        totalPrice:
+          type: number
+          description: The total price of the product
+        shopOwnerId:
+          type: string
+          description: The ID of the shop owner
+
+    SellingProductVoicer:
+      type: object
+      properties:
+        productId:
+          type: string
+          description: The ID of the selling product
+        productName:
+          type: string
+          description: The name of the product
+        sellingPrice:
+          type: number
+          description: The selling price of the product
+        quantity:
+          type: integer
+          description: The quantity of the product
+        totalPrice:
+          type: number
+          description: The total price of the product
+        unit:
+          type: string
+          description: The unit of the product
+    BusinessContactInfo:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The ID of the business contact info
+        name:
+          type: string
+          description: The name associated with the business contact info
+        organization:
+          type: string
+          description: The organization associated with the business contact info
+        phoneNumber:
+          type: string
+          description: The phone number associated with the business contact info
+        shopOwnerId:
+          type: string
+          description: The ID of the shop owner associated with the business contact info
+
+    Cash:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The ID of the cash transaction
+        cashBalance:
+          type: number
+          description: The balance of the cash transaction
+        cashInHistory:
+          type: array
+          items:
+            $ref: "#/components/schemas/CashTransaction"
+          description: History of cash-in transactions
+        cashOutHistory:
+          type: array
+          items:
+            $ref: "#/components/schemas/CashTransaction"
+          description: History of cash-out transactions
+        shopOwnerId:
+          type: string
+          description: The ID of the shop owner associated with the cash transaction
+    CashTransaction:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The ID of the cash transaction
+        cashInAmount:
+          type: number
+          description: The amount of cash-in transaction
+        cashOutAmount:
+          type: number
+          description: The amount of cash-out transaction
+        cashInFor:
+          type: string
+          description: The purpose of cash-in transaction
+        cashOutFor:
+          type: string
+          description: The purpose of cash-out transaction
+        cashInDate:
+          type: string
+          format: date-time
+          description: The date of cash-in transaction
+        cashOutDate:
+          type: string
+          format: date-time
+          description: The date of cash-out transaction
+        shopOwnerId:
+          type: string
+          description: The ID of the shop owner associated with the cash transaction
+
+    YearlyReport:
+      type: object
+      properties:
+        month:
+          type: integer
+          example: 1
+        year:
+          type: integer
+          example: 2024
+        cashBalance:
+          type: number
+          example: 5000.50
+    MonthlyReport:
+      type: object
+      properties:
+        day:
+          type: integer
+          example: 15
+        month:
+          type: integer
+          example: 8
+        year:
+          type: integer
+          example: 2024
+        cashBalance:
+          type: number
+          example: 250.75
+
+# note components
+    Note:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "note-id-123"
+        title:
+          type: string
+          example: "Shopping List"
+        note:
+          type: string
+          example: "Buy groceries"
+        isComplete:
+          type: boolean
+          example: false
+        shopOwnerId:
+          type: string
+          example: "shop-owner-id-123"
+        createdAt:
+          type: string
+          format: date-time
+          example: "2024-12-14T10:00:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          example: "2024-12-14T12:00:00Z"
+
+
+
+    Error:
+      type: object
+      properties:
+        success:
+          type: boolean
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+              value:
+                type: string
+              msg:
+                type: string
+              path:
+                type: string
+              location:
+                type: string
+
+paths:
+  /api/create-shop-owner:
+    post:
+      summary: Create a new shop owner
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ShopOwnerBodyType"
+      responses:
+        "200":
+          description: Shop owner created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ShopOwnerResponse"
+        "403":
+          description: Pin is not same
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /api/login:
+    post:
+      summary: Log in as a shop owner
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginBodyType"
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/logInResponse"
+        "404":
+          description: Shop owner not found or pin not matched
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /api/forget-password:
+    post:
+      summary: Request OTP for password reset
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                mobile:
+                  type: string
+                  description: The mobile number of the shop owner
+              required:
+                - mobile
+      responses:
+        "200":
+          description: SMS sent successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Indicates if the request was successful
+                  message:
+                    type: string
+                    description: A message indicating the status of the operation
+                  smsPost:
+                    type: object
+                    description: The response from the SMS provider
+        "404":
+          description: User not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Indicates if the request was successful
+                  errors:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Indicates if the request was successful
+                  errors:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Error"
+  /api/check-otp:
+    post:
+      summary: Check if the OTP matches for password reset
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                mobile:
+                  type: string
+                  description: The mobile number of the shop owner
+                otp:
+                  type: string
+                  description: The OTP received by the shop owner
+              required:
+                - mobile
+                - otp
+      responses:
+        "200":
+          description: OTP matched
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Indicates if the OTP matched
+                  message:
+                    type: string
+                    description: A message indicating the status of the OTP verification
+        "404":
+          description: User not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Indicates if the request was successful
+                  errors:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Error"
+        "400":
+          description: Invalid OTP
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Indicates if the request was successful
+                  errors:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Indicates if the request was successful
+                  errors:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Error"
+  /api/reset-password:
+    post:
+      summary: Reset password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                mobile:
+                  type: string
+                  description: The mobile number of the shop owner
+                pincode:
+                  type: string
+                  description: The new pincode to set
+                # otp:
+                #   type: string
+                #   description: The OTP received for verification
+              required:
+                - mobile
+                - pincode
+                # - otp
+      responses:
+        "200":
+          description: Password reset successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Indicates if the request was successful
+                  message:
+                    type: string
+                    description: A message indicating the status of the operation
+        "400":
+          description: Invalid OTP
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Indicates if the request was successful
+                  errors:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Error"
+        "404":
+          description: User not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Indicates if the request was successful
+                  errors:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Indicates if the request was successful
+                  errors:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Error"
+
+  /api/products:
+    post:
+      summary: Create a new product
+      tags:
+        - Product
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Product"
+      responses:
+        "200":
+          description: Product created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    get:
+      summary: Get all products
+      tags:
+        - Product
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+      responses:
+        "200":
+          description: All products
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductsResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /api/product/{id}:
+    get:
+      summary: Get a single product by ID
+      tags:
+        - Product
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID of the product to get
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+      responses:
+        "200":
+          description: Product found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SingleProductResponse"
+        "404":
+          description: Product not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    put:
+      summary: Update a product by ID
+      tags:
+        - Product
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID of the product to update
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+      requestBody:
+        required: true
+        description: update only stokeAmount, buyingPrice, sellingPrice,
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Product"
+      responses:
+        "200":
+          description: Product updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    delete:
+      summary: Delete a product by ID
+      tags:
+        - Product
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID of the product to delete
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+      responses:
+        "200":
+          description: Product deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /api/customer:
+    post:
+      summary: Create a new customer
+      tags:
+        - Customer
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Customer"
+      responses:
+        "200":
+          description: Customer created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CustomerResponse"
+        "401":
+          description: Unauthorized, Token is not found on header
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    get:
+      summary: Get all customers
+      tags:
+        - Customer
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+      responses:
+        "200":
+          description: All customers
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CustomersResponse"
+        "401":
+          description: Unauthorized, Token is not found on header
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /api/customer-by-phone/{phone}:
+    get:
+      summary: Get a single customer by phone
+      tags:
+        - Customer
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+        - in: path
+          name: phone
+          required: true
+          schema:
+            type: string
+          description: Phone number of the customer to get
+      responses:
+        "200":
+          description: Customer found by phone
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CustomerResponse"
+        "401":
+          description: Unauthorized, Token is not found on header
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Customer not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /api/customer/{id}:
+    get:
+      summary: Get a single customer by ID
+      tags:
+        - Customer
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID of the customer to get
+      responses:
+        "200":
+          description: Customer found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CustomerResponse"
+        "401":
+          description: Unauthorized, Token is not found on header
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Customer not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    put:
+      summary: Update a customer by ID
+      tags:
+        - Customer
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID of the customer to update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                deuAmount:
+                  type: number
+                paidAmount:
+                  type: number
+                date:
+                  type: string
+                  format: date-time
+                  description: The date of the transaction
+                note:
+                  type: string
+                address:
+                  type: string
+                phoneNumber:
+                  type: string
+                customerName:
+                  type: string
+
+              required:
+                - mobile
+                - paidAmount
+      responses:
+        "200":
+          description: Customer updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CustomerResponse"
+        "401":
+          description: Unauthorized, Token is not found on header
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    delete:
+      summary: Delete a customer by ID
+      tags:
+        - Customer
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID of the customer to delete
+      responses:
+        "200":
+          description: Customer deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CustomerResponse"
+        "401":
+          description: Unauthorized, Token is not found on header
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /api/customer-payment-history:
+    post:
+      summary: Create a new customer payment history
+      tags:
+        - Customer Payment History
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CustomerPaymentHistory"
+      responses:
+        "200":
+          description: Customer payment history created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CustomerPaymentHistoryResponse"
+        "401":
+          description: Unauthorized, Token is not found on header
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    get:
+      summary: Get All payment history of this customer
+      tags:
+        - Customer Payment History
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+        - in: query
+          name: customerId
+          required: true
+          schema:
+            type: string
+          description: ID of the customer
+      responses:
+        "200":
+          description: All customer payment history
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CustomerPaymentHistoriesResponse"
+        "401":
+          description: Unauthorized, Token is not found on header
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /api/customer-payment-history/{id}:
+    get:
+      summary: Get a single customer payment history by ID
+      tags:
+        - Customer Payment History
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID of the payment history
+        - in: query
+          name: customerId
+          required: true
+          schema:
+            type: string
+          description: ID of the customer
+      responses:
+        "200":
+          description: Customer payment history found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CustomerPaymentHistoryResponse"
+        "401":
+          description: Unauthorized, Token is not found on header
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Payment history not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    put:
+      summary: Update a customer payment history by ID
+      tags:
+        - Customer Payment History
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID of the payment history
+        - in: query
+          name: customerId
+          required: true
+          schema:
+            type: string
+          description: ID of the customer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CustomerPaymentHistory"
+      responses:
+        "200":
+          description: Customer payment history updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CustomerPaymentHistoryResponse"
+        "401":
+          description: Unauthorized, Token is not found on header
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Payment history not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    delete:
+      summary: Delete a customer payment history by ID
+      tags:
+        - Customer Payment History
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID of the payment history
+        - in: query
+          name: customerId
+          required: true
+          schema:
+            type: string
+          description: ID of the customer
+      responses:
+        "200":
+          description: Customer payment history deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CustomerPaymentHistoryResponse"
+        "401":
+          description: Unauthorized, Token is not found on header
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Payment history not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /api/lone-provider:
+    post:
+      summary: Create a new lone provider
+      tags:
+        - Lone Provider
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoneProvider"
+      responses:
+        "200":
+          description: Lone provider created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoneProviderResponse"
+        "401":
+          description: Unauthorized, Token is not found on header
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    get:
+      summary: Get all lone providers
+      tags:
+        - Lone Provider
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+      responses:
+        "200":
+          description: All lone providers
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoneProvidersResponse"
+        "401":
+          description: Unauthorized, Token is not found on header
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: No lone provider found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /api/lone-provider/{id}:
+    get:
+      summary: Get a single lone provider by ID
+      tags:
+        - Lone Provider
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID of the lone provider
+      responses:
+        "200":
+          description: Lone provider found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoneProviderResponse"
+        "401":
+          description: Unauthorized, Token is not found on header
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Lone provider not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    put:
+      summary: Update a lone provider by ID
+      tags:
+        - Lone Provider
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID of the lone provider
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                givingLoneDeuAmount:
+                  type: string
+                  description: The amount of loan the shop owner is giving. If this field is provided and `lonePaymentStatus` is `SHOPOWNERGIVE`, the loan due amount will decrease.
+                receivingNewLoneAmount:
+                  type: string
+                  description: The amount of new loan the shop owner is receiving. If this field is provided and `lonePaymentStatus` is `SHOPOWNERRECIVED`, the loan due amount will increase.
+                lonePaymentStatus:
+                  type: string
+                  example: "SHOPOWNERGIVE"
+                  description: Status of the loan payment. Acceptable values are `SHOPOWNERGIVE` and `SHOPOWNERRECIVED`.
+      responses:
+        "200":
+          description: Lone provider updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoneProviderResponse"
+        "401":
+          description: Unauthorized, Token is not found on header
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Lone provider not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    delete:
+      summary: Delete a lone provider by ID
+      tags:
+        - Lone Provider
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID of the lone provider
+      responses:
+        "200":
+          description: Lone provider deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoneProviderResponse"
+        "401":
+          description: Unauthorized, Token is not found on header
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Lone provider not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /api/product-voicer:
+    post:
+      summary: Create a new product voicer
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+
+      tags:
+        - ProductVoicer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                sellingProducts:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/SellingProductVoicer"
+                customerId:
+                  type: string
+                paidAmount:
+                  type: number
+                discountAmount:
+                  type: number
+                date:
+                  type: string
+                  format: date-time
+                  description: The date of the transaction
+              required:
+                - sellingProducts
+                - paidAmount
+      responses:
+        "200":
+          description: Product voicer created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  voicer:
+                    type: object
+                    properties:
+                      customerName:
+                        type: string
+                      address:
+                        type: string
+                      phone:
+                        type: string
+                      products:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            productName:
+                              type: string
+                            sellingPrice:
+                              type: number
+                            quantity:
+                              type: number
+                            unit:
+                              type: string
+                            totalProductPrice:
+                              type: number
+                      totalPrice:
+                        type: number
+                      beforeDue:
+                        type: number
+                      nowPaying:
+                        type: number
+                      remainingDue:
+                        type: number
+                      shopOwnerName:
+                        type: string
+                      shopOwnerPhone:
+                        type: string
+                      date:
+                        type: string
+                      invoiceId:
+                        type: string
+                      discountAmount:
+                        type: number
+
+        "404":
+          description: Customer not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Indicates if the request was successful
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          example: validation error
+                          description: The type of error
+                        value:
+                          type: string
+                          example: ""
+                          description: The value of the error
+                        msg:
+                          type: string
+                          example: Customer not found
+                          description: The error message
+                        path:
+                          type: string
+                          example: customerId
+                          description: The path related to the error
+                        location:
+                          type: string
+                          example: createProductVoicer
+                          description: The location of the error in the code
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Indicates if the request was successful
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          example: server error
+                          description: The type of error
+                        value:
+                          type: string
+                          example: ""
+                          description: The value of the error
+                        msg:
+                          type: string
+                          example: Internal server error
+                          description: The error message
+                        path:
+                          type: string
+                          example: server
+                          description: The path related to the error
+                        location:
+                          type: string
+                          example: createProductVoicer
+                          description: The location of the error in the code
+
+  /api/product-voicers-without-customer:
+    get:
+      summary: Get a new product voicer
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+
+      tags:
+        - ProductVoicer
+      responses:
+        "200":
+          description: Product voicer created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  voicer:
+                    type: object
+                    properties:
+                      customerName:
+                        type: string
+                      address:
+                        type: string
+                      phone:
+                        type: string
+                      products:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            productName:
+                              type: string
+                            sellingPrice:
+                              type: number
+                            quantity:
+                              type: number
+                            unit:
+                              type: string
+                            totalProductPrice:
+                              type: number
+                      totalPrice:
+                        type: number
+                      beforeDue:
+                        type: number
+                      nowPaying:
+                        type: number
+                      remainingDue:
+                        type: number
+                      shopOwnerName:
+                        type: string
+                      shopOwnerPhone:
+                        type: string
+                      date:
+                        type: string
+                      invoiceId:
+                        type: string
+                      discountAmount:
+                        type: number
+
+        "404":
+          description: Customer not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Indicates if the request was successful
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          example: validation error
+                          description: The type of error
+                        value:
+                          type: string
+                          example: ""
+                          description: The value of the error
+                        msg:
+                          type: string
+                          example: Customer not found
+                          description: The error message
+                        path:
+                          type: string
+                          example: customerId
+                          description: The path related to the error
+                        location:
+                          type: string
+                          example: createProductVoicer
+                          description: The location of the error in the code
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Indicates if the request was successful
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          example: server error
+                          description: The type of error
+                        value:
+                          type: string
+                          example: ""
+                          description: The value of the error
+                        msg:
+                          type: string
+                          example: Internal server error
+                          description: The error message
+                        path:
+                          type: string
+                          example: server
+                          description: The path related to the error
+                        location:
+                          type: string
+                          example: createProductVoicer
+                          description: The location of the error in the code
+
+
+  /api/business-contact-info:
+    post:
+      summary: Create a new business contact info
+      tags:
+        - BusinessContactInfo
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BusinessContactInfo"
+      responses:
+        "200":
+          description: Business contact info created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Indicates if the request was successful
+                  message:
+                    type: string
+                    description: A message indicating the status of the operation
+                  businessContactInfo:
+                    $ref: "#/components/schemas/BusinessContactInfo"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Indicates if the request was successful
+                  errors:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Error"
+
+    get:
+      summary: Get all business contact info
+      tags:
+        - BusinessContactInfo
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+      responses:
+        "200":
+          description: List of all business contact info
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Indicates if the request was successful
+                  allBusinessContactInfo:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/BusinessContactInfo"
+                  message:
+                    type: string
+                    description: A message indicating the status of the operation
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Indicates if the request was successful
+                  errors:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Error"
+
+  /api/business-contact-info/{id}:
+    get:
+      summary: Get a single business contact info
+      tags:
+        - BusinessContactInfo
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: The ID of the business contact info
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+      responses:
+        "200":
+          description: Business contact info retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Indicates if the request was successful
+                  singleBusinessContactInfo:
+                    $ref: "#/components/schemas/BusinessContactInfo"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Indicates if the request was successful
+                  errors:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Error"
+
+    put:
+      summary: Update a business contact info
+      tags:
+        - BusinessContactInfo
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: The ID of the business contact info
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BusinessContactInfo"
+      responses:
+        "200":
+          description: Business contact info updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Indicates if the request was successful
+                  updatedBusinessContactInfo:
+                    $ref: "#/components/schemas/BusinessContactInfo"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Indicates if the request was successful
+                  errors:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Error"
+
+    delete:
+      summary: Delete a business contact info
+      tags:
+        - BusinessContactInfo
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: The ID of the business contact info
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+      responses:
+        "200":
+          description: Business contact info deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Indicates if the request was successful
+                  message:
+                    type: string
+                    description: A message indicating the status of the operation
+                  deletedBusinessContact:
+                    $ref: "#/components/schemas/BusinessContactInfo"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Indicates if the request was successful
+                  errors:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Error"
+
+  /api/cash:
+    post:
+      summary: Create cash transaction
+      tags:
+        - Cash In Out
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                cashInBalance:
+                  type: number
+                  description: The balance for cash-in transaction
+                cashOutBalance:
+                  type: number
+                  description: The balance for cash-out transaction
+                note:
+                  type: string
+                  description: Additional note for the transaction
+                requestType:
+                  type: string
+                  enum: [cashIn, cashOut]
+                  description: The type of cash transaction
+                date:
+                  type: string
+                  format: date-time
+                  description: The date of the transaction
+              required:
+                - cashInBalance
+                - cashOutBalance
+                - note
+                - requestType
+                - date
+      responses:
+        "200":
+          description: Cash transaction created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Indicates if the request was successful
+                  message:
+                    type: string
+                    description: Status of the operation
+                  todayCashBalance:
+                    type: number
+                    description: Cash balance for today
+                  todayTotalCashOut:
+                    type: number
+                    description: Total cash-out for today
+                  todayTotalCashIn:
+                    type: number
+                    description: Total cash-in for today
+                  cashInHistory:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/CashTransaction"
+                  cashOutHistory:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/CashTransaction"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  errors:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Error"
+
+    get:
+      summary: Get all cash transactions
+      tags:
+        - Cash In Out
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+      responses:
+        "200":
+          description: List of all cash transactions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  cash:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Cash"
+        "404":
+          description: Cash not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  errors:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  errors:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Error"
+
+  /api/create-many-cash:
+    post:
+      summary: Create multiple cash transactions
+      tags:
+        - Cash In Out
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "#/components/schemas/CashTransaction"
+      responses:
+        "200":
+          description: Multiple cash transactions created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Indicates if the request was successful
+                  message:
+                    type: string
+                    description: Status of the operation
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  errors:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Error"
+
+  /api/today-cash/{today}:
+    get:
+      summary: Get today's cash transactions
+      tags:
+        - Cash In Out
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+        - in: path
+          name: today
+          required: true
+          schema:
+            type: string
+            format: date
+          description: Date for filtering today's cash transactions
+      responses:
+        "200":
+          description: Today's cash transactions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                    description: Status of the operation
+                  todayCashBalance:
+                    type: number
+                    description: Today's cash balance
+                  todayTotalCashOut:
+                    type: number
+                    description: Today's total cash-out
+                  todayTotalCashIn:
+                    type: number
+                    description: Today's total cash-in
+                  cashInHistory:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/CashTransaction"
+                  cashOutHistory:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/CashTransaction"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  errors:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Error"
+
+  /api/today-cash-in/{today}:
+    get:
+      summary: Get today's cash-in transactions
+      tags:
+        - Cash In Out
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+        - in: path
+          name: today
+          required: true
+          schema:
+            type: string
+            format: date
+          description: Date for filtering today's cash-in transactions
+      responses:
+        "200":
+          description: Today's cash-in transactions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                    description: Status of the operation
+                  cashInHistory:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/CashTransaction"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  errors:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Error"
+
+  /api/today-cash-out/{today}:
+    get:
+      summary: Get today's cash-out transactions
+      tags:
+        - Cash In Out
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+        - in: path
+          name: today
+          required: true
+          schema:
+            type: string
+            format: date
+          description: Date for filtering today's cash-out transactions
+      responses:
+        "200":
+          description: Today's cash-out transactions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                    description: Status of the operation
+                  cashOutHistory:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/CashTransaction"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  errors:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Error"
+
+  /api/cash-report/{year}:
+    get:
+      summary: Generate a yearly cash report
+      description: Generates a report of cash balance aggregated by month for a specific year.
+      tags:
+        - Cash Report
+      parameters:
+        - in: path
+          name: year
+          required: true
+          schema:
+            type: integer
+          description: The year for which the report is generated.
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+      responses:
+        "200":
+          description: Yearly report generated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  yearlyReport:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/YearlyReport"
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                    example: Yearly report generated successfully
+        "500":
+          description: Internal server error
+
+  /api/monthly-cash-report/{year}/{month}:
+    get:
+      summary: Generate a monthly cash report
+      description: Generates a report of cash balance aggregated by day for a specific month and year.
+      tags:
+        - Cash Report
+      parameters:
+        - name: year
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: The year for which the report is generated.
+        - name: month
+          in: path
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 12
+          description: The month (1-12) for which the report is generated.
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+      responses:
+        "200":
+          description: Monthly report generated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  monthlyReport:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/MonthlyReport"
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                    example: Monthly report generated successfully
+        "500":
+          description: Internal server error
+
+  /api/product-receive:
+    post:
+      summary: Create a new product receive
+      tags:
+        - Product Receive
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                productId:
+                  type: string
+                  description: The ID of the product
+                amount:
+                  type: number
+                  description: The amount of product received
+                customerId:
+                  type: string
+                  description: The ID of the customer
+      responses:
+        "200":
+          description: Product receive created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductReceiveResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    get:
+      summary: Get all product receives
+      tags:
+        - Product Receive
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+      responses:
+        "200":
+          description: All product receives
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductReceivesResponse"
+        "404":
+          description: No product receive found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /api/product-receive/{id}:
+    get:
+      summary: Get a single product receive by ID
+      tags:
+        - Product Receive
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID of the product receive
+      responses:
+        "200":
+          description: Product receive found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductReceiveResponse"
+        "404":
+          description: Product receive not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    put:
+      summary: Update a product receive by ID
+      tags:
+        - Product Receive
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID of the product receive
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                amount:
+                  type: number
+                  description: The amount of product received
+                customerId:
+                  type: string
+                  description: The ID of the customer
+      responses:
+        "200":
+          description: Product receive updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductReceiveResponse"
+        "404":
+          description: Product receive not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    delete:
+      summary: Delete a product receive by ID
+      tags:
+        - Product Receive
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID of the product receive
+      responses:
+        "200":
+          description: Product receive deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductReceiveResponse"
+        "404":
+          description: Product receive not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /api/product-give:
+    post:
+      summary: Create a new product give
+      tags:
+        - Product Give
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                productId:
+                  type: string
+                  description: The ID of the product
+                amount:
+                  type: number
+                  description: The amount of product given
+                customerId:
+                  type: string
+                  description: The ID of the customer
+      responses:
+        "200":
+          description: Product give created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductGiveResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    get:
+      summary: Get all product gives
+      tags:
+        - Product Give
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+      responses:
+        "200":
+          description: All product gives
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductGivesResponse"
+        "404":
+          description: No product give found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /api/product-give/{id}:
+    get:
+      summary: Get a single product give by ID
+      tags:
+        - Product Give
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID of the product give
+      responses:
+        "200":
+          description: Product give found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductGiveResponse"
+        "404":
+          description: Product give not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    put:
+      summary: Update a product give by ID
+      tags:
+        - Product Give
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID of the product give
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                amount:
+                  type: number
+                  description: The amount of product given
+                customerId:
+                  type: string
+                  description: The ID of the customer
+      responses:
+        "200":
+          description: Product give updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductGiveResponse"
+        "404":
+          description: Product give not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    delete:
+      summary: Delete a product give by ID
+      tags:
+        - Product Give
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID of the product give
+      responses:
+        "200":
+          description: Product give deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductGiveResponse"
+        "404":
+          description: Product give not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /api/category:
+    post:
+      summary: Create a new category
+      tags:
+        - Category
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+      
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                category:
+                  type: string
+      responses:
+        "200":
+          description: Category created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  category:
+                    type: string
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    get:
+      summary: Get all categories
+      tags:
+        - Category
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+      responses:
+        "200":
+          description: All categories
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  categories:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        shopOwnerId:
+                          type: string
+                        category:
+                          type: string
+        "404":
+          description: No category found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /api/category/{id}:
+    delete:
+      summary: Delete a category by ID
+      tags:
+        - Category
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID of the category
+      responses:
+        "200":
+          description: Category deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        "404":
+          description: Category not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+
+
+# note documentations 
+  /api/notes:
+    post:
+      summary: Create a new note
+      tags:
+        - Notes
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+      
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: "Shopping List"
+                note:
+                  type: string
+                  example: "Buy groceries"
+                isComplete:
+                  type: boolean
+                  example: false
+      responses:
+        200:
+          description: Note created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Note'
+        500:
+          description: Internal server error
+    get:
+      summary: Get all notes
+      tags:
+        - Notes
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+      
+      responses:
+        200:
+          description: List of notes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Note'
+        500:
+          description: Internal server error
+  /api/notes/{id}:
+    get:
+      summary: Get a single note
+      tags:
+        - Notes
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+      
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          example: "note-id-123"
+      responses:
+        200:
+          description: Retrieved note
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Note'
+        500:
+          description: Internal server error
+    put:
+      summary: Update a note
+      tags:
+        - Notes
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+      
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          example: "note-id-123"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: "Updated Title"
+                note:
+                  type: string
+                  example: "Updated Note Content"
+                isComplete:
+                  type: boolean
+                  example: true
+      responses:
+        200:
+          description: Updated note successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Note'
+        500:
+          description: Internal server error
+    delete:
+      summary: Delete a note
+      tags:
+        - Notes
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+      
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          example: "note-id-123"
+      responses:
+        200:
+          description: Deleted note successfully
+        500:
+          description: Internal server error
+  /api/notes/delete-many:
+    delete:
+      summary: Delete multiple notes by IDs
+      tags:
+        - Notes
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+      
+      tags:
+        - Notes
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+      
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                ids:
+                  type: array
+                  items:
+                    type: string
+                  example: ["note-id-123", "note-id-456"]
+      responses:
+        200:
+          description: Deleted notes successfully
+        500:
+          description: Internal server error
+  /api/notes/delete-all:
+    delete:
+      summary: Delete all notes for the shop owner
+      tags:
+        - Notes
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+      
+      responses:
+        200:
+          description: Deleted all notes successfully
+        500:
+          description: Internal server error
+  /api/notes/completed:
+    get:
+      summary: Get completed notes
+      tags:
+        - Notes
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+      
+      responses:
+        200:
+          description: List of completed notes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Note'
+        500:
+          description: Internal server error
+  /api/notes/uncompleted:
+    get:
+      summary: Get uncompleted notes
+      tags:
+        - Notes
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+      
+      responses:
+        200:
+          description: List of uncompleted notes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Note'
+        500:
+          description: Internal server error
+  /api/notes/complete-many:
+    patch:
+      summary: Mark multiple notes as complete/incomplete
+      tags:
+        - Notes
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+      
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                ids:
+                  type: array
+                  items:
+                    type: string
+                  example: ["note-id-123", "note-id-456"]
+                isComplete:
+                  type: boolean
+                  example: true
+      responses:
+        200:
+          description: Updated notes successfully
+        500:
+          description: Internal server error
+
+# Dashboard report
+
+  /api/dashboard-report:
+    post:
+      summary: Generate a dashboard report
+      description: Retrieves detailed statistics and metrics for the dashboard based on a given date range.
+      tags:
+        - Dashboard
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                startDateUTC:
+                  type: string
+                  format: date-time
+                  description: Start date in UTC.
+                endDateUTC:
+                  type: string
+                  format: date-time
+                  description: End date in UTC.
+              required:
+                - startDateUTC
+                - endDateUTC
+      responses:
+        '200':
+          description: Successfully retrieved dashboard report.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      sellingProducts:
+                        type: array
+                        items:
+                          type: object
+                      totalSellingPrice:
+                        type: number
+                        description: Total selling price of products.
+                      totalProfit:
+                        type: number
+                        description: Total profit earned.
+                      totalLoss:
+                        type: number
+                        description: Total loss incurred.
+                      sellingProductsOnThisPeriod:
+                        type: array
+                        items:
+                          type: object
+                      totalSellingPriceOnThisPeriod:
+                        type: number
+                        description: Total selling price within the specified period.
+                      totalProfitOnThisPeriod:
+                        type: number
+                        description: Total profit within the specified period.
+                      totalLossOnThisPeriod:
+                        type: number
+                        description: Total loss within the specified period.
+                      numberOfProductOnStock:
+                        type: integer
+                        description: Number of products currently in stock.
+                      numberOfProductOnStockOnThisPeriod:
+                        type: integer
+                        description: Number of products added to stock in the specified period.
+                      numberOfProductOutOfStockOnThisPeriod:
+                        type: integer
+                        description: Number of products out of stock in the specified period.
+                      numberOfProductOutOfStock:
+                        type: integer
+                        description: Number of products currently out of stock.
+                      totalProduct:
+                        type: integer
+                        description: Total number of products.
+                      totalCustomer:
+                        type: integer
+                        description: Total number of customers.
+                      customerOnHighestPurchase:
+                        type: object
+                        description: Customer with the highest purchase.
+                      customerOnHighestDueAmount:
+                        type: object
+                        description: Customer with the highest due amount.
+                      totalDueAmountOnThisPeriod:
+                        type: number
+                        description: Total due amount within the specified period.
+                      totalPaidAmountOnThisPeriod:
+                        type: number
+                        description: Total paid amount within the specified period.
+                      totalInvestmentAmount:
+                        type: number
+                        description: Total investment amount.
+                      totalInvestmentAmountPeriod:
+                        type: number
+                        description: Total investment amount within the specified period.
+                      totalInvestmentOnThisPeriod:
+                        type: array
+                        items:
+                          type: object
+                      totalInvoiceNumber:
+                        type: integer
+                        description: Total number of invoices.
+                      totalInvoiceNumberOnThisPeriod:
+                        type: integer
+                        description: Total number of invoices within the specified period.
+                      totalInvoice:
+                        type: array
+                        items:
+                          type: object
+                      totalInvoiceOnThisPeriod:
+                        type: array
+                        items:
+                          type: object
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                        value:
+                          type: string
+                        msg:
+                          type: string
+
+

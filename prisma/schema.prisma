@@ -157,6 +157,8 @@ model ProductVoicer {
   remainingDue    Float
   discountAmount  Float?
   labourCost      Float?
+  dhor Float?
+
 
   // ShopOwner id
   shopOwner   ShopOwner @relation(fields: [shopOwnerId], references: [id])

@@ -3,33 +3,33 @@ import { ExtendedRequest } from "../../types/types";
 import { SellingProduct } from "@prisma/client";
 import prisma from "../../utility/prisma";
 
-
 const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
   try {
-    const { sellingProducts, customerId, paidAmount, date, discountAmount,labourCost } =
-      req.body as {
-        sellingProducts: SellingProduct[];
-        customerId?: string;
-        paidAmount: number;
-        date: Date;
-        discountAmount: number | undefined;
-        labourCost : number | undefined;
-      };
-    console.log({
-      body: req.body,
-    });
-    let customer;
+    const {
+      sellingProducts,
+      customerId,
+      paidAmount,
+      date,
+      discountAmount,
+      labourCost,
+      dhor,
+    } = req.body as {
+      sellingProducts: SellingProduct[];
+      customerId?: string;
+      paidAmount: number;
+      date: Date;
+      discountAmount?: number;
+      labourCost?: number;
+      dhor?: number;
+    };
+
+    const shopOwnerId = req.shopOwner.id;
+    let customer = null;
+
+    // Fetch customer if customerId is provided
     if (customerId) {
-      // find user by Customer id
       customer = await prisma.customer.findUnique({
-        where: {
-          id: customerId,
-          shopOwnerId: req.shopOwner.id,
-        },
-      });
-      console.log({
-        customer,
-        customerId,
+        where: { id: customerId, shopOwnerId },
       });
 
       if (!customer) {
@@ -38,277 +38,178 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
           errors: [
             {
               type: "validation error",
-              value: "",
               msg: "Customer not found",
               path: "customerId",
-              location: "createProductVoicer",
             },
           ],
         });
       }
     }
 
-    const totalBill = sellingProducts.reduce((acc, product) => {
-      return acc + product.totalPrice;
-    }, 0);
+    // Calculate total bill
+    const totalBill = sellingProducts.reduce(
+      (acc, product) => acc + product.totalPrice,
+      0
+    );
 
-    // create product voicer
+    // Prepare product data for insertion
+    const sellingProductsData = sellingProducts.map((product) => ({
+      totalPrice: product.sellingPrice * product.quantity,
+      shopOwnerId,
+      productId: product.productId,
+      quantity: product.quantity,
+      productName: product.productName,
+      sellingPrice: product.sellingPrice,
+      unit: product.unit,
+    }));
+
+    // Create product voicer
     const newProductVoicer = await prisma.productVoicer.create({
       data: {
         customerId: customer?.id || null,
-        shopOwnerId: req.shopOwner.id,
+        shopOwnerId,
         totalBillAmount: totalBill,
         paidAmount,
-        labourCost:labourCost || 0,
+        labourCost: labourCost || 0,
+        dhor: dhor || 0,
         remainingDue: customer?.id
-          ? totalBill - paidAmount + customer.deuAmount - discountAmount
+          ? totalBill - paidAmount + customer.deuAmount - (discountAmount || 0)
           : 0,
-        discountAmount,
-        sellingProducts: {
-          create: sellingProducts.map((product) => {
-            return {
-              totalPrice: product.sellingPrice * product.quantity,
-              shopOwnerId: req.shopOwner.id,
-              productId: product.productId,
-              quantity: product.quantity,
-              productName: product.productName,
-              sellingPrice: product.sellingPrice,
-              unit: product.unit,
-            };
-          }),
-        },
+        discountAmount: discountAmount || 0,
+        sellingProducts: { create: sellingProductsData },
       },
-      include:{
-        sellingProducts:true
-      }
+      include: { sellingProducts: true },
     });
 
-    // update product stoke amount
-    for (let product of sellingProducts) {
-      await prisma.product.update({
-        where: {
-          id: product.productId,
-        },
-        data: {
-          stokeAmount: {
-            decrement: product.quantity,
-          },
-        },
-      });
-    }
+    // Update product stock
+    await Promise.all(
+      sellingProducts.map((product) =>
+        prisma.product.update({
+          where: { id: product.productId },
+          data: { stokeAmount: { decrement: product.quantity } },
+        })
+      )
+    );
 
-    // cash will get of date of today
+    // Handle cash transactions
     const startTime = new Date(date);
     startTime.setHours(0, 0, 0, 0);
+
     const endTime = new Date(date);
     endTime.setHours(23, 59, 59, 999);
-
-    // update cash balance and cash in history
-
-    // check if cash is available or not
     const cash = await prisma.cash.findUnique({
-      where: {
-        shopOwnerId: req.shopOwner.id,
-        createdAt: {
-          gte: startTime,
-          lte: endTime,
-        },
-      },
+      where: { shopOwnerId, createdAt: { gte: startTime, lte: endTime } },
     });
 
-    if (!cash) {
-      await prisma.cash.create({
+    const cashData = {
+      cashInAmount: paidAmount,
+      cashInFor: `Product sell to ${customer?.customerName || "quick invoice"}`,
+      shopOwnerId,
+      cashInDate: new Date(date),
+    };
+
+    if (cash) {
+      await prisma.cash.update({
+        where: { shopOwnerId, createdAt: { gte: startTime, lte: endTime } },
         data: {
-          shopOwnerId: req.shopOwner.id,
-          cashBalance: paidAmount,
-          cashInHistory: {
-            create: {
-              cashInAmount: paidAmount,
-              cashInFor: `Product sell to ${customer?.customerName || "quick invoice"}`,
-              shopOwnerId: req.shopOwner.id,
-              cashInDate: new Date(date),
-            },
-          },
+          cashBalance: { increment: paidAmount },
+          cashInHistory: { create: cashData },
         },
       });
     } else {
-      // if cash is available then update cash
-      await prisma.cash.update({
-        where: {
-          shopOwnerId: req.shopOwner.id,
-          createdAt: {
-            gte: startTime,
-            lte: endTime,
-          },
-        },
+      await prisma.cash.create({
         data: {
-          cashBalance: {
-            increment: paidAmount,
-          },
-          cashInHistory: {
-            create: {
-              cashInAmount: paidAmount,
-              cashInFor: "Product sell",
-              shopOwnerId: req.shopOwner.id,
-              cashInDate: new Date(date),
-            },
-          },
+          shopOwnerId,
+          cashBalance: paidAmount,
+          cashInHistory: { create: cashData },
         },
       });
     }
+
+    // Update customer dues
     if (customerId) {
-      // update customer due balance
+      const newDueAmount = totalBill - (paidAmount + (discountAmount || 0));
       await prisma.customer.update({
-        where: {
-          id: customerId,
-          shopOwnerId: req.shopOwner.id,
-        },
+        where: { id: customerId, shopOwnerId },
         data: {
-          deuAmount: {
-            increment: totalBill - (paidAmount + discountAmount),
-          },
+          deuAmount: { increment: newDueAmount },
           customerPaymentHistories: {
             create: {
               paymentAmount: paidAmount,
               paymentStatus: "SHOPOWNERGIVE",
-              shopOwnerId: req.shopOwner.id,
-              deuAmount: totalBill - (paidAmount + discountAmount),
+              shopOwnerId,
+              deuAmount: newDueAmount,
             },
           },
         },
       });
     }
 
-    // ... (previous code remains unchanged)
-    const pdfProductData = newProductVoicer.sellingProducts.map((product) => ({
-      ...product,
-      totalProductPrice: product.sellingPrice * product.quantity,
-    }));
-
-    const data = {
+    // Prepare invoice data
+    const invoiceData = {
       customerName: customer?.customerName || "anonymous",
       address: customer?.address || "anonymous",
       phone: customer?.phoneNumber || "anonymous",
-      products: pdfProductData,
+      products: newProductVoicer.sellingProducts.map((product) => ({
+        ...product,
+        totalProductPrice: product.sellingPrice * product.quantity,
+      })),
       totalPrice: totalBill,
-      beforeDue: customer?.deuAmount || "anonymous",
-      labourCost:labourCost || 0,
+      beforeDue: customer?.deuAmount || 0,
+      labourCost: labourCost || 0,
       nowPaying: paidAmount,
       remainingDue: customer?.id
-        ? totalBill + customer?.deuAmount - (paidAmount + discountAmount)
+        ? totalBill + customer?.deuAmount - (paidAmount + (discountAmount || 0))
         : "anonymous",
       shopOwnerName: req.shopOwner.shopName,
       shopOwnerPhone: req.shopOwner.mobile,
       date: newProductVoicer.createdAt.toDateString(),
-      // invoiceId will be 6 digit
       invoiceId: newProductVoicer.id.toString().slice(0, 10),
       discountAmount: discountAmount || 0,
     };
 
-    // send message to customer
-    // purchaseConfirmBySms({
-    //   mobile: customer.phoneNumber,
-    //   totalAmount: totalBill,
-    //   dueAmount: totalBill - paidAmount + customer.deuAmount,
-    //   shopName: req.shopOwner.shopName,
-    // });
-    // send message to customer end
-
-    // Register Handlebars helpers (this can be outside the function if reused across requests)
-    /*  Handlebars.registerHelper("incrementedIndex", function (index) {
-      return index + 1;
-    });
-    Handlebars.registerHelper("isBengali", function (text) {
-      const bengaliRegex = /[\u0980-\u09FF]/;
-      return bengaliRegex.test(text) ? "bengali" : "english";
-    });
-
-    // Compile Handlebars template
-    const hbsFileName = path.join(
-      __dirname,
-      "../../utility/invoice_template.hbs"
-    );
-    const source = fs.readFileSync(hbsFileName, "utf8");
-    const template = Handlebars.compile(source);
-    const html = template(data);
-
-    // Optimized Puppeteer launch and PDF generation
-    const browser = await puppeteer.launch({
-      headless: true,
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
-    });
-
-    // Inside the createProductVoicer function
-    const page = await browser.newPage();
-    await page.setRequestInterception(true);
-
-    page.on("request", (request) => {
-      if (["image", "stylesheet", "font"].includes(request.resourceType())) {
-        request.abort();
-      } else {
-        request.continue();
-      }
-    });
-
-    await page.setContent(html);
-
-    const pdfBuffer = await page.pdf({
-      format: "A4",
-      printBackground: true,
-    });
-
-    await page.close();
-
-    res.setHeader("Content-Type", "application/pdf");
-    res.setHeader("Content-Disposition", "attachment; filename=invoice.pdf");
-    res.send(pdfBuffer); */
     return res.status(200).json({
       success: true,
       message: "Product voicer created successfully",
-      voicer: data,
+      voicer: invoiceData,
     });
   } catch (error) {
-    console.log({
-      error,
-      line: 195,
-    });
+    console.error("Error in createProductVoicer:", error);
     return res.status(500).json({
       success: false,
-      obj: error,
       errors: [
-        {
-          type: "server error",
-          value: "",
-          msg: "Internal server error",
-          path: "server",
-          location: "createProductVoicer",
-        },
+        { type: "server error", msg: "Internal server error", path: "server" },
       ],
     });
   }
 };
-
 const getProductVoicersWithoutCustomer = async (
   req: ExtendedRequest,
   res: Response
 ) => {
   try {
+    const { shopOwner } = req;
+
+    // Fetch product voicers without customer associated
     const productVoicersWithoutCustomer = await prisma.productVoicer.findMany({
       where: {
-        customerId: null, // Filter for entries where customerId is null
-        shopOwnerId:req.shopOwner.id
+        customerId: null,
+        shopOwnerId: shopOwner.id,
       },
-      include:{
-        sellingProducts:true
-      }
+      include: {
+        sellingProducts: true,
+      },
     });
 
+    // Return the result
     return res.status(200).json({
       success: true,
       data: productVoicersWithoutCustomer,
     });
   } catch (error) {
     console.error("Error fetching product voicers without customer:", error);
+
+    // Handle internal server error
     return res.status(500).json({
       success: false,
       message: "Internal server error",
@@ -319,21 +220,28 @@ const getProductVoicersWithoutCustomer = async (
 const getAllProductVoicer = async (req: ExtendedRequest, res: Response) => {
   try {
     const { customerid } = req.query as { customerid: string };
+    const { shopOwner } = req;
+
+    // Fetch product voicers for the given customer ID
     const productVoicers = await prisma.productVoicer.findMany({
       where: {
-        shopOwnerId: req.shopOwner.id,
-        customerId : customerid,
+        shopOwnerId: shopOwner.id,
+        customerId: customerid || null, // Handle case where customerId may not be provided
       },
-      include:{
-        sellingProducts:true
-      }
+      include: {
+        sellingProducts: true,
+      },
     });
 
+    // Respond with success and data
     return res.status(200).json({
       success: true,
       data: productVoicers,
     });
   } catch (error) {
+    console.error("Error in getAllProductVoicer:", error);
+
+    // Handle server errors
     return res.status(500).json({
       success: false,
       errors: [
@@ -348,20 +256,17 @@ const getAllProductVoicer = async (req: ExtendedRequest, res: Response) => {
     });
   }
 };
-
 const getSingleProductVoicer = async (req: ExtendedRequest, res: Response) => {
   try {
     const { id } = req.params;
 
+    // Fetch the product voicer by ID
     const productVoicer = await prisma.productVoicer.findUnique({
-      where: {
-        id: id as string,
-      },
-      include:{
-        sellingProducts:true
-      }
+      where: { id },
+      include: { sellingProducts: true },
     });
 
+    // Handle case where product voicer is not found
     if (!productVoicer) {
       return res.status(404).json({
         success: false,
@@ -370,11 +275,22 @@ const getSingleProductVoicer = async (req: ExtendedRequest, res: Response) => {
             type: "validation error",
             value: "",
             msg: "Product voicer not found",
-          }
-        ]
+            path: "id",
+            location: "getSingleProductVoicer",
+          },
+        ],
       });
     }
+
+    // Respond with success and the product voicer
+    return res.status(200).json({
+      success: true,
+      data: productVoicer,
+    });
   } catch (error) {
+    console.error("Error in getSingleProductVoicer:", error);
+
+    // Handle server errors
     return res.status(500).json({
       success: false,
       errors: [
@@ -429,8 +345,8 @@ const deleteProductVoicer = async (req: ExtendedRequest, res: Response) => {
 export {
   createProductVoicer,
   getProductVoicersWithoutCustomer,
-    getAllProductVoicer,
-    getSingleProductVoicer,
+  getAllProductVoicer,
+  getSingleProductVoicer,
   //   updateProductVoicer,
   //   deleteProductVoicer,
 };

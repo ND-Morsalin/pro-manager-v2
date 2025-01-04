@@ -1,0 +1,29 @@
+type: object
+properties:
+  sellingProducts:
+    type: array
+    items:
+      $ref: ./SellingProduct.yaml # Local reference within schemas
+  customerId:
+    type: string
+    description: ID of the customer.
+  paidAmount:
+    type: number
+    description: Amount paid by the customer.
+  date:
+    type: string
+    format: date-time
+    description: Date of the transaction.
+  discountAmount:
+    type: number
+    description: Discount amount applied.
+  labourCost:
+    type: number
+    description: Labour cost applied.
+  dhor:
+    type: number
+    description: Dhor amount applied.
+required:
+  - sellingProducts
+  - paidAmount
+  - date

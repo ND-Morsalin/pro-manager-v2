@@ -1,0 +1,18 @@
+get:
+  summary: Get product voicers without customer
+  description: Fetch all product voicers that do not have an associated customer.
+  tags:
+    - Product Voicer
+  responses:
+    "200":
+      description: Successfully fetched product voicers without customer.
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/SuccessResponseWithoutCustomer.yaml
+    "500":
+      description: Internal server error.
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/ErrorResponse.yaml
