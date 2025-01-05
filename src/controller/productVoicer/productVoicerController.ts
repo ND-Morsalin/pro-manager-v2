@@ -157,6 +157,7 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
       totalPrice: totalBill,
       beforeDue: customer?.deuAmount || 0,
       labourCost: labourCost || 0,
+      dhor: dhor || 0,
       nowPaying: paidAmount,
       remainingDue: customer?.id
         ? totalBill + customer?.deuAmount - (paidAmount + (discountAmount || 0))
