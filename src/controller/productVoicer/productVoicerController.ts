@@ -12,15 +12,15 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
       date,
       discountAmount,
       labourCost,
-      dhor,
+      
     } = req.body as {
-      sellingProducts: SellingProduct[];
+      sellingProducts: (<SellingProduct> & { dhor?: number })[];
       customerId?: string;
       paidAmount: number;
       date: Date;
       discountAmount?: number;
       labourCost?: number;
-      dhor?: number;
+      
     };
 
     const shopOwnerId = req.shopOwner.id;
@@ -71,7 +71,7 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
         totalBillAmount: totalBill,
         paidAmount,
         labourCost: labourCost || 0,
-        dhor: dhor || 0,
+        
         remainingDue: customer?.id
           ? totalBill - paidAmount + customer.deuAmount - (discountAmount || 0)
           : 0,
@@ -150,14 +150,13 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
       customerName: customer?.customerName || "anonymous",
       address: customer?.address || "anonymous",
       phone: customer?.phoneNumber || "anonymous",
-      products: newProductVoicer.sellingProducts.map((product) => ({
+      products: sellingProducts.map((product) => ({
         ...product,
         totalProductPrice: product.sellingPrice * product.quantity,
       })),
       totalPrice: totalBill,
       beforeDue: customer?.deuAmount || 0,
       labourCost: labourCost || 0,
-      dhor: dhor || 0,
       nowPaying: paidAmount,
       remainingDue: customer?.id
         ? totalBill + customer?.deuAmount - (paidAmount + (discountAmount || 0))
