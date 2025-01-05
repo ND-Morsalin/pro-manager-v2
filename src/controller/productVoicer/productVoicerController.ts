@@ -14,7 +14,7 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
       labourCost,
       
     } = req.body as {
-      sellingProducts: (<SellingProduct> & { dhor?: number })[];
+      sellingProducts: (SellingProduct & { dhor?: number })[];
       customerId?: string;
       paidAmount: number;
       date: Date;
