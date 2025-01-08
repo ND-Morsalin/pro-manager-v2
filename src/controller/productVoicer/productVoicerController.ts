@@ -82,7 +82,13 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
       },
       include: { sellingProducts: true },
     });
-
+    console.log(
+      totalBill -
+        paidAmount +
+        customer.deuAmount -
+        (discountAmount || 0) +
+        (labourCost || 0)
+    );
     // Update product stock
     await Promise.all(
       sellingProducts.map((product) =>
@@ -130,7 +136,7 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
 
     // Update customer dues
     if (customerId) {
-      const newDueAmount = totalBill - (paidAmount + (discountAmount || 0));
+      const newDueAmount = totalBill - (paidAmount + (discountAmount || 0)) + (labourCost || 0);
       await prisma.customer.update({
         where: { id: customerId, shopOwnerId },
         data: {
@@ -161,7 +167,11 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
       labourCost: labourCost || 0,
       nowPaying: paidAmount,
       remainingDue: customer?.id
-        ? totalBill + customer?.deuAmount - (paidAmount + (discountAmount || 0))
+        ?  totalBill -
+        paidAmount +
+        customer.deuAmount -
+        (discountAmount || 0) +
+        (labourCost || 0)
         : "anonymous",
       shopOwnerName: req.shopOwner.shopName,
       shopOwnerPhone: req.shopOwner.mobile,
