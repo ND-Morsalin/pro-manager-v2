@@ -7,7 +7,7 @@ const createProductGive = async (req: ExtendedRequest, res: Response) => {
     const { productId, amount, customerId, companyName, note , quantity,reason,status} =
       req.body as ProductGiveBodyType;
     const productGive = await prisma.productGive.create({
-      data: {
+      data: { 
         amount,
         // customerId,
         productId,

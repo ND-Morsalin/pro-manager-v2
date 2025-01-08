@@ -12,7 +12,6 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
       date,
       discountAmount,
       labourCost,
-      
     } = req.body as {
       sellingProducts: (SellingProduct & { dhor?: number })[];
       customerId?: string;
@@ -20,7 +19,6 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
       date: Date;
       discountAmount?: number;
       labourCost?: number;
-      
     };
 
     const shopOwnerId = req.shopOwner.id;
@@ -71,9 +69,13 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
         totalBillAmount: totalBill,
         paidAmount,
         labourCost: labourCost || 0,
-        
+
         remainingDue: customer?.id
-          ? totalBill - paidAmount + customer.deuAmount - (discountAmount || 0)
+          ? totalBill -
+            paidAmount +
+            customer.deuAmount -
+            (discountAmount || 0) +
+            (labourCost || 0)
           : 0,
         discountAmount: discountAmount || 0,
         sellingProducts: { create: sellingProductsData },
