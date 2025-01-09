@@ -82,13 +82,8 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
       },
       include: { sellingProducts: true },
     });
-    console.log(
-      totalBill -
-        paidAmount +
-        customer.deuAmount -
-        (discountAmount || 0) +
-        (labourCost || 0)
-    );
+    
+    
     // Update product stock
     await Promise.all(
       sellingProducts.map((product) =>
