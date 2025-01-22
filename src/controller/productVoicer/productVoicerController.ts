@@ -68,8 +68,16 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
         shopOwnerId,
         totalBillAmount: totalBill,
         paidAmount,
-        labourCost: labourCost || 0,
+        sellingProducts: { create: sellingProductsData },
 
+        customerName: customer?.customerName || "anonymous",
+        address: customer?.address || "anonymous",
+        phone: customer?.phoneNumber || "anonymous",
+
+        totalPrice: totalBill,
+        beforeDue: customer?.deuAmount || 0,
+        labourCost: labourCost || 0,
+        nowPaying: paidAmount,
         remainingDue: customer?.id
           ? totalBill -
             paidAmount +
@@ -77,13 +85,13 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
             (discountAmount || 0) +
             (labourCost || 0)
           : 0,
+        shopOwnerName: req.shopOwner.shopName,
+        shopOwnerPhone: req.shopOwner.mobile,
+
         discountAmount: discountAmount || 0,
-        sellingProducts: { create: sellingProductsData },
       },
       include: { sellingProducts: true },
     });
-    
-    
     // Update product stock
     await Promise.all(
       sellingProducts.map((product) =>
@@ -131,7 +139,8 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
 
     // Update customer dues
     if (customerId) {
-      const newDueAmount = totalBill - (paidAmount + (discountAmount || 0)) + (labourCost || 0);
+      const newDueAmount =
+        totalBill - (paidAmount + (discountAmount || 0)) + (labourCost || 0);
       await prisma.customer.update({
         where: { id: customerId, shopOwnerId },
         data: {
@@ -150,6 +159,7 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
 
     // Prepare invoice data
     const invoiceData = {
+      id: newProductVoicer.id,
       customerName: customer?.customerName || "anonymous",
       address: customer?.address || "anonymous",
       phone: customer?.phoneNumber || "anonymous",
@@ -162,11 +172,11 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
       labourCost: labourCost || 0,
       nowPaying: paidAmount,
       remainingDue: customer?.id
-        ?  totalBill -
-        paidAmount +
-        customer.deuAmount -
-        (discountAmount || 0) +
-        (labourCost || 0)
+        ? totalBill -
+          paidAmount +
+          customer.deuAmount -
+          (discountAmount || 0) +
+          (labourCost || 0)
         : "anonymous",
       shopOwnerName: req.shopOwner.shopName,
       shopOwnerPhone: req.shopOwner.mobile,

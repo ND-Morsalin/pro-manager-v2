@@ -157,10 +157,17 @@ model ProductVoicer {
   remainingDue    Float
   discountAmount  Float?
   labourCost      Float?
-  dhor Float?
+  dhor            Float?
 
+  customerName   String?
+  address        String?
+  phone          String?
+  totalPrice     Float?
+  beforeDue      Float?
+  nowPaying      Float?
+  shopOwnerName  String?
+  shopOwnerPhone String
 
-  // ShopOwner id
   shopOwner   ShopOwner @relation(fields: [shopOwnerId], references: [id], onDelete: Cascade)
   shopOwnerId String    @db.ObjectId
 
