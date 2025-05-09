@@ -1,0 +1,21 @@
+schemas:
+  Error:
+    type: object
+    properties:
+      success:
+        type: boolean
+      errors:
+        type: array
+        items:
+          type: object
+          properties:
+            type:
+              type: string
+            value:
+              type: string
+            msg:
+              type: string
+            path:
+              type: string
+            location:
+              type: string

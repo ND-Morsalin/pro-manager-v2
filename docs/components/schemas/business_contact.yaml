@@ -1,0 +1,18 @@
+BusinessContactInfo:
+  type: object
+  properties:
+    id:
+      type: string
+      description: The ID of the business contact info
+    name:
+      type: string
+      description: The name associated with the business contact info
+    organization:
+      type: string
+      description: The organization associated with the business contact info
+    phoneNumber:
+      type: string
+      description: The phone number associated with the business contact info
+    shopOwnerId:
+      type: string
+      description: The ID of the shop owner associated with the business contact info

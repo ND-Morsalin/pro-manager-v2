@@ -3497,6 +3497,366 @@ paths:
         500:
           description: Internal server error
 
+  # Raw Products 
+  /api/raw-product:
+    post:
+      summary: Create a new raw product
+      tags:
+        - Raw Product
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+      
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "Raw Product Name"
+                buyingPrice:
+                  type: number
+                  example: 10.5
+                sellingPrice:
+                  type: number
+                  example: 15.0
+                quantity:
+                  type: integer
+                  example: 100
+                rawCategoryID:
+                  type: string
+                  example: "raw-category-id-123"
+                brandName:
+                  type: string
+                  example: "Brand Name"
+                unit:
+                  type: string
+                  example: "kg"
+      responses:
+        200:
+          description: Raw product created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RawProduct'
+        500:
+          description: Internal server error
+
+    get:
+      summary: Get all raw products
+      tags:
+        - Raw Product
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+      
+      responses:
+        200:
+          description: List of raw products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RawProduct'
+        500:
+          description: Internal server error
+  /api/raw-product/{id}:
+    get:
+      summary: Get a single raw product by ID
+      tags:
+        - Raw Product
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+      
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          example: "raw-product-id-123"
+      responses:
+        200:
+          description: Retrieved raw product
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RawProduct'
+        500:
+          description: Internal server error
+
+    put:
+      summary: Update a raw product by ID
+      tags:
+        - Raw Product
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+      
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          example: "raw-product-id-123"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "Updated Raw Product Name"
+                quantity:
+                  type: integer
+                  example: 150
+                unitPrice:
+                  type: number
+                  example: 12.5
+      responses:
+        200:
+          description: Updated raw product successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RawProduct'
+        500:
+          description: Internal server error
+
+    delete:
+      summary: Delete a raw product by ID
+      tags:
+        - Raw Product
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+      
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          example: "raw-product-id-123"
+      responses:
+        200:
+          description: Deleted raw product successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  errors:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Error"
+  # Raw Product Category
+  /api/raw-category:
+    post:
+      summary: Create a new raw product category
+      tags:
+        - Raw Product Category
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+      
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                rawCategory:
+                  type: string
+                  example: "Raw Product Category Name"
+      responses:
+        200:
+          description: Raw product category created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RawProductCategory'
+        500:
+          description: Internal server error
+
+    get:
+      summary: Get all raw product categories
+      tags:
+        - Raw Product Category
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+      
+      responses:
+        200:
+          description: List of raw product categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RawProductCategory'
+        500:
+          description: Internal server error
+  /api/raw-category/{id}:
+    get:
+      summary: Get a single raw product category by ID
+      tags:
+        - Raw Product Category
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+      
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          example: "raw-product-category-id-123"
+      responses:
+        200:
+          description: Retrieved raw product category
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RawProductCategory'
+        500:
+          description: Internal server error
+
+    put:
+      summary: Update a raw product category by ID
+      tags:
+        - Raw Product Category
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+      
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          example: "raw-product-category-id-123"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                rawCategory:
+                  type: string
+                  example: "Updated Raw Product Category Name"
+      responses:
+        200:
+          description: Updated raw product category successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RawProductCategory'
+        500:
+          description: Internal server error
+
+    delete:
+      summary: Delete a raw product category by ID
+      tags:
+        - Raw Product Category
+      parameters:
+        - in: header
+          name: token
+          required: true
+          schema:
+            type: string
+          description: JWT token of the shop owner
+      
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          example: "raw-product-category-id-123"
+      responses:
+        200:
+          description: Deleted raw product category successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  errors:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Error"
+  # Monthly Report
+
 # Dashboard report
 
   /api/dashboard-report:

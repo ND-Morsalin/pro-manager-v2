@@ -1,0 +1,69 @@
+/api/customer:
+  post:
+    summary: Create a new customer
+    tags:
+      - Customer
+    parameters:
+      - in: header
+        name: token
+        required: true
+        schema:
+          type: string
+        description: JWT token of the shop owner
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Customer"
+    responses:
+      "200":
+        description: Customer created successfully
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CustomerResponse"
+      "401":
+        description: Unauthorized, Token is not found on header
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Error"
+      "500":
+        description: Internal server error
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Error"
+  get:
+    summary: Get all customers
+    tags:
+      - Customer
+    parameters:
+      - in: header
+        name: token
+        required: true
+        schema:
+          type: string
+        description: JWT token of the shop owner
+    responses:
+      "200":
+        description: All customers
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CustomersResponse"
+      "401":
+        description: Unauthorized, Token is not found on header
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Error"
+      "500":
+        description: Internal server error
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Error"
+
+# Continue with other customer paths...

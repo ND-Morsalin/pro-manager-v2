@@ -1,0 +1,75 @@
+/api/lone-provider:
+  post:
+    summary: Create a new lone provider
+    tags:
+      - Lone Provider
+    parameters:
+      - in: header
+        name: token
+        required: true
+        schema:
+          type: string
+        description: JWT token of the shop owner
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/LoneProvider"
+    responses:
+      "200":
+        description: Lone provider created successfully
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoneProviderResponse"
+      "401":
+        description: Unauthorized, Token is not found on header
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Error"
+      "500":
+        description: Internal server error
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Error"
+  get:
+    summary: Get all lone providers
+    tags:
+      - Lone Provider
+    parameters:
+      - in: header
+        name: token
+        required: true
+        schema:
+          type: string
+        description: JWT token of the shop owner
+    responses:
+      "200":
+        description: All lone providers
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoneProvidersResponse"
+      "401":
+        description: Unauthorized, Token is not found on header
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Error"
+      "404":
+        description: No lone provider found
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Error"
+      "500":
+        description: Internal server error
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Error"
+
+# Continue with other loan paths...

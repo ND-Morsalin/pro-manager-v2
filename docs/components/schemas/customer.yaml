@@ -1,0 +1,130 @@
+Customer:
+  type: object
+  properties:
+    address:
+      type: string
+    customerName:
+      type: string
+    phoneNumber:
+      type: string
+    deuAmount:
+      type: number
+    paidAmount:
+      type: number
+  required:
+    - address
+    - customerName
+    - phoneNumber
+    - deuAmount
+    - paidAmount
+
+CustomerResponse:
+  type: object
+  properties:
+    success:
+      type: boolean
+    message:
+      type: string
+    customer:
+      $ref: "#/components/schemas/Customer"
+    invoiceHistory:
+      type: array
+      items:
+        properties:
+          sellingProducts:
+            type: array
+            items:
+              $ref: "#/components/schemas/SellingProductVoicer"
+          customerId:
+            type: string
+          paidAmount:
+            type: number
+          discountAmount:
+            type: number
+          date:
+            type: string
+            format: date-time
+            description: The date of the transaction
+    customerPaymentHistory:
+      type: array
+      items:
+        $ref: "#/components/schemas/CustomerPaymentHistory"
+
+CustomersResponse:
+  type: object
+  properties:
+    success:
+      type: boolean
+    message:
+      type: string
+    customers:
+      type: array
+      items:
+        $ref: "#/components/schemas/Customer"
+
+CustomerPaymentHistory:
+  type: object
+  properties:
+    paymentDate:
+      type: string
+      format: date
+    paymentStatus:
+      type: string
+    paymentAmount:
+      type: number
+    deuAmount:
+      type: number
+    customerId:
+      type: string
+    note:
+      type: string
+  required:
+    - paymentDate
+    - paymentStatus
+    - paymentAmount
+    - deuAmount
+    - customerId
+
+CustomerPaymentHistoryResponse:
+  type: object
+  properties:
+    success:
+      type: boolean
+    message:
+      type: string
+    customerPaymentHistory:
+      $ref: "#/components/schemas/CustomerPaymentHistory"
+
+CustomerPaymentHistoriesResponse:
+  type: object
+  properties:
+    success:
+      type: boolean
+    message:
+      type: string
+    customerPaymentHistories:
+      type: array
+      items:
+        $ref: "#/components/schemas/CustomerPaymentHistory"
+
+SellingProductVoicer:
+  type: object
+  properties:
+    productId:
+      type: string
+      description: The ID of the selling product
+    productName:
+      type: string
+      description: The name of the product
+    sellingPrice:
+      type: number
+      description: The selling price of the product
+    quantity:
+      type: integer
+      description: The quantity of the product
+    totalPrice:
+      type: number
+      description: The total price of the product
+    unit:
+      type: string
+      description: The unit of the product

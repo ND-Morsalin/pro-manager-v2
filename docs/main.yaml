@@ -1,0 +1,26 @@
+openapi: 3.0.0
+info:
+  title: "Your API Title"
+  version: "1.0.0"
+  description: "Description of your API"
+
+# Include all components
+components:
+  schemas:
+    $ref: './components/schemas/authentication.yaml'
+    $ref: './components/schemas/product.yaml'
+    $ref: './components/schemas/customer.yaml'
+    $ref: './components/schemas/loan.yaml'
+    $ref: './components/schemas/cash.yaml'
+    $ref: './components/schemas/notes.yaml'
+    $ref: './components/schemas/business_contact.yaml'
+    $ref: './components/schemas/dashboard.yaml'
+    $ref: './components/schemas/common.yaml'
+
+# Include all paths
+paths:
+  /api/create-shop-owner:
+    $ref: './paths/authentication.yaml#/api/create-shop-owner'
+  /api/login:
+    $ref: './paths/authentication.yaml#/api/login'
+  # Continue with all other paths...

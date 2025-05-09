@@ -1,0 +1,57 @@
+/api/products:
+  post:
+    summary: Create a new product
+    tags:
+      - Product
+    parameters:
+      - in: header
+        name: token
+        required: true
+        schema:
+          type: string
+        description: JWT token of the shop owner
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Product"
+    responses:
+      "200":
+        description: Product created successfully
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductResponse"
+      "500":
+        description: Internal server error
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Error"
+  get:
+    summary: Get all products
+    tags:
+      - Product
+    parameters:
+      - in: header
+        name: token
+        required: true
+        schema:
+          type: string
+        description: JWT token of the shop owner
+    responses:
+      "200":
+        description: All products
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductsResponse"
+      "500":
+        description: Internal server error
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Error"
+
+# Include other product paths...

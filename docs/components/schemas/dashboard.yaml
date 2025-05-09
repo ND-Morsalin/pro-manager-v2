@@ -1,0 +1,41 @@
+ProductVoicer:
+  type: object
+  properties:
+    id:
+      type: string
+      description: The ID of the product voicer
+    customerId:
+      type: string
+      description: The ID of the customer
+    shopOwnerId:
+      type: string
+      description: The ID of the shop owner
+    totalBillAmount:
+      type: number
+      description: The total bill amount
+    sellingProducts:
+      type: array
+      items:
+        $ref: "#/components/schemas/SellingProduct"
+
+SellingProduct:
+  type: object
+  properties:
+    id:
+      type: string
+      description: The ID of the selling product
+    productName:
+      type: string
+      description: The name of the product
+    sellingPrice:
+      type: number
+      description: The selling price of the product
+    quantity:
+      type: integer
+      description: The quantity of the product
+    totalPrice:
+      type: number
+      description: The total price of the product
+    shopOwnerId:
+      type: string
+      description: The ID of the shop owner

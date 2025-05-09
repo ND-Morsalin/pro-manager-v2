@@ -101,6 +101,8 @@ import {
   updateNote,
   deleteNote
 } from "../controller/note/noteController";
+import { addRawProduct, deleteRawProduct, getAllRawProducts, getRawSingleProduct, updateRawProduct } from "../controller/rawProducts/rawProductController";
+import { createRawCategory, deleteRawCategory, getAllRawCategory, getSingleRawCategory, updateRawCategory } from "../controller/rawCategory/rawCategoryController";
 
 const router = Router();
 
@@ -363,5 +365,20 @@ router.delete("/notes/delete-many", checkValidUser, deleteMeanyNotesByGivenId);
 router.delete("/notes/delete-all", checkValidUser, deleteAllNotes);
 
 // note routes end
+
+// raw product 
+router.post("/raw-product", checkValidUser, addRawProduct);
+router.get("/raw-product", checkValidUser, getAllRawProducts);
+router.get("/raw-product/:id", checkValidUser, getRawSingleProduct);
+router.put("/raw-product/:id", checkValidUser, updateRawProduct);
+router.delete("/raw-product/:id", checkValidUser, deleteRawProduct);
+
+//  Raw Category
+router.post("/raw-category", checkValidUser, createRawCategory);
+router.get("/raw-category", checkValidUser, getAllRawCategory);
+router.delete("/raw-category/:id", checkValidUser, deleteRawCategory); 
+router.put("/raw-category/:id", checkValidUser, updateRawCategory );
+router.get("/raw-category/:id", checkValidUser, getSingleRawCategory);
+
 
 export default router;

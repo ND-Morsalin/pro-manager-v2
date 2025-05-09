@@ -1,0 +1,51 @@
+/api/create-shop-owner:
+  post:
+    summary: Create a new shop owner
+    tags:
+      - Authentication
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ShopOwnerBodyType"
+    responses:
+      "200":
+        description: Shop owner created successfully
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ShopOwnerResponse"
+      "403":
+        description: Pin is not same
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Error"
+
+/api/login:
+  post:
+    summary: Log in as a shop owner
+    tags:
+      - Authentication
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/LoginBodyType"
+    responses:
+      "200":
+        description: Login successful
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/logInResponse"
+      "404":
+        description: Shop owner not found or pin not matched
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Error"
+
+# Include other authentication paths...

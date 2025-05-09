@@ -1,0 +1,88 @@
+/api/cash:
+  post:
+    summary: Create cash transaction
+    tags:
+      - Cash In Out
+    parameters:
+      - in: header
+        name: token
+        required: true
+        schema:
+          type: string
+        description: JWT token of the shop owner
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              cashInBalance:
+                type: number
+                description: The balance for cash-in transaction
+              cashOutBalance:
+                type: number
+                description: The balance for cash-out transaction
+              note:
+                type: string
+                description: Additional note for the transaction
+              requestType:
+                type: string
+                enum: [cashIn, cashOut]
+                description: The type of cash transaction
+              date:
+                type: string
+                format: date-time
+                description: The date of the transaction
+            required:
+              - cashInBalance
+              - cashOutBalance
+              - note
+              - requestType
+              - date
+    responses:
+      "200":
+        description: Cash transaction created successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  description: Indicates if the request was successful
+                message:
+                  type: string
+                  description: Status of the operation
+                todayCashBalance:
+                  type: number
+                  description: Cash balance for today
+                todayTotalCashOut:
+                  type: number
+                  description: Total cash-out for today
+                todayTotalCashIn:
+                  type: number
+                  description: Total cash-in for today
+                cashInHistory:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/CashTransaction"
+                cashOutHistory:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/CashTransaction"
+      "500":
+        description: Internal server error
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                errors:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/Error"
+
+# Continue with other cash paths...

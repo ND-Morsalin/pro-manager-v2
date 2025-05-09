@@ -1,0 +1,26 @@
+Note:
+  type: object
+  properties:
+    id:
+      type: string
+      example: "note-id-123"
+    title:
+      type: string
+      example: "Shopping List"
+    note:
+      type: string
+      example: "Buy groceries"
+    isComplete:
+      type: boolean
+      example: false
+    shopOwnerId:
+      type: string
+      example: "shop-owner-id-123"
+    createdAt:
+      type: string
+      format: date-time
+      example: "2024-12-14T10:00:00Z"
+    updatedAt:
+      type: string
+      format: date-time
+      example: "2024-12-14T12:00:00Z"

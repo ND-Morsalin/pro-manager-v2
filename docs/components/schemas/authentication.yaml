@@ -1,0 +1,71 @@
+ShopOwnerBodyType:
+  type: object
+  properties:
+    shopName:
+      type: string
+    mobile:
+      type: string
+    pincode:
+      type: string
+    confirmPincode:
+      type: string
+  required:
+    - shopName
+    - mobile
+    - pincode
+    - confirmPincode
+
+LoginBodyType:
+  type: object
+  properties:
+    mobile:
+      type: string
+    pincode:
+      type: string
+  required:
+    - mobile
+    - pincode
+
+ShopOwnerResponse:
+  type: object
+  properties:
+    success:
+      type: boolean
+    message:
+      type: string
+    data:
+      type: object
+      properties:
+        id:
+          type: string
+        mobile:
+          type: string
+        shopName:
+          type: string
+        smsAmount:
+          type: number
+        smsPrice:
+          type: number
+        expireDate:
+          type: string
+          format: date-time
+          description: The date of the transaction
+
+logInResponse:
+  type: object
+  properties:
+    success:
+      type: boolean
+    message:
+      type: string
+    data:
+      type: object
+      properties:
+        id:
+          type: string
+        mobile:
+          type: string
+        shopName:
+          type: string
+    token:
+      type: string

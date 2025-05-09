@@ -58,6 +58,10 @@ model ShopOwner {
   updatedAt DateTime @updatedAt
 
   SMSPurchase SMSPurchase?
+
+  RawProduct RawProduct[]
+
+  RawCategory RawCategory[]
 }
 
 //**************************/
@@ -95,6 +99,40 @@ model Product {
 //**************************/
 // Product Model end
 //**************************/
+
+//**************************/
+// Raw Product Model start
+//**************************/
+model RawProduct {
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  name          String
+  quantity   Float
+  buyingPrice   Float
+  sellingPrice  Float
+  rawCategory   String
+  rawCategoryID String    @db.ObjectId
+  brandName     String
+  unit          String // kg , hali, litter, pic, packate
+  //* need to add shop owner id */
+  shopOwner     ShopOwner @relation(fields: [shopOwnerId], references: [id], onDelete: Cascade)
+  shopOwnerId   String    @db.ObjectId
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+//**************************/
+// Raw Product Model end
+//**************************/
+
+model RawCategory {
+  id String    @id @default(auto()) @map("_id") @db.ObjectId
+  name String
+  shopOwner     ShopOwner @relation(fields: [shopOwnerId], references: [id], onDelete: Cascade)
+  shopOwnerId   String    @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
 
 //**************************/
 // Customer Model start

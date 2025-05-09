@@ -1,0 +1,39 @@
+/api/notes:
+  post:
+    summary: Create a new note
+    tags:
+      - Notes
+    parameters:
+      - in: header
+        name: token
+        required: true
+        schema:
+          type: string
+        description: JWT token of the shop owner
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              title:
+                type: string
+                example: "Shopping List"
+              note:
+                type: string
+                example: "Buy groceries"
+              isComplete:
+                type: boolean
+                example: false
+    responses:
+      200:
+        description: Note created successfully
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Note'
+      500:
+        description: Internal server error
+
+# Continue with other notes paths...

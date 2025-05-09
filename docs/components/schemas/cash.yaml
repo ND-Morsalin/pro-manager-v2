@@ -1,0 +1,81 @@
+Cash:
+  type: object
+  properties:
+    id:
+      type: string
+      description: The ID of the cash transaction
+    cashBalance:
+      type: number
+      description: The balance of the cash transaction
+    cashInHistory:
+      type: array
+      items:
+        $ref: "#/components/schemas/CashTransaction"
+      description: History of cash-in transactions
+    cashOutHistory:
+      type: array
+      items:
+        $ref: "#/components/schemas/CashTransaction"
+      description: History of cash-out transactions
+    shopOwnerId:
+      type: string
+      description: The ID of the shop owner associated with the cash transaction
+
+CashTransaction:
+  type: object
+  properties:
+    id:
+      type: string
+      description: The ID of the cash transaction
+    cashInAmount:
+      type: number
+      description: The amount of cash-in transaction
+    cashOutAmount:
+      type: number
+      description: The amount of cash-out transaction
+    cashInFor:
+      type: string
+      description: The purpose of cash-in transaction
+    cashOutFor:
+      type: string
+      description: The purpose of cash-out transaction
+    cashInDate:
+      type: string
+      format: date-time
+      description: The date of cash-in transaction
+    cashOutDate:
+      type: string
+      format: date-time
+      description: The date of cash-out transaction
+    shopOwnerId:
+      type: string
+      description: The ID of the shop owner associated with the cash transaction
+
+YearlyReport:
+  type: object
+  properties:
+    month:
+      type: integer
+      example: 1
+    year:
+      type: integer
+      example: 2024
+    cashBalance:
+      type: number
+      example: 5000.50
+
+MonthlyReport:
+  type: object
+  properties:
+    day:
+      type: integer
+      example: 15
+    month:
+      type: integer
+      example: 8
+    year:
+      type: integer
+      example: 2024
+    cashBalance:
+      type: number
+      example: 250.75

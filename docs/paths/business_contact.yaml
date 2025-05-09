@@ -1,0 +1,50 @@
+/api/business-contact-info:
+  post:
+    summary: Create a new business contact info
+    tags:
+      - BusinessContactInfo
+    parameters:
+      - in: header
+        name: token
+        required: true
+        schema:
+          type: string
+        description: JWT token of the shop owner
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/BusinessContactInfo"
+    responses:
+      "200":
+        description: Business contact info created successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  description: Indicates if the request was successful
+                message:
+                  type: string
+                  description: A message indicating the status of the operation
+                businessContactInfo:
+                  $ref: "#/components/schemas/BusinessContactInfo"
+      "500":
+        description: Internal server error
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  description: Indicates if the request was successful
+                errors:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/Error"
+
+# Continue with other business contact paths...
