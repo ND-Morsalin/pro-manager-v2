@@ -3,6 +3,19 @@ import { ExtendedRequest } from "../../types/types";
 import { SellingProduct } from "@prisma/client";
 import prisma from "../../utility/prisma";
 
+// Atomic increment for MongoDB
+async function getNextInvoiceId(shopOwnerId: string): Promise<string> {
+  const counter = await prisma.invoiceCounter.upsert({
+    where: { shopOwnerId },
+    update: { lastInvoiceNumber: { increment: 1 } },
+    create: {
+      shopOwnerId,
+      lastInvoiceNumber: 1
+    }
+  });
+  
+  return counter.lastInvoiceNumber.toString().padStart(6, '0');
+}
 const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
   try {
     const {
@@ -23,6 +36,7 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
 
     const shopOwnerId = req.shopOwner.id;
     let customer = null;
+const invoiceId = await getNextInvoiceId(shopOwnerId); // Get sequential ID
 
     // Fetch customer if customerId is provided
     if (customerId) {
@@ -60,7 +74,7 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
       sellingPrice: product.sellingPrice,
       unit: product.unit,
     }));
-
+ 
     // Create product voicer
     const newProductVoicer = await prisma.productVoicer.create({
       data: {
@@ -181,7 +195,7 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
       shopOwnerName: req.shopOwner.shopName,
       shopOwnerPhone: req.shopOwner.mobile,
       date: newProductVoicer.createdAt.toDateString(),
-      invoiceId: newProductVoicer.id.toString().slice(0, 10),
+      invoiceId: invoiceId,
       discountAmount: discountAmount || 0,
     };
 

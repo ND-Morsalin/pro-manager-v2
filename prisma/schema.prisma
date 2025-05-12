@@ -243,6 +243,13 @@ model SellingProduct {
 //**************************/
 // Product Voicer Model end
 //**************************/
+model InvoiceCounter {
+  id               String   @id @default(auto()) @map("_id") @db.ObjectId
+  shopOwnerId      String   @unique
+  lastInvoiceNumber Int
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
 
 //**************************/
 // Lone Model start

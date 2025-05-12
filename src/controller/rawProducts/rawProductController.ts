@@ -61,6 +61,7 @@ const addRawProduct = async (req: ExtendedRequest, res: Response) => {
       rawProduct,
     });
   } catch (error) {
+    console.log(error);
     return res.status(500).json({
       success: false,
       errors: [
