@@ -62,6 +62,12 @@ model ShopOwner {
   RawProduct RawProduct[]
 
   RawCategory RawCategory[]
+
+  Supplier Supplier[]
+
+  SupplierProduct SupplierProduct[]
+
+  RawProductHistory RawProductHistory[]
 }
 
 //**************************/
@@ -106,7 +112,7 @@ model Product {
 model RawProduct {
   id            String    @id @default(auto()) @map("_id") @db.ObjectId
   name          String
-  quantity   Float
+  quantity      Float
   buyingPrice   Float
   sellingPrice  Float
   rawCategory   String
@@ -119,6 +125,8 @@ model RawProduct {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  RawProductHistory RawProductHistory[]
 }
 
 //**************************/
@@ -126,12 +134,12 @@ model RawProduct {
 //**************************/
 
 model RawCategory {
-  id String    @id @default(auto()) @map("_id") @db.ObjectId
-  name String
-  shopOwner     ShopOwner @relation(fields: [shopOwnerId], references: [id], onDelete: Cascade)
-  shopOwnerId   String    @db.ObjectId
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  shopOwner   ShopOwner @relation(fields: [shopOwnerId], references: [id], onDelete: Cascade)
+  shopOwnerId String    @db.ObjectId
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
 
 //**************************/
@@ -244,11 +252,11 @@ model SellingProduct {
 // Product Voicer Model end
 //**************************/
 model InvoiceCounter {
-  id               String   @id @default(auto()) @map("_id") @db.ObjectId
-  shopOwnerId      String   @unique
+  id                String   @id @default(auto()) @map("_id") @db.ObjectId
+  shopOwnerId       String   @unique
   lastInvoiceNumber Int
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 }
 
 //**************************/
@@ -445,4 +453,53 @@ model Note {
   isComplete  Boolean   @default(false)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+}
+
+model Supplier {
+  id              String            @id @default(auto()) @map("_id") @db.ObjectId
+  shopOwnerId     String            @db.ObjectId
+  shopOwner       ShopOwner         @relation(fields: [shopOwnerId], references: [id], onDelete: Cascade)
+  name            String
+  phone           String
+  institution     String
+  address         String?
+  balance         Float             @default(0)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  SupplierProduct SupplierProduct[]
+}
+
+model SupplierProduct {
+  id           String    @id @default(auto()) @map("_id") @db.ObjectId
+  shopOwnerId  String    @db.ObjectId
+  shopOwner    ShopOwner @relation(fields: [shopOwnerId], references: [id], onDelete: Cascade)
+  productId    String    @db.ObjectId
+  supplier     Supplier  @relation(fields: [supplierId], references: [id], onDelete: Cascade)
+  supplierId   String    @db.ObjectId
+  totalPrice   Float
+  paidAmount   Float
+  productName  String
+  remainingDue Float
+  quantity     Float
+  unit         String
+  productBrand String
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model RawProductHistory {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  rawProduct     RawProduct @relation(fields: [rawProductId], references: [id], onDelete: Cascade)
+  rawProductId   String   @db.ObjectId
+  shopOwner      ShopOwner @relation(fields: [shopOwnerId], references: [id], onDelete: Cascade)
+  shopOwnerId    String   @db.ObjectId
+  quantityIn     Float    @default(0) // Stock In
+  quantityOut    Float    @default(0) // Stock Out
+  balance        Float    // Running balance after transaction
+  buyingPrice    Float
+  sellingPrice   Float
+  note           String?
+  transactionDate DateTime @default(now())
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 }

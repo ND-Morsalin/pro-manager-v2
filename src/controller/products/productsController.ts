@@ -10,10 +10,12 @@ const addProduct = async (req: ExtendedRequest, res: Response) => {
       productName,
       stokeAmount,
       buyingPrice,
-      sellingPrice, 
+      sellingPrice,
       categoryId,
       productBrand,
       unit,
+      supplierId,
+      paidAmount,
     } = req.body as {
       productName: string;
       stokeAmount: number;
@@ -22,21 +24,22 @@ const addProduct = async (req: ExtendedRequest, res: Response) => {
       categoryId: string;
       productBrand: string;
       unit: string;
-    }
+      supplierId?: string;
+      paidAmount?: number;
+    };
 
     const category = await prisma.category.findUnique({
       where: {
         id: categoryId,
       },
     });
-     
 
     const product = await prisma.product.create({
       data: {
         productName,
         stokeAmount,
         buyingPrice,
-        sellingPrice, 
+        sellingPrice,
         productBrand,
         unit,
         shopOwnerId: req.shopOwner.id as string,
@@ -44,6 +47,57 @@ const addProduct = async (req: ExtendedRequest, res: Response) => {
         productCategoryID: categoryId,
       },
     });
+
+    if (supplierId) {
+      const supplier = await prisma.supplier.findUnique({
+        where: {
+          id: supplierId,
+        },
+      });
+      if (!supplier) {
+        return res.status(404).json({
+          success: false,
+          errors: [
+            {
+              type: "not found",
+              value: supplierId,
+              msg: "Supplier not found",
+              path: "supplierId",
+              location: "addProduct function",
+            },
+          ],
+        });
+      }
+      const supplierProduct = await prisma.supplierProduct.create({
+        data: {
+          productId: product.id,
+          supplierId: supplier.id,
+          productBrand: product.productBrand,
+          quantity: product.stokeAmount,
+          productName: product.productName,
+          unit: product.unit,
+          remainingDue: product.stokeAmount * product.buyingPrice - paidAmount || 0,
+          paidAmount: paidAmount || 0,
+          totalPrice: product.stokeAmount * product.buyingPrice,
+          shopOwnerId: req.shopOwner.id as string,
+        },
+      });
+
+      if (!supplierProduct) {
+        return res.status(500).json({
+          success: false,
+          errors: [
+            {
+              type: "server error",
+              value: "",
+              msg: "Internal server error",
+              path: "server",
+              location: "addProduct function",
+            },
+          ],
+        });
+      }
+    }
 
     return res.status(200).json({
       success: true,
@@ -143,14 +197,21 @@ const getSingleProduct = async (req: Request, res: Response) => {
   }
 };
 
-
-
 const updateProduct = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     // ! update only stokeAmount, buyingPrice, sellingPrice, unit
-    const { stokeAmount, buyingPrice, sellingPrice, unit, shopOwnerId,productBrand,productName,productCategory,productCategoryID } =
-      req.body as Product;
+    const {
+      stokeAmount,
+      buyingPrice,
+      sellingPrice,
+      unit,
+      shopOwnerId,
+      productBrand,
+      productName,
+      productCategory,
+      productCategoryID,
+    } = req.body as Product;
 
     const oldProduct = await prisma.product.findUnique({
       where: {
@@ -174,7 +235,6 @@ const updateProduct = async (req: Request, res: Response) => {
         productName: productName || oldProduct?.productName,
         productCategory: productCategory || oldProduct?.productCategory,
         productCategoryID: productCategoryID || oldProduct?.productCategoryID,
-        
       },
     });
 
@@ -203,7 +263,7 @@ const updateProduct = async (req: Request, res: Response) => {
 const deleteProduct = async (req: ExtendedRequest, res: Response) => {
   try {
     const { id } = req.params;
-    const  shopOwnerId  = req.shopOwner.id;
+    const shopOwnerId = req.shopOwner.id;
 
     const deletedProduct = await prisma.product.delete({
       where: {
@@ -234,10 +294,10 @@ const deleteProduct = async (req: ExtendedRequest, res: Response) => {
   }
 };
 
-const getSellingProductByDate = async (req: ExtendedRequest, res:Response)=>{
+const getSellingProductByDate = async (req: ExtendedRequest, res: Response) => {
   try {
     const { dateUTC } = req.body as {
-      dateUTC:string
+      dateUTC: string;
     };
     // cash will get of date of today
     const startDate = new Date(dateUTC);
@@ -257,26 +317,26 @@ const getSellingProductByDate = async (req: ExtendedRequest, res:Response)=>{
         product: true,
       },
     });
-const totalSellingPrice = sellingProductsOnThisPeriod.reduce((acc,curr,index)=>{
-  return acc + curr.totalPrice
-},0)
+    const totalSellingPrice = sellingProductsOnThisPeriod.reduce(
+      (acc, curr, index) => {
+        return acc + curr.totalPrice;
+      },
+      0
+    );
     const sellingProducts = {
       totalSellingPrice,
       sellingProductsOnThisPeriod,
       date: dateUTC,
-    }
+    };
 
     return res.status(200).json({
       success: true,
       message: "Selling products on this period",
       sellingProducts,
     });
-
-
   } catch (error) {
-    
-    console.log(error)
-     return res.status(500).json({
+    console.log(error);
+    return res.status(500).json({
       success: false,
       errors: [
         {
@@ -289,7 +349,7 @@ const totalSellingPrice = sellingProductsOnThisPeriod.reduce((acc,curr,index)=>{
       ],
     });
   }
-}
+};
 
 export {
   addProduct,
@@ -297,5 +357,5 @@ export {
   getSingleProduct,
   updateProduct,
   deleteProduct,
-  getSellingProductByDate
+  getSellingProductByDate,
 };

@@ -10,11 +10,11 @@ async function getNextInvoiceId(shopOwnerId: string): Promise<string> {
     update: { lastInvoiceNumber: { increment: 1 } },
     create: {
       shopOwnerId,
-      lastInvoiceNumber: 1
-    }
+      lastInvoiceNumber: 1,
+    },
   });
-  
-  return counter.lastInvoiceNumber.toString().padStart(6, '0');
+
+  return counter.lastInvoiceNumber.toString().padStart(6, "0");
 }
 const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
   try {
@@ -36,7 +36,7 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
 
     const shopOwnerId = req.shopOwner.id;
     let customer = null;
-const invoiceId = await getNextInvoiceId(shopOwnerId); // Get sequential ID
+    const invoiceId = await getNextInvoiceId(shopOwnerId); // Get sequential ID
 
     // Fetch customer if customerId is provided
     if (customerId) {
@@ -74,7 +74,7 @@ const invoiceId = await getNextInvoiceId(shopOwnerId); // Get sequential ID
       sellingPrice: product.sellingPrice,
       unit: product.unit,
     }));
- 
+
     // Create product voicer
     const newProductVoicer = await prisma.productVoicer.create({
       data: {

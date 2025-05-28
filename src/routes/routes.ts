@@ -3,7 +3,7 @@ import {
   deleteShopOwner,
   logIn,
   updateShopOwner,
-  getShopOwnerById
+  getShopOwnerById,
 } from "../controller/shopOwner/shopOwnerController";
 import { Router } from "express";
 import shopOwnerBodyChecker from "../middleware/shopOwner/shopOwnerValidator";
@@ -64,7 +64,6 @@ import {
 import forgetPassword from "../controller/shopOwner/forgetPass";
 import resetPassword from "../controller/shopOwner/resetPassword";
 import checkOtp from "../controller/shopOwner/checkOtp";
-import createPdf from "../utility/pdf";
 import { dailySellingReport } from "../controller/report/dailySellingReport";
 import {
   monthlyCashReport,
@@ -89,7 +88,7 @@ import {
 } from "../controller/category/categoryController";
 
 import { sendMessageToAll } from "../controller/sms/smsController";
-import dashboardReport from "../controller/report/dashboardReport";
+import dashboardReport, { totalInvestment } from "../controller/report/dashboardReport";
 import {
   createNote,
   deleteAllNotes,
@@ -99,10 +98,31 @@ import {
   getSingleNote,
   getUncompletedNotes,
   updateNote,
-  deleteNote
+  deleteNote,
 } from "../controller/note/noteController";
-import { addRawProduct, deleteRawProduct, getAllRawProducts, getRawSingleProduct, updateRawProduct } from "../controller/rawProducts/rawProductController";
-import { createRawCategory, deleteRawCategory, getAllRawCategory, getSingleRawCategory, updateRawCategory } from "../controller/rawCategory/rawCategoryController";
+import {
+  addRawProduct,
+  deleteRawProduct,
+  getAllRawProducts,
+  getRawProductReport,
+  getRawSingleProduct,
+  updateRawProduct,
+  useRawProductForProduction,
+} from "../controller/rawProducts/rawProductController";
+import {
+  createRawCategory,
+  deleteRawCategory,
+  getAllRawCategory,
+  getSingleRawCategory,
+  updateRawCategory,
+} from "../controller/rawCategory/rawCategoryController";
+import {
+  createSupplier,
+  deleteSupplier,
+  getAllSuppliers,
+  getSingleSupplier,
+  updateSupplier,
+} from "../controller/supplier/supplierController";
 
 const router = Router();
 
@@ -129,7 +149,6 @@ router.put("/update-shop-owner/:id", checkValidUser, updateShopOwner);
 router.get("/shop-owner/:id", checkValidUser, getShopOwnerById);
 router.delete("/delete-shop-owner/:id", checkValidUser, deleteShopOwner);
 
-
 /**
  * PRODUCT ROUTES start
  **/
@@ -148,7 +167,11 @@ router.put("/product/:id", checkValidUser, updateProduct);
 
 // delete product
 router.delete("/product/:id", checkValidUser, deleteProduct);
-router.post("/selling-product-by-date", checkValidUser, getSellingProductByDate);
+router.post(
+  "/selling-product-by-date",
+  checkValidUser,
+  getSellingProductByDate
+);
 
 /**
  * PRODUCT ROUTES end
@@ -251,11 +274,15 @@ router.post("/product-voicer", checkValidUser, createProductVoicer);
 router.get(
   "/product-voicers-without-customer",
   checkValidUser,
-  getProductVoicersWithoutCustomer,
+  getProductVoicersWithoutCustomer
 );
 
 router.get("/product-voicer/:customerid", checkValidUser, getAllProductVoicer);
-router.get("/product-voicer/single/:id", checkValidUser, getSingleProductVoicer);
+router.get(
+  "/product-voicer/single/:id",
+  checkValidUser,
+  getSingleProductVoicer
+);
 
 /**
  * createProductVoicer ROUTES end
@@ -325,11 +352,15 @@ router.get(
 );
 
 router.post("/dashboard-report", checkValidUser, dashboardReport);
+router.get(
+  "/dashboard-report-products",
+  checkValidUser,
+  totalInvestment
+);
 
 /**
  * Cash Report ROUTES end
  **/
-
 
 router.get("/product-receive", checkValidUser, getProductReceive);
 router.get("/product-give", checkValidUser, getProductGive);
@@ -366,7 +397,7 @@ router.delete("/notes/delete-all", checkValidUser, deleteAllNotes);
 
 // note routes end
 
-// raw product 
+// raw product
 router.post("/raw-product", checkValidUser, addRawProduct);
 router.get("/raw-product", checkValidUser, getAllRawProducts);
 router.get("/raw-product/:id", checkValidUser, getRawSingleProduct);
@@ -376,9 +407,21 @@ router.delete("/raw-product/:id", checkValidUser, deleteRawProduct);
 //  Raw Category
 router.post("/raw-category", checkValidUser, createRawCategory);
 router.get("/raw-category", checkValidUser, getAllRawCategory);
-router.delete("/raw-category/:id", checkValidUser, deleteRawCategory); 
-router.put("/raw-category/:id", checkValidUser, updateRawCategory );
+router.delete("/raw-category/:id", checkValidUser, deleteRawCategory);
+router.put("/raw-category/:id", checkValidUser, updateRawCategory);
 router.get("/raw-category/:id", checkValidUser, getSingleRawCategory);
+router.put(
+  "/raw-to-production/:id",
+  checkValidUser,
+  useRawProductForProduction
+);
+router.get("/raw-product-history/report", checkValidUser, getRawProductReport);
 
+// Supplier
+router.post("/supplier", checkValidUser, createSupplier);
+router.get("/supplier", checkValidUser, getAllSuppliers);
+router.get("/supplier/:id", checkValidUser, getSingleSupplier);
+router.put("/supplier/:id", checkValidUser, updateSupplier);
+router.delete("/supplier/:id", checkValidUser, deleteSupplier);
 
 export default router;

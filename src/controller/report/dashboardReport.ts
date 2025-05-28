@@ -328,4 +328,41 @@ const dashboardReport = async (req: ExtendedRequest, res: Response) => {
   }
 };
 
+export const totalInvestment = async (req: ExtendedRequest, res: Response) => {
+  try {
+    const products = await prisma.product.findMany({
+      where: {
+        shopOwnerId: req.shopOwner.id,
+      },
+    });
+    const productsWithInvestment = products.map((product) => {
+      return {
+        id: product.id,
+        name: product.productName,
+        stokeAmount: product.stokeAmount,
+        buyingPrice: product.buyingPrice,
+        totalInvestment: product.stokeAmount * product.buyingPrice,
+      };
+    });
+    return res.status(200).json({
+      success: true,
+      data: productsWithInvestment,
+    });
+  } catch (error) {
+    console.log({
+      error,
+    });
+    return res.status(500).json({
+      success: false,
+      errors: [
+        {
+          type: "server error",
+          value: "",
+          msg: "Internal server error",
+        },
+      ],
+    });
+  }
+};
+
 export default dashboardReport;
