@@ -1,0 +1,18 @@
+model Supplier {
+  id               String    @id @default(auto()) @map("_id") @db.ObjectId
+  shopOwnerId      String    @db.ObjectId
+  shopOwner        ShopOwner @relation(fields: [shopOwnerId], references: [id], onDelete: Cascade)
+  name             String
+  phone            String
+  institution      String
+  address          String?
+  totalDue         Float     @default(0) // how much due 
+  totalPaid        Float     @default(0) // total paid
+  totalTransaction Float     @default(0) // totalDue + totalPaid
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  PurchasedHistory PurchasedHistory[]
+
+  Inventory Inventory[]
+}

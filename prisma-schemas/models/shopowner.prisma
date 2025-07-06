@@ -1,0 +1,67 @@
+
+//**************************/
+// Shop Owner Model start
+//**************************/
+
+
+model ShopOwner {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  shopName     String
+  mobile       String   @unique
+  otherMobiles String[] @default([])
+  address      String?
+  pincode      String
+  otp          String?
+  //  relations with product, customer, loneProvider, businessContactInfo model
+  //  shopOwner can have multiple product, customer, loneProvider, businessContactInfo
+
+  // shopOwner can have multiple product
+  products  Product[]
+  // shopOwner can have multiple customer
+  customers Customer[]
+
+  // shopOwner can have multiple loneProvider
+  loneProviders LoneProvider[]
+
+  // shopOwner can have multiple businessContactInfo
+  businessContactInfos BusinessContactInfo[]
+
+  // shopOwner can have multiple customerPaymentHistory
+  customerPaymentHistories CustomerPaymentHistory[]
+  // shopOwner can have multiple lonePaymentHistory
+  lonePaymentHistories     LonePaymentHistory[]
+
+  // shopOwner can have multiple productVoicer
+  productVoicers ProductVoicer[]
+
+  // shopOwner can have multiple sellingProduct
+  sellingProducts SellingProduct[]
+
+  // shopOwner can have multiple cash
+  cashs Cash[]
+
+  cashInHistory  CashInHistory[]
+  cashOutHistory CashOutHistory[]
+  notes          Note[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  SMSPurchase SMSPurchase?
+
+  RawProduct RawProduct[]
+
+  RawCategory RawCategory[]
+
+  Supplier Supplier[]
+
+  RawProductHistory RawProductHistory[]
+
+  PurchasedHistory PurchasedHistory[]
+
+  Inventory Inventory[]
+}
+
+//**************************/
+// Shop Owner Model end
+//**************************/

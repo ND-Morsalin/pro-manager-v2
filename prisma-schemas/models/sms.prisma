@@ -1,0 +1,12 @@
+
+model SMSPurchase {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  shopOwnerId String    @unique @db.ObjectId
+  shopOwner   ShopOwner @relation(fields: [shopOwnerId], references: [id], onDelete: Cascade)
+  smsAmount   Float
+  smsPrice    Float?
+  expireDate  DateTime
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

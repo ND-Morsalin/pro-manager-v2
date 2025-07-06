@@ -1,0 +1,27 @@
+model PurchasedHistory {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  shopOwnerId String    @db.ObjectId
+  shopOwner   ShopOwner @relation(fields: [shopOwnerId], references: [id], onDelete: Cascade)
+  due         Float     @default(0) // how much due 
+  paid        Float     @default(0) // total paid
+  cost        Float     @default(0) // labour cost
+  totalPrice  Float     @default(0) // how much is purchased price paid + due 
+
+  discountType   DiscountType @default(FLAT)
+  discountAmount Float        @default(0)
+  paymentType    PaymentType  @default(CASH)
+
+  supplierId String     @db.ObjectId
+  supplier   Supplier   @relation(fields: [supplierId], references: [id], onDelete: Cascade)
+  Inventory  Inventory?
+}
+
+enum DiscountType {
+  FLAT
+  PERCENTAGE
+}
+
+enum PaymentType {
+  CASH
+  BANK_CHEQUE
+}

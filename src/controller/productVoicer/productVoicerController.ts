@@ -16,6 +16,7 @@ async function getNextInvoiceId(shopOwnerId: string): Promise<string> {
 
   return counter.lastInvoiceNumber.toString().padStart(6, "0");
 }
+
 const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
   try {
     const {
@@ -35,47 +36,100 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
     };
 
     const shopOwnerId = req.shopOwner.id;
-    let customer = null;
-    const invoiceId = await getNextInvoiceId(shopOwnerId); // Get sequential ID
 
-    // Fetch customer if customerId is provided
+    // Get the next invoice ID for tracking purposes
+    const invoiceId = await getNextInvoiceId(shopOwnerId);
+
+    // Try to find customer info if customerId is provided
+    let customer = null;
     if (customerId) {
       customer = await prisma.customer.findUnique({
         where: { id: customerId, shopOwnerId },
       });
-
       if (!customer) {
         return res.status(404).json({
           success: false,
-          errors: [
-            {
-              type: "validation error",
-              msg: "Customer not found",
-              path: "customerId",
-            },
-          ],
+          errors: [{
+            type: "validation error",
+            msg: "Customer not found",
+            path: "customerId",
+          }],
         });
       }
     }
 
-    // Calculate total bill
-    const totalBill = sellingProducts.reduce(
-      (acc, product) => acc + product.totalPrice,
-      0
-    );
+    const sellingProductsData: any[] = []; // Array to hold processed product sales
+    let totalProfit = 0; // Tracks total profit for this sale
+    let totalLoss = 0; // Tracks total loss for this sale
+    let totalBill = 0; // Total bill amount for all products
 
-    // Prepare product data for insertion
-    const sellingProductsData = sellingProducts.map((product) => ({
-      totalPrice: product.sellingPrice * product.quantity,
-      shopOwnerId,
-      productId: product.productId,
-      quantity: product.quantity,
-      productName: product.productName,
-      sellingPrice: product.sellingPrice,
-      unit: product.unit,
-    }));
+    // Loop through each product being sold
+    for (const item of sellingProducts) {
+      const { productId, quantity, sellingPrice, productName, unit } = item;
+      let qtyLeftToSell = quantity; // This helps manage how much more we need to sell from inventory
 
-    // Create product voicer
+      // Fetch inventories for this product in LIFO order (latest entries first)
+      const inventories = await prisma.inventory.findMany({
+        where: { productId, shopOwnerId },
+        orderBy: { createdAt: "desc" },
+      });
+
+      let productProfit = 0; // Tracks profit from this product
+      let productLoss = 0; // Tracks loss from this product
+
+      // Start deducting inventory using LIFO
+      for (const inv of inventories) {
+        if (qtyLeftToSell <= 0) break; // If we've fulfilled the sale, break the loop
+
+        const availableQty = inv.stokeAmount;
+        const sellQty = Math.min(qtyLeftToSell, availableQty); // Max quantity we can sell from this batch
+        const buyingPrice = inv.buyingPrice;
+
+        const priceDiff = sellingPrice - buyingPrice; // Profit/Loss per item
+
+        if (priceDiff >= 0) {
+          productProfit += priceDiff * sellQty; // Accumulate profit
+        } else {
+          productLoss += -priceDiff * sellQty; // Accumulate loss (use -priceDiff to make it positive)
+        }
+
+        // Update inventory to reduce stock
+        await prisma.inventory.update({
+          where: { id: inv.id },
+          data: { stokeAmount: { decrement: sellQty } },
+        });
+
+        qtyLeftToSell -= sellQty; // Decrease remaining quantity to sell
+      }
+
+      totalProfit += productProfit;
+      totalLoss += productLoss;
+
+      totalBill += quantity * sellingPrice; // Calculate total selling price of this product
+
+      // Prepare entry for this sold product
+      sellingProductsData.push({
+        productId,
+        quantity,
+        sellingPrice,
+        totalPrice: quantity * sellingPrice,
+        productName,
+        shopOwnerId,
+        unit,
+      });
+
+      // Update overall product tracking fields
+      await prisma.product.update({
+        where: { id: productId },
+        data: {
+          totalProfit: { increment: productProfit },
+          totalLoss: { increment: productLoss },
+          totalStokeAmount: { decrement: quantity },
+        },
+      });
+    }
+
+    // Create the product voicer record with sale info
     const newProductVoicer = await prisma.productVoicer.create({
       data: {
         customerId: customer?.id || null,
@@ -83,49 +137,24 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
         totalBillAmount: totalBill,
         paidAmount,
         sellingProducts: { create: sellingProductsData },
-
         customerName: customer?.customerName || "anonymous",
         address: customer?.address || "anonymous",
         phone: customer?.phoneNumber || "anonymous",
-
         totalPrice: totalBill,
         beforeDue: customer?.deuAmount || 0,
         labourCost: labourCost || 0,
         nowPaying: paidAmount,
-        remainingDue: customer?.id
-          ? totalBill -
-            paidAmount +
-            customer.deuAmount -
-            (discountAmount || 0) +
-            (labourCost || 0)
+        remainingDue: customer
+          ? totalBill - paidAmount + customer.deuAmount - (discountAmount || 0) + (labourCost || 0)
           : 0,
         shopOwnerName: req.shopOwner.shopName,
         shopOwnerPhone: req.shopOwner.mobile,
-
         discountAmount: discountAmount || 0,
       },
       include: { sellingProducts: true },
     });
-    // Update product stock
-    await Promise.all(
-      sellingProducts.map((product) =>
-        prisma.product.update({
-          where: { id: product.productId },
-          data: { stokeAmount: { decrement: product.quantity } },
-        })
-      )
-    );
 
-    // Handle cash transactions
-    const startTime = new Date(date);
-    startTime.setHours(0, 0, 0, 0);
-
-    const endTime = new Date(date);
-    endTime.setHours(23, 59, 59, 999);
-    const cash = await prisma.cash.findUnique({
-      where: { shopOwnerId, createdAt: { gte: startTime, lte: endTime } },
-    });
-
+    // Prepare the cashIn record
     const cashData = {
       cashInAmount: paidAmount,
       cashInFor: `Product sell to ${customer?.customerName || "quick invoice"}`,
@@ -133,9 +162,11 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
       cashInDate: new Date(date),
     };
 
-    if (cash) {
+    // Update or create cash entry with this income
+    const existingCash = await prisma.cash.findUnique({ where: { shopOwnerId } });
+    if (existingCash) {
       await prisma.cash.update({
-        where: { shopOwnerId, createdAt: { gte: startTime, lte: endTime } },
+        where: { shopOwnerId },
         data: {
           cashBalance: { increment: paidAmount },
           cashInHistory: { create: cashData },
@@ -151,69 +182,68 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
       });
     }
 
-    // Update customer dues
+    // Update customer due and payment history if customer involved
     if (customerId) {
-      const newDueAmount =
-        totalBill - (paidAmount + (discountAmount || 0)) + (labourCost || 0);
+      const newDue = totalBill - (paidAmount + (discountAmount || 0)) + (labourCost || 0);
+
       await prisma.customer.update({
         where: { id: customerId, shopOwnerId },
         data: {
-          deuAmount: { increment: newDueAmount },
+          deuAmount: { increment: newDue },
           customerPaymentHistories: {
             create: {
               paymentAmount: paidAmount,
               paymentStatus: "SHOPOWNERGIVE",
               shopOwnerId,
-              deuAmount: newDueAmount,
+              deuAmount: newDue,
             },
           },
         },
       });
     }
 
-    // Prepare invoice data
-    const invoiceData = {
-      id: newProductVoicer.id,
-      customerName: customer?.customerName || "anonymous",
-      address: customer?.address || "anonymous",
-      phone: customer?.phoneNumber || "anonymous",
-      products: sellingProducts.map((product) => ({
-        ...product,
-        totalProductPrice: product.sellingPrice * product.quantity,
-      })),
-      totalPrice: totalBill,
-      beforeDue: customer?.deuAmount || 0,
-      labourCost: labourCost || 0,
-      nowPaying: paidAmount,
-      remainingDue: customer?.id
-        ? totalBill -
-          paidAmount +
-          customer.deuAmount -
-          (discountAmount || 0) +
-          (labourCost || 0)
-        : "anonymous",
-      shopOwnerName: req.shopOwner.shopName,
-      shopOwnerPhone: req.shopOwner.mobile,
-      date: newProductVoicer.createdAt.toDateString(),
-      invoiceId: invoiceId,
-      discountAmount: discountAmount || 0,
-    };
-
+    // Final response with voicer details
     return res.status(200).json({
       success: true,
       message: "Product voicer created successfully",
-      voicer: invoiceData,
+      voicer: {
+        id: newProductVoicer.id,
+        invoiceId,
+        customerName: customer?.customerName || "anonymous",
+        address: customer?.address || "anonymous",
+        phone: customer?.phoneNumber || "anonymous",
+        products: sellingProductsData,
+        totalPrice: totalBill,
+        beforeDue: customer?.deuAmount || 0,
+        labourCost: labourCost || 0,
+        nowPaying: paidAmount,
+        remainingDue: customer
+          ? totalBill - paidAmount + customer.deuAmount - (discountAmount || 0) + (labourCost || 0)
+          : "anonymous",
+        shopOwnerName: req.shopOwner.shopName,
+        shopOwnerPhone: req.shopOwner.mobile,
+        date: newProductVoicer.createdAt.toDateString(),
+        discountAmount: discountAmount || 0,
+        totalProfit,
+        totalLoss,
+      },
     });
   } catch (error) {
     console.error("Error in createProductVoicer:", error);
     return res.status(500).json({
       success: false,
       errors: [
-        { type: "server error", msg: "Internal server error", path: "server" },
+        {
+          type: "server error",
+          msg: "Internal server error",
+          path: "server",
+        },
       ],
     });
   }
 };
+
+
 const getProductVoicersWithoutCustomer = async (
   req: ExtendedRequest,
   res: Response

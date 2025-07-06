@@ -1,0 +1,60 @@
+
+//**************************/
+// Cash Model start
+//**************************/
+
+model Cash {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  cashBalance Float @default(0)
+
+  cashInHistory  CashInHistory[]
+  cashOutHistory CashOutHistory[]
+
+  // ShopOwner id
+  shopOwner   ShopOwner @relation(fields: [shopOwnerId], references: [id], onDelete: Cascade)
+  shopOwnerId String    @unique @db.ObjectId
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model CashInHistory {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  cashInAmount Float
+  cashInDate   DateTime @default(now())
+  cashInFor    String
+
+  // ShopOwner id
+  shopOwner   ShopOwner @relation(fields: [shopOwnerId], references: [id], onDelete: Cascade)
+  shopOwnerId String    @db.ObjectId
+
+  cash   Cash   @relation(fields: [cashId], references: [id], onDelete: Cascade)
+  cashId String @db.ObjectId
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model CashOutHistory {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  cashOutAmount Float
+  cashOutFor    String
+  cashOutDate   DateTime @default(now())
+
+  // ShopOwner id
+  shopOwner   ShopOwner @relation(fields: [shopOwnerId], references: [id], onDelete: Cascade)
+  shopOwnerId String    @db.ObjectId
+
+  cash   Cash   @relation(fields: [cashId], references: [id], onDelete: Cascade)
+  cashId String @db.ObjectId
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+//**************************/
+// Cash Model end
+//**************************/

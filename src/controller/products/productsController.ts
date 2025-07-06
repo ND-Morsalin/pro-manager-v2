@@ -1,8 +1,9 @@
-import { Product } from "@prisma/client";
-import { Request, Response } from "express";
+import { DiscountType, PaymentType } from "@prisma/client";
+import { Response } from "express";
 import prisma from "../../utility/prisma";
 import qrcode from "qrcode";
 import { ExtendedRequest } from "../../types/types";
+import { AddProductsPayload } from "./products.types";
 
 const addProduct = async (req: ExtendedRequest, res: Response) => {
   try {
@@ -16,30 +17,27 @@ const addProduct = async (req: ExtendedRequest, res: Response) => {
       unit,
       supplierId,
       paidAmount,
-    } = req.body as {
-      productName: string;
-      stokeAmount: number;
-      buyingPrice: number;
-      sellingPrice: number;
-      categoryId: string;
-      productBrand: string;
-      unit: string;
-      supplierId?: string;
-      paidAmount?: number;
-    };
+      discount,
+      cost,
+      discountType,
+      paymentType,
+    } = req.body as AddProductsPayload;
 
     const category = await prisma.category.findUnique({
       where: {
         id: categoryId,
       },
     });
-
+    const totalInvestment = stokeAmount * buyingPrice;
     const product = await prisma.product.create({
       data: {
         productName,
-        stokeAmount,
-        buyingPrice,
-        sellingPrice,
+        totalStokeAmount: stokeAmount,
+        currentSellingPrice: sellingPrice,
+
+        totalProfit: 0,
+        totalLoss: 0,
+        totalInvestment,
         productBrand,
         unit,
         shopOwnerId: req.shopOwner.id as string,
@@ -48,55 +46,250 @@ const addProduct = async (req: ExtendedRequest, res: Response) => {
       },
     });
 
-    if (supplierId) {
-      const supplier = await prisma.supplier.findUnique({
-        where: {
-          id: supplierId,
-        },
+    const supplier = await prisma.supplier.findUnique({
+      where: {
+        id: supplierId,
+      },
+    });
+    if (!supplier) {
+      return res.status(404).json({
+        success: false,
+        errors: [
+          {
+            type: "not found",
+            value: supplierId,
+            msg: "Supplier not found",
+            path: "supplierId",
+            location: "addProduct function",
+          },
+        ],
       });
-      if (!supplier) {
-        return res.status(404).json({
-          success: false,
-          errors: [
-            {
-              type: "not found",
-              value: supplierId,
-              msg: "Supplier not found",
-              path: "supplierId",
-              location: "addProduct function",
-            },
-          ],
-        });
-      }
-      const supplierProduct = await prisma.supplierProduct.create({
-        data: {
-          productId: product.id,
-          supplierId: supplier.id,
-          productBrand: product.productBrand,
-          quantity: product.stokeAmount,
-          productName: product.productName,
-          unit: product.unit,
-          remainingDue: product.stokeAmount * product.buyingPrice - paidAmount || 0,
-          paidAmount: paidAmount || 0,
-          totalPrice: product.stokeAmount * product.buyingPrice,
-          shopOwnerId: req.shopOwner.id as string,
-        },
-      });
+    }
 
-      if (!supplierProduct) {
-        return res.status(500).json({
-          success: false,
-          errors: [
-            {
-              type: "server error",
-              value: "",
-              msg: "Internal server error",
-              path: "server",
-              location: "addProduct function",
+    // calculate discount amount base to totalInvestment
+    let discountAmount = 0;
+    if (discountType === DiscountType.PERCENTAGE) {
+      discountAmount = (totalInvestment * discount) / 100;
+    } else if (discountType === DiscountType.FLAT) {
+      discountAmount = discount;
+    }
+
+    // Purchased history
+    const purchasedHistory = await prisma.purchasedHistory.create({
+      data: {
+        cost,
+        supplierId,
+        discountAmount,
+        discountType,
+        paid: paidAmount,
+        totalPrice: totalInvestment,
+        due: totalInvestment - paidAmount,
+        shopOwnerId: req.shopOwner.id as string,
+        paymentType,
+      },
+    });
+
+    // create inventory
+    const inventory = await prisma.inventory.create({
+      data: {
+        buyingPrice,
+        sellingPrice,
+        stokeAmount,
+        productId: product.id,
+        supplierId,
+        shopOwnerId: req.shopOwner.id as string,
+        purchasedHistoryId: purchasedHistory.id,
+      },
+    });
+
+    // Update Supplier
+    const updateSupplier = await prisma.supplier.update({
+      where: {
+        id: supplierId,
+      },
+      data: {
+        totalDue: {
+          increment: purchasedHistory.due || 0, // increment the total due of supplier
+        },
+        totalPaid: {
+          increment: purchasedHistory.paid || 0, // increment the total paid of supplier
+        },
+        totalTransaction: {
+          increment: totalInvestment, // increment the total transaction of supplier
+        },
+      },
+    });
+
+    // if payment type is CASH then it will reduce CASH balance
+
+    if (paymentType === PaymentType.CASH) {
+      const cash = await prisma.cash.update({
+        where: {
+          shopOwnerId: req.shopOwner.id,
+        },
+        data: {
+          cashBalance: {
+            decrement: paidAmount,
+          },
+          cashOutHistory: {
+            create: {
+              cashOutFor: `Purchased product ${productName} from supplier ${supplier.name}`,
+              shopOwnerId: req.shopOwner.id as string,
+              cashOutAmount: paidAmount,
+              cashOutDate: new Date(),
             },
-          ],
-        });
-      }
+          },
+        },
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Product created successfully",
+      product,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      errors: [
+        {
+          type: "server error",
+          value: "",
+          msg: "Internal server error",
+          path: "server",
+          location: "addProduct function",
+        },
+      ],
+    });
+  }
+};
+
+const updateInventory = async (req: ExtendedRequest, res: Response) => {
+  const { id } = req.params; // product id
+  try {
+    const {
+      stokeAmount,
+      buyingPrice,
+      sellingPrice,
+      supplierId,
+      paidAmount,
+      discount,
+      cost,
+      discountType,
+      paymentType,
+    } = req.body as AddProductsPayload;
+
+    const totalInvestment = stokeAmount * buyingPrice;
+    const product = await prisma.product.update({
+      where: {
+        id,
+      },
+      data: {
+        totalStokeAmount: {
+          increment: stokeAmount,
+        },
+        currentSellingPrice: sellingPrice,
+        totalInvestment: {
+          increment: totalInvestment,
+        },
+      },
+    });
+
+    const supplier = await prisma.supplier.findUnique({
+      where: {
+        id: supplierId,
+      },
+    });
+    if (!supplier) {
+      return res.status(404).json({
+        success: false,
+        errors: [
+          {
+            type: "not found",
+            value: supplierId,
+            msg: "Supplier not found",
+            path: "supplierId",
+            location: "addProduct function",
+          },
+        ],
+      });
+    }
+
+    // calculate discount amount base to totalInvestment
+    let discountAmount = 0;
+    if (discountType === DiscountType.PERCENTAGE) {
+      discountAmount = (totalInvestment * discount) / 100;
+    } else if (discountType === DiscountType.FLAT) {
+      discountAmount = discount;
+    }
+
+    // Purchased history
+    const purchasedHistory = await prisma.purchasedHistory.create({
+      data: {
+        cost,
+        supplierId,
+        discountAmount,
+        discountType,
+        paid: paidAmount,
+        totalPrice: totalInvestment,
+        due: totalInvestment - paidAmount,
+        shopOwnerId: req.shopOwner.id as string,
+        paymentType,
+      },
+    });
+
+    // create inventory
+    const inventory = await prisma.inventory.create({
+      data: {
+        buyingPrice,
+        sellingPrice,
+        stokeAmount,
+        productId: product.id,
+        supplierId,
+        shopOwnerId: req.shopOwner.id as string,
+        purchasedHistoryId: purchasedHistory.id,
+      },
+    });
+
+    // Update Supplier
+    const updateSupplier = await prisma.supplier.update({
+      where: {
+        id: supplierId,
+      },
+      data: {
+        totalDue: {
+          increment: purchasedHistory.due || 0, // increment the total due of supplier
+        },
+        totalPaid: {
+          increment: purchasedHistory.paid || 0, // increment the total paid of supplier
+        },
+        totalTransaction: {
+          increment: totalInvestment, // increment the total transaction of supplier
+        },
+      },
+    });
+
+    // if payment type is CASH then it will reduce CASH balance
+
+    if (paymentType === PaymentType.CASH) {
+      const cash = await prisma.cash.update({
+        where: {
+          shopOwnerId: req.shopOwner.id,
+        },
+        data: {
+          cashBalance: {
+            decrement: paidAmount,
+          },
+          cashOutHistory: {
+            create: {
+              cashOutFor: `Purchased product ${updateProduct.name} from supplier ${supplier.name}`,
+              shopOwnerId: req.shopOwner.id as string,
+              cashOutAmount: paidAmount,
+              cashOutDate: new Date(),
+            },
+          },
+        },
+      });
     }
 
     return res.status(200).json({
@@ -126,6 +319,9 @@ const getAllProducts = async (req: ExtendedRequest, res: Response) => {
       where: {
         shopOwnerId: req.shopOwner.id,
       },
+      include: {
+        inventories: true,
+      },
     });
 
     return res.status(200).json({
@@ -149,13 +345,16 @@ const getAllProducts = async (req: ExtendedRequest, res: Response) => {
   }
 };
 
-const getSingleProduct = async (req: Request, res: Response) => {
+const getSingleProduct = async (req: ExtendedRequest, res: Response) => {
   try {
     const { id } = req.params;
 
     const product = await prisma.product.findUnique({
       where: {
         id: id as string,
+      },
+      include: {
+        inventories: true,
       },
     });
 
@@ -197,44 +396,59 @@ const getSingleProduct = async (req: Request, res: Response) => {
   }
 };
 
-const updateProduct = async (req: Request, res: Response) => {
+const updateProduct = async (req: ExtendedRequest, res: Response) => {
   try {
     const { id } = req.params;
     // ! update only stokeAmount, buyingPrice, sellingPrice, unit
     const {
-      stokeAmount,
-      buyingPrice,
-      sellingPrice,
-      unit,
-      shopOwnerId,
+      categoryId,
       productBrand,
       productName,
-      productCategory,
-      productCategoryID,
-    } = req.body as Product;
+      sellingPrice,
+      unit,
+    } = req.body as Partial<AddProductsPayload>;
 
-    const oldProduct = await prisma.product.findUnique({
-      where: {
-        id,
-        shopOwnerId,
-      },
-    });
+    if (categoryId) {
+      const category = await prisma.category.findUnique({
+        where: {
+          id: categoryId,
+        },
+      });
+
+      const product = await prisma.product.update({
+        where: {
+          id,
+          shopOwnerId: req.shopOwner.id,
+        },
+        data: {
+          // if the value is not provided, it will not be updated
+          currentSellingPrice: sellingPrice,
+          unit: unit,
+          productBrand: productBrand,
+          productName: productName,
+          productCategoryID: categoryId,
+          productCategory: category.category,
+        },
+      });
+
+      return res.status(200).json({
+        success: true,
+        message: "Product updated successfully",
+        product,
+      });
+    }
 
     const product = await prisma.product.update({
       where: {
         id,
-        shopOwnerId,
+        shopOwnerId: req.shopOwner.id,
       },
       data: {
         // if the value is not provided, it will not be updated
-        stokeAmount: stokeAmount || oldProduct?.stokeAmount,
-        buyingPrice: buyingPrice || oldProduct?.buyingPrice,
-        sellingPrice: sellingPrice || oldProduct?.sellingPrice,
-        unit: unit || oldProduct?.unit,
-        productBrand: productBrand || oldProduct?.productBrand,
-        productName: productName || oldProduct?.productName,
-        productCategory: productCategory || oldProduct?.productCategory,
-        productCategoryID: productCategoryID || oldProduct?.productCategoryID,
+        currentSellingPrice: sellingPrice,
+        unit: unit,
+        productBrand: productBrand,
+        productName: productName,
       },
     });
 
@@ -358,4 +572,5 @@ export {
   updateProduct,
   deleteProduct,
   getSellingProductByDate,
+  updateInventory,
 };

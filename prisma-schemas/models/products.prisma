@@ -1,0 +1,207 @@
+//**************************/
+// Product Model start
+//**************************/
+model Product {
+  id          String @id @default(auto()) @map("_id") @db.ObjectId
+  productName String
+
+  // sum of stokeAmount of inventory.//! for reducing the calculation when any product enter o stock then it will increase and when any selling then the total amount will decrease
+  totalStokeAmount Float @default(0)
+
+  // the current price in market //! same 
+  currentSellingPrice Float @default(0)
+
+  // sum of each inventory (buyingPrice x stokeAmount) //! same 
+  totalInvestment Float @default(0)
+
+  // when sell then calculate how much profit are getting  //! same 
+  //? totalSellingAmount = (sellingQuantity * currentSellingPrice)
+  //? totalBuying = (sellingQuantity * buyingPrice)
+  //?* profit = (sellingQuantity * currentSellingPrice) - (sellingQuantity * buyingPrice)
+  //?! loss = (sellingQuantity * buyingPrice) - (sellingQuantity * currentSellingPrice)
+  totalProfit Float @default(0)
+  totalLoss   Float @default(0)
+
+  productCategory   String
+  productCategoryID String
+  productBrand      String
+  unit              String // kg , hali, litter, pic, packate
+  //* need to add shop owner id */
+  shopOwner         ShopOwner @relation(fields: [shopOwnerId], references: [id], onDelete: Cascade)
+  shopOwnerId       String    @db.ObjectId
+
+  // sellingHistory SellingProduct[]
+
+  productGive    ProductGive[]
+  productReceive ProductReceive[]
+  inventories    Inventory[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  SellingProduct SellingProduct?
+}
+
+model Inventory {
+  id           String  @id @default(auto()) @map("_id") @db.ObjectId
+  buyingPrice  Float
+  sellingPrice Float
+  stokeAmount  Float
+  product      Product @relation(fields: [productId], references: [id])
+  productId    String  @db.ObjectId
+
+  supplierId         String?           @db.ObjectId
+  supplier           Supplier?         @relation(fields: [supplierId], references: [id])
+  purchasedHistoryId String?           @unique @db.ObjectId
+  purchasedHistory   PurchasedHistory? @relation(fields: [purchasedHistoryId], references: [id])
+
+  shopOwner   ShopOwner @relation(fields: [shopOwnerId], references: [id], onDelete: Cascade)
+  shopOwnerId String    @db.ObjectId
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+//**************************/
+// Product Model end
+//**************************/
+
+//**************************/
+// Raw Product Model start
+//**************************/
+model RawProduct {
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  name          String
+  quantity      Float
+  buyingPrice   Float
+  sellingPrice  Float
+  rawCategory   String
+  rawCategoryID String    @db.ObjectId
+  brandName     String
+  unit          String // kg , hali, litter, pic, packate
+  //* need to add shop owner id */
+  shopOwner     ShopOwner @relation(fields: [shopOwnerId], references: [id], onDelete: Cascade)
+  shopOwnerId   String    @db.ObjectId
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  RawProductHistory RawProductHistory[]
+}
+
+//**************************/
+// Raw Product Model end
+//**************************/
+
+//**************************/
+// Raw Category Model start
+//**************************/
+
+model RawCategory {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  shopOwner   ShopOwner @relation(fields: [shopOwnerId], references: [id], onDelete: Cascade)
+  shopOwnerId String    @db.ObjectId
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+//**************************/
+// Raw Category Model end
+//**************************/
+
+model Category {
+  id          String @id @default(auto()) @map("_id") @db.ObjectId
+  shopOwnerId String @db.ObjectId
+  category    String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model RawProductHistory {
+  id              String     @id @default(auto()) @map("_id") @db.ObjectId
+  rawProduct      RawProduct @relation(fields: [rawProductId], references: [id], onDelete: Cascade)
+  rawProductId    String     @db.ObjectId
+  shopOwner       ShopOwner  @relation(fields: [shopOwnerId], references: [id], onDelete: Cascade)
+  shopOwnerId     String     @db.ObjectId
+  quantityIn      Float      @default(0) // Stock In
+  quantityOut     Float      @default(0) // Stock Out
+  balance         Float // Running balance after transaction
+  buyingPrice     Float
+  sellingPrice    Float
+  note            String?
+  transactionDate DateTime   @default(now())
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+//**************************/
+// Product Voicer Model start
+//**************************/
+model ProductVoicer {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  totalBillAmount Float
+  paidAmount      Float
+  remainingDue    Float
+  discountAmount  Float?
+  labourCost      Float?
+  dhor            Float?
+
+  customerName   String?
+  address        String?
+  phone          String?
+  totalPrice     Float?
+  beforeDue      Float?
+  nowPaying      Float?
+  shopOwnerName  String?
+  shopOwnerPhone String
+
+  shopOwner   ShopOwner @relation(fields: [shopOwnerId], references: [id], onDelete: Cascade)
+  shopOwnerId String    @db.ObjectId
+
+  customer   Customer? @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  customerId String?   @db.ObjectId
+
+  sellingProducts SellingProduct[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model SellingProduct {
+  id           String @id @default(auto()) @map("_id") @db.ObjectId
+  productName  String
+  sellingPrice Float
+  quantity     Float
+  unit         String
+  totalPrice   Float // sellingPrice * stokeAmount
+
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId String  @unique @db.ObjectId
+
+  // ShopOwner id
+  shopOwner   ShopOwner @relation(fields: [shopOwnerId], references: [id], onDelete: Cascade)
+  shopOwnerId String    @db.ObjectId
+
+  productVoicer   ProductVoicer @relation(fields: [productVoicerId], references: [id], onDelete: Cascade)
+  productVoicerId String        @db.ObjectId
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+//**************************/
+// Product Voicer Model end
+//**************************/
+model InvoiceCounter {
+  id                String @id @default(auto()) @map("_id") @db.ObjectId
+  shopOwnerId       String @unique
+  lastInvoiceNumber Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

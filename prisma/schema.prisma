@@ -3,7 +3,7 @@
 
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["groupBy"]
+  previewFeatures = ["prismaSchemaFolder"]
 }
 
 datasource db {
@@ -11,295 +11,21 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-//**************************/
-// Shop Owner Model start
-//**************************/
-model ShopOwner {
-  id           String   @id @default(auto()) @map("_id") @db.ObjectId
-  shopName     String
-  mobile       String   @unique
-  otherMobiles String[] @default([])
-  address      String?
-  pincode      String
-  otp          String?
-  //  relations with product, customer, loneProvider, businessContactInfo model
-  //  shopOwner can have multiple product, customer, loneProvider, businessContactInfo
-
-  // shopOwner can have multiple product
-  products  Product[]
-  // shopOwner can have multiple customer
-  customers Customer[]
-
-  // shopOwner can have multiple loneProvider
-  loneProviders LoneProvider[]
-
-  // shopOwner can have multiple businessContactInfo
-  businessContactInfos BusinessContactInfo[]
-
-  // shopOwner can have multiple customerPaymentHistory
-  customerPaymentHistories CustomerPaymentHistory[]
-  // shopOwner can have multiple lonePaymentHistory
-  lonePaymentHistories     LonePaymentHistory[]
-
-  // shopOwner can have multiple productVoicer
-  productVoicers ProductVoicer[]
-
-  // shopOwner can have multiple sellingProduct
-  sellingProducts SellingProduct[]
-
-  // shopOwner can have multiple cash
-  cashs Cash[]
-
-  cashInHistory  CashInHistory[]
-  cashOutHistory CashOutHistory[]
-  notes          Note[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  SMSPurchase SMSPurchase?
-
-  RawProduct RawProduct[]
-
-  RawCategory RawCategory[]
-
-  Supplier Supplier[]
-
-  SupplierProduct SupplierProduct[]
-
-  RawProductHistory RawProductHistory[]
-}
-
-//**************************/
-// Shop Owner Model end
-//**************************/
-
-//**************************/
-// Product Model start
-//**************************/
-model Product {
-  id                String    @id @default(auto()) @map("_id") @db.ObjectId
-  productName       String
-  stokeAmount       Float
-  buyingPrice       Float
-  sellingPrice      Float
-  productCategory   String
-  productCategoryID String
-  productBrand      String
-  unit              String // kg , hali, litter, pic, packate
-  //* need to add shop owner id */
-  shopOwner         ShopOwner @relation(fields: [shopOwnerId], references: [id], onDelete: Cascade)
-  shopOwnerId       String    @db.ObjectId
-
-  // sellingHistory SellingProduct[]
-
-  productGive   ProductGive[]
-  productRecive ProductReceive[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  SellingProduct SellingProduct?
-}
-
-//**************************/
-// Product Model end
-//**************************/
-
-//**************************/
-// Raw Product Model start
-//**************************/
-model RawProduct {
-  id            String    @id @default(auto()) @map("_id") @db.ObjectId
-  name          String
-  quantity      Float
-  buyingPrice   Float
-  sellingPrice  Float
-  rawCategory   String
-  rawCategoryID String    @db.ObjectId
-  brandName     String
-  unit          String // kg , hali, litter, pic, packate
-  //* need to add shop owner id */
-  shopOwner     ShopOwner @relation(fields: [shopOwnerId], references: [id], onDelete: Cascade)
-  shopOwnerId   String    @db.ObjectId
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  RawProductHistory RawProductHistory[]
-}
-
-//**************************/
-// Raw Product Model end
-//**************************/
-
-model RawCategory {
-  id          String    @id @default(auto()) @map("_id") @db.ObjectId
-  name        String
-  shopOwner   ShopOwner @relation(fields: [shopOwnerId], references: [id], onDelete: Cascade)
-  shopOwnerId String    @db.ObjectId
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-}
-
-//**************************/
-// Customer Model start
-//**************************/
-model Customer {
-  id           String   @id @default(auto()) @map("_id") @db.ObjectId
-  customerName String
-  phoneNumber  String
-  otherMobiles String[] @default([])
-  address      String
-  deuAmount    Float
-  paidAmount   Float
-  // customer payment history
-
-  // ShopOwner id
-  shopOwner   ShopOwner @relation(fields: [shopOwnerId], references: [id], onDelete: Cascade)
-  shopOwnerId String    @unique @db.ObjectId
-
-  customerPaymentHistories CustomerPaymentHistory[]
-
-  invoiceHistory ProductVoicer[]
-
-  // productGive    ProductGive[]
-  // productReceive ProductReceive[]
-
+model Admin {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  mobile    String   @unique
+  pincode   String
+  role      Role
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
-model CustomerPaymentHistory {
-  id            String        @id @default(auto()) @map("_id") @db.ObjectId
-  paymentAmount Float
-  deuAmount     Float?
-  paymentStatus PaymentStatus
-  paymentDate   DateTime      @default(now())
-  note          String?
-
-  shopOwner   ShopOwner @relation(fields: [shopOwnerId], references: [id], onDelete: Cascade)
-  shopOwnerId String    @db.ObjectId
-
-  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  customerId String   @db.ObjectId
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+enum Role {
+  ADMIN
+  MODERATOR
 }
 
-//**************************/
-// Customer Model end
-//**************************/
-
-//**************************/
-// Product Voicer Model start
-//**************************/
-model ProductVoicer {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
-
-  totalBillAmount Float
-  paidAmount      Float
-  remainingDue    Float
-  discountAmount  Float?
-  labourCost      Float?
-  dhor            Float?
-
-  customerName   String?
-  address        String?
-  phone          String?
-  totalPrice     Float?
-  beforeDue      Float?
-  nowPaying      Float?
-  shopOwnerName  String?
-  shopOwnerPhone String
-
-  shopOwner   ShopOwner @relation(fields: [shopOwnerId], references: [id], onDelete: Cascade)
-  shopOwnerId String    @db.ObjectId
-
-  customer   Customer? @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  customerId String?   @db.ObjectId
-
-  sellingProducts SellingProduct[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model SellingProduct {
-  id           String @id @default(auto()) @map("_id") @db.ObjectId
-  productName  String
-  sellingPrice Float
-  quantity     Float
-  unit         String
-  totalPrice   Float // sellingPrice * stokeAmount
-
-  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-  productId String  @unique @db.ObjectId
-
-  // ShopOwner id
-  shopOwner   ShopOwner @relation(fields: [shopOwnerId], references: [id], onDelete: Cascade)
-  shopOwnerId String    @db.ObjectId
-
-  productVoicer   ProductVoicer @relation(fields: [productVoicerId], references: [id], onDelete: Cascade)
-  productVoicerId String        @db.ObjectId
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-//**************************/
-// Product Voicer Model end
-//**************************/
-model InvoiceCounter {
-  id                String   @id @default(auto()) @map("_id") @db.ObjectId
-  shopOwnerId       String   @unique
-  lastInvoiceNumber Int
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-}
-
-//**************************/
-// Lone Model start
-//**************************/
-model LoneProvider {
-  id               String    @id @default(auto()) @map("_id") @db.ObjectId
-  loneProviderName String
-  phoneNumber      String
-  address          String
-  note             String?
-  loneTakenDate    DateTime
-  totalLoneTaken   Float
-  loneDeuAmount    Float
-  lonePaidAmount   Float
-  // paymentHistory
-  // ShopOwner id
-  shopOwner        ShopOwner @relation(fields: [shopOwnerId], references: [id], onDelete: Cascade)
-  shopOwnerId      String    @db.ObjectId
-
-  lonePaymentHistories LonePaymentHistory[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model LonePaymentHistory {
-  id                String        @id @default(auto()) @map("_id") @db.ObjectId
-  givingAmount      Float
-  lonePaymentStatus PaymentStatus // enum SHOPOWNERRECIVED SHOPOWNERGIVE
-  // shopOwnerId
-  lonePaymentDate   DateTime      @default(now())
-
-  shopOwner      ShopOwner    @relation(fields: [shopOwnerId], references: [id], onDelete: Cascade)
-  shopOwnerId    String       @db.ObjectId
-  note           String?
-  loneProvider   LoneProvider @relation(fields: [loneProviderId], references: [id], onDelete: Cascade)
-  loneProviderId String       @db.ObjectId
-}
-
-//**************************/
-// Lone Model end
-//**************************/
 
 //**************************/
 // Business Contact Info Model start
@@ -320,6 +46,8 @@ model BusinessContactInfo {
 //**************************/
 // Business Contact Info Model end
 //**************************/
+
+
 
 //**************************/
 // Cash Model start
@@ -381,10 +109,331 @@ model CashOutHistory {
 // Cash Model end
 //**************************/
 
+
+
+//**************************/
+// Customer Model start
+//**************************/
+model Customer {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  customerName String
+  phoneNumber  String
+  otherMobiles String[] @default([])
+  address      String
+  deuAmount    Float
+  paidAmount   Float
+  // customer payment history
+
+  // ShopOwner id
+  shopOwner   ShopOwner @relation(fields: [shopOwnerId], references: [id], onDelete: Cascade)
+  shopOwnerId String    @unique @db.ObjectId
+
+  customerPaymentHistories CustomerPaymentHistory[]
+
+  invoiceHistory ProductVoicer[]
+
+  // productGive    ProductGive[]
+  // productReceive ProductReceive[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model CustomerPaymentHistory {
+  id            String        @id @default(auto()) @map("_id") @db.ObjectId
+  paymentAmount Float
+  deuAmount     Float?
+  paymentStatus PaymentStatus
+  paymentDate   DateTime      @default(now())
+  note          String?
+
+  shopOwner   ShopOwner @relation(fields: [shopOwnerId], references: [id], onDelete: Cascade)
+  shopOwnerId String    @db.ObjectId
+
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  customerId String   @db.ObjectId
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+//**************************/
+// Customer Model end
+//**************************/
+
 enum PaymentStatus {
   SHOPOWNERRECIVED
   SHOPOWNERGIVE
 }
+
+
+
+
+//**************************/
+// Lone Model start
+//**************************/
+model LoneProvider {
+  id               String    @id @default(auto()) @map("_id") @db.ObjectId
+  loneProviderName String
+  phoneNumber      String
+  address          String
+  note             String?
+  loneTakenDate    DateTime
+  totalLoneTaken   Float
+  loneDeuAmount    Float
+  lonePaidAmount   Float
+  // paymentHistory
+  // ShopOwner id
+  shopOwner        ShopOwner @relation(fields: [shopOwnerId], references: [id], onDelete: Cascade)
+  shopOwnerId      String    @db.ObjectId
+
+  lonePaymentHistories LonePaymentHistory[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model LonePaymentHistory {
+  id                String        @id @default(auto()) @map("_id") @db.ObjectId
+  givingAmount      Float
+  lonePaymentStatus PaymentStatus // enum SHOPOWNERRECIVED SHOPOWNERGIVE
+  // shopOwnerId
+  lonePaymentDate   DateTime      @default(now())
+
+  shopOwner      ShopOwner    @relation(fields: [shopOwnerId], references: [id], onDelete: Cascade)
+  shopOwnerId    String       @db.ObjectId
+  note           String?
+  loneProvider   LoneProvider @relation(fields: [loneProviderId], references: [id], onDelete: Cascade)
+  loneProviderId String       @db.ObjectId
+}
+
+//**************************/
+// Lone Model end
+//**************************/
+
+
+
+model Note {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  shopOwnerId String    @db.ObjectId
+  shopOwner   ShopOwner @relation(fields: [shopOwnerId], references: [id], onDelete: Cascade)
+  title       String
+  note        String
+  isComplete  Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+
+//**************************/
+// Product Model start
+//**************************/
+model Product {
+  id          String @id @default(auto()) @map("_id") @db.ObjectId
+  productName String
+
+  // sum of stokeAmount of inventory.//! for reducing the calculation when any product enter o stock then it will increase and when any selling then the total amount will decrease
+  totalStokeAmount Float @default(0)
+
+  // the current price in market //! same 
+  currentSellingPrice Float @default(0)
+
+  // sum of each inventory (buyingPrice x stokeAmount) //! same 
+  totalInvestment Float @default(0)
+
+  // when sell then calculate how much profit are getting  //! same 
+  //? totalSellingAmount = (sellingQuantity * currentSellingPrice)
+  //? totalBuying = (sellingQuantity * buyingPrice)
+  //?* profit = (sellingQuantity * currentSellingPrice) - (sellingQuantity * buyingPrice)
+  //?! loss = (sellingQuantity * buyingPrice) - (sellingQuantity * currentSellingPrice)
+  totalProfit Float @default(0)
+  totalLoss   Float @default(0)
+
+  productCategory   String
+  productCategoryID String
+  productBrand      String
+  unit              String // kg , hali, litter, pic, packate
+  //* need to add shop owner id */
+  shopOwner         ShopOwner @relation(fields: [shopOwnerId], references: [id], onDelete: Cascade)
+  shopOwnerId       String    @db.ObjectId
+
+  // sellingHistory SellingProduct[]
+
+  productGive    ProductGive[]
+  productReceive ProductReceive[]
+  inventories    Inventory[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  SellingProduct SellingProduct?
+}
+
+model Inventory {
+  id           String  @id @default(auto()) @map("_id") @db.ObjectId
+  buyingPrice  Float
+  sellingPrice Float
+  stokeAmount  Float
+  product      Product @relation(fields: [productId], references: [id])
+  productId    String  @db.ObjectId
+
+  supplierId         String?           @db.ObjectId
+  supplier           Supplier?         @relation(fields: [supplierId], references: [id])
+  purchasedHistoryId String?           @unique @db.ObjectId
+  purchasedHistory   PurchasedHistory? @relation(fields: [purchasedHistoryId], references: [id])
+
+  shopOwner   ShopOwner @relation(fields: [shopOwnerId], references: [id], onDelete: Cascade)
+  shopOwnerId String    @db.ObjectId
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+//**************************/
+// Product Model end
+//**************************/
+
+//**************************/
+// Raw Product Model start
+//**************************/
+model RawProduct {
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  name          String
+  quantity      Float
+  buyingPrice   Float
+  sellingPrice  Float
+  rawCategory   String
+  rawCategoryID String    @db.ObjectId
+  brandName     String
+  unit          String // kg , hali, litter, pic, packate
+  //* need to add shop owner id */
+  shopOwner     ShopOwner @relation(fields: [shopOwnerId], references: [id], onDelete: Cascade)
+  shopOwnerId   String    @db.ObjectId
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  RawProductHistory RawProductHistory[]
+}
+
+//**************************/
+// Raw Product Model end
+//**************************/
+
+//**************************/
+// Raw Category Model start
+//**************************/
+
+model RawCategory {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  shopOwner   ShopOwner @relation(fields: [shopOwnerId], references: [id], onDelete: Cascade)
+  shopOwnerId String    @db.ObjectId
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+//**************************/
+// Raw Category Model end
+//**************************/
+
+model Category {
+  id          String @id @default(auto()) @map("_id") @db.ObjectId
+  shopOwnerId String @db.ObjectId
+  category    String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model RawProductHistory {
+  id              String     @id @default(auto()) @map("_id") @db.ObjectId
+  rawProduct      RawProduct @relation(fields: [rawProductId], references: [id], onDelete: Cascade)
+  rawProductId    String     @db.ObjectId
+  shopOwner       ShopOwner  @relation(fields: [shopOwnerId], references: [id], onDelete: Cascade)
+  shopOwnerId     String     @db.ObjectId
+  quantityIn      Float      @default(0) // Stock In
+  quantityOut     Float      @default(0) // Stock Out
+  balance         Float // Running balance after transaction
+  buyingPrice     Float
+  sellingPrice    Float
+  note            String?
+  transactionDate DateTime   @default(now())
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+//**************************/
+// Product Voicer Model start
+//**************************/
+model ProductVoicer {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  totalBillAmount Float
+  paidAmount      Float
+  remainingDue    Float
+  discountAmount  Float?
+  labourCost      Float?
+  dhor            Float?
+
+  customerName   String?
+  address        String?
+  phone          String?
+  totalPrice     Float?
+  beforeDue      Float?
+  nowPaying      Float?
+  shopOwnerName  String?
+  shopOwnerPhone String
+
+  shopOwner   ShopOwner @relation(fields: [shopOwnerId], references: [id], onDelete: Cascade)
+  shopOwnerId String    @db.ObjectId
+
+  customer   Customer? @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  customerId String?   @db.ObjectId
+
+  sellingProducts SellingProduct[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model SellingProduct {
+  id           String @id @default(auto()) @map("_id") @db.ObjectId
+  productName  String
+  sellingPrice Float
+  quantity     Float
+  unit         String
+  totalPrice   Float // sellingPrice * stokeAmount
+
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId String  @unique @db.ObjectId
+
+  // ShopOwner id
+  shopOwner   ShopOwner @relation(fields: [shopOwnerId], references: [id], onDelete: Cascade)
+  shopOwnerId String    @db.ObjectId
+
+  productVoicer   ProductVoicer @relation(fields: [productVoicerId], references: [id], onDelete: Cascade)
+  productVoicerId String        @db.ObjectId
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+//**************************/
+// Product Voicer Model end
+//**************************/
+model InvoiceCounter {
+  id                String @id @default(auto()) @map("_id") @db.ObjectId
+  shopOwnerId       String @unique
+  lastInvoiceNumber Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+
 
 model ProductGive {
   id          String  @id @default(auto()) @map("_id") @db.ObjectId
@@ -424,6 +473,105 @@ enum ReceiveGiveStatus {
   PRODUCT_ON_SUPPLIER
 }
 
+
+model PurchasedHistory {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  shopOwnerId String    @db.ObjectId
+  shopOwner   ShopOwner @relation(fields: [shopOwnerId], references: [id], onDelete: Cascade)
+  due         Float     @default(0) // how much due 
+  paid        Float     @default(0) // total paid
+  cost        Float     @default(0) // labour cost
+  totalPrice  Float     @default(0) // how much is purchased price paid + due 
+
+  discountType   DiscountType @default(FLAT)
+  discountAmount Float        @default(0)
+  paymentType    PaymentType  @default(CASH)
+
+  supplierId String     @db.ObjectId
+  supplier   Supplier   @relation(fields: [supplierId], references: [id], onDelete: Cascade)
+  Inventory  Inventory?
+}
+
+enum DiscountType {
+  FLAT
+  PERCENTAGE
+}
+
+enum PaymentType {
+  CASH
+  BANK_CHEQUE
+}
+
+
+
+//**************************/
+// Shop Owner Model start
+//**************************/
+
+
+model ShopOwner {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  shopName     String
+  mobile       String   @unique
+  otherMobiles String[] @default([])
+  address      String?
+  pincode      String
+  otp          String?
+  //  relations with product, customer, loneProvider, businessContactInfo model
+  //  shopOwner can have multiple product, customer, loneProvider, businessContactInfo
+
+  // shopOwner can have multiple product
+  products  Product[]
+  // shopOwner can have multiple customer
+  customers Customer[]
+
+  // shopOwner can have multiple loneProvider
+  loneProviders LoneProvider[]
+
+  // shopOwner can have multiple businessContactInfo
+  businessContactInfos BusinessContactInfo[]
+
+  // shopOwner can have multiple customerPaymentHistory
+  customerPaymentHistories CustomerPaymentHistory[]
+  // shopOwner can have multiple lonePaymentHistory
+  lonePaymentHistories     LonePaymentHistory[]
+
+  // shopOwner can have multiple productVoicer
+  productVoicers ProductVoicer[]
+
+  // shopOwner can have multiple sellingProduct
+  sellingProducts SellingProduct[]
+
+  // shopOwner can have multiple cash
+  cashs Cash[]
+
+  cashInHistory  CashInHistory[]
+  cashOutHistory CashOutHistory[]
+  notes          Note[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  SMSPurchase SMSPurchase?
+
+  RawProduct RawProduct[]
+
+  RawCategory RawCategory[]
+
+  Supplier Supplier[]
+
+  RawProductHistory RawProductHistory[]
+
+  PurchasedHistory PurchasedHistory[]
+
+  Inventory Inventory[]
+}
+
+//**************************/
+// Shop Owner Model end
+//**************************/
+
+
 model SMSPurchase {
   id          String    @id @default(auto()) @map("_id") @db.ObjectId
   shopOwnerId String    @unique @db.ObjectId
@@ -436,70 +584,22 @@ model SMSPurchase {
   updatedAt DateTime @updatedAt
 }
 
-model Category {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  shopOwnerId String   @db.ObjectId
-  category    String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-}
-
-model Note {
-  id          String    @id @default(auto()) @map("_id") @db.ObjectId
-  shopOwnerId String    @db.ObjectId
-  shopOwner   ShopOwner @relation(fields: [shopOwnerId], references: [id], onDelete: Cascade)
-  title       String
-  note        String
-  isComplete  Boolean   @default(false)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-}
 
 model Supplier {
-  id              String            @id @default(auto()) @map("_id") @db.ObjectId
-  shopOwnerId     String            @db.ObjectId
-  shopOwner       ShopOwner         @relation(fields: [shopOwnerId], references: [id], onDelete: Cascade)
-  name            String
-  phone           String
-  institution     String
-  address         String?
-  balance         Float             @default(0)
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
-  SupplierProduct SupplierProduct[]
-}
+  id               String    @id @default(auto()) @map("_id") @db.ObjectId
+  shopOwnerId      String    @db.ObjectId
+  shopOwner        ShopOwner @relation(fields: [shopOwnerId], references: [id], onDelete: Cascade)
+  name             String
+  phone            String
+  institution      String
+  address          String?
+  totalDue         Float     @default(0) // how much due 
+  totalPaid        Float     @default(0) // total paid
+  totalTransaction Float     @default(0) // totalDue + totalPaid
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 
-model SupplierProduct {
-  id           String    @id @default(auto()) @map("_id") @db.ObjectId
-  shopOwnerId  String    @db.ObjectId
-  shopOwner    ShopOwner @relation(fields: [shopOwnerId], references: [id], onDelete: Cascade)
-  productId    String    @db.ObjectId
-  supplier     Supplier  @relation(fields: [supplierId], references: [id], onDelete: Cascade)
-  supplierId   String    @db.ObjectId
-  totalPrice   Float
-  paidAmount   Float
-  productName  String
-  remainingDue Float
-  quantity     Float
-  unit         String
-  productBrand String
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-}
+  PurchasedHistory PurchasedHistory[]
 
-model RawProductHistory {
-  id             String   @id @default(auto()) @map("_id") @db.ObjectId
-  rawProduct     RawProduct @relation(fields: [rawProductId], references: [id], onDelete: Cascade)
-  rawProductId   String   @db.ObjectId
-  shopOwner      ShopOwner @relation(fields: [shopOwnerId], references: [id], onDelete: Cascade)
-  shopOwnerId    String   @db.ObjectId
-  quantityIn     Float    @default(0) // Stock In
-  quantityOut    Float    @default(0) // Stock Out
-  balance        Float    // Running balance after transaction
-  buyingPrice    Float
-  sellingPrice   Float
-  note           String?
-  transactionDate DateTime @default(now())
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  Inventory Inventory[]
 }

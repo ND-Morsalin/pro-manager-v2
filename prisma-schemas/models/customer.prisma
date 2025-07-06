@@ -1,0 +1,55 @@
+
+//**************************/
+// Customer Model start
+//**************************/
+model Customer {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  customerName String
+  phoneNumber  String
+  otherMobiles String[] @default([])
+  address      String
+  deuAmount    Float
+  paidAmount   Float
+  // customer payment history
+
+  // ShopOwner id
+  shopOwner   ShopOwner @relation(fields: [shopOwnerId], references: [id], onDelete: Cascade)
+  shopOwnerId String    @unique @db.ObjectId
+
+  customerPaymentHistories CustomerPaymentHistory[]
+
+  invoiceHistory ProductVoicer[]
+
+  // productGive    ProductGive[]
+  // productReceive ProductReceive[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model CustomerPaymentHistory {
+  id            String        @id @default(auto()) @map("_id") @db.ObjectId
+  paymentAmount Float
+  deuAmount     Float?
+  paymentStatus PaymentStatus
+  paymentDate   DateTime      @default(now())
+  note          String?
+
+  shopOwner   ShopOwner @relation(fields: [shopOwnerId], references: [id], onDelete: Cascade)
+  shopOwnerId String    @db.ObjectId
+
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  customerId String   @db.ObjectId
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+//**************************/
+// Customer Model end
+//**************************/
+
+enum PaymentStatus {
+  SHOPOWNERRECIVED
+  SHOPOWNERGIVE
+}

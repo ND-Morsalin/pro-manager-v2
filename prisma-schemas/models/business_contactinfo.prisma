@@ -1,0 +1,20 @@
+
+//**************************/
+// Business Contact Info Model start
+//**************************/
+model BusinessContactInfo {
+  id           String    @id @default(auto()) @map("_id") @db.ObjectId
+  name         String
+  phoneNumber  String
+  organization String
+  // ShopOwner id
+  shopOwner    ShopOwner @relation(fields: [shopOwnerId], references: [id], onDelete: Cascade)
+  shopOwnerId  String    @db.ObjectId
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+//**************************/
+// Business Contact Info Model end
+//**************************/

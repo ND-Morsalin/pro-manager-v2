@@ -1,0 +1,11 @@
+
+model Note {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  shopOwnerId String    @db.ObjectId
+  shopOwner   ShopOwner @relation(fields: [shopOwnerId], references: [id], onDelete: Cascade)
+  title       String
+  note        String
+  isComplete  Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
