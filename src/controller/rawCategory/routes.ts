@@ -4,8 +4,8 @@ import {
   deleteRawCategory,
   getAllRawCategory,
   getSingleRawCategory,
-  updateRawCategory
-} from "../../controller/rawCategory/rawCategoryController";
+  updateRawCategory,
+} from "./rawCategoryController";
 import checkValidUser from "../../middleware/checkValidUser";
 
 const router = Router();

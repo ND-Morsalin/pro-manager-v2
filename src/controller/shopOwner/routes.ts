@@ -9,10 +9,10 @@ import {
   logIn,
   updateShopOwner,
   getShopOwnerById,
-} from "../../controller/shopOwner/shopOwnerController";
-import forgetPassword from "../../controller/shopOwner/forgetPass";
-import checkOtp from "../../controller/shopOwner/checkOtp";
-import resetPassword from "../../controller/shopOwner/resetPassword";
+} from "./shopOwnerController";
+import forgetPassword from "./forgetPass";
+import checkOtp from "./checkOtp";
+import resetPassword from "./resetPassword";
 
 const router = Router();
 

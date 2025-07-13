@@ -5,8 +5,8 @@ import {
   getAllCustomers,
   getSingleCustomer,
   getSingleCustomerByPhone,
-  updateCustomer
-} from "../../controller/customer/customerController";
+  updateCustomer,
+} from "./customerController";
 import checkValidUser from "../../middleware/checkValidUser";
 
 const router = Router();

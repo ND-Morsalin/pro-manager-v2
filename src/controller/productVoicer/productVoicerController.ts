@@ -49,11 +49,13 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
       if (!customer) {
         return res.status(404).json({
           success: false,
-          errors: [{
-            type: "validation error",
-            msg: "Customer not found",
-            path: "customerId",
-          }],
+          errors: [
+            {
+              type: "validation error",
+              msg: "Customer not found",
+              path: "customerId",
+            },
+          ],
         });
       }
     }
@@ -68,14 +70,15 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
       const { productId, quantity, sellingPrice, productName, unit } = item;
       let qtyLeftToSell = quantity; // This helps manage how much more we need to sell from inventory
 
-      // Fetch inventories for this product in LIFO order (latest entries first)
+      // Fetch inventories for this product in FIFO order (latest entries first)
       const inventories = await prisma.inventory.findMany({
         where: { productId, shopOwnerId },
-        orderBy: { createdAt: "desc" },
+        orderBy: { createdAt: "asc" },
       });
 
       let productProfit = 0; // Tracks profit from this product
       let productLoss = 0; // Tracks loss from this product
+      let investment = 0; // tracks the investment
 
       // Start deducting inventory using LIFO
       for (const inv of inventories) {
@@ -86,6 +89,7 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
         const buyingPrice = inv.buyingPrice;
 
         const priceDiff = sellingPrice - buyingPrice; // Profit/Loss per item
+        investment += buyingPrice * sellQty; // Accumulate investment for this product
 
         if (priceDiff >= 0) {
           productProfit += priceDiff * sellQty; // Accumulate profit
@@ -125,6 +129,9 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
           totalProfit: { increment: productProfit },
           totalLoss: { increment: productLoss },
           totalStokeAmount: { decrement: quantity },
+          totalInvestment: {
+            decrement: investment, // reduce the total investment by the amount sold because we are selling it
+          },
         },
       });
     }
@@ -145,7 +152,11 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
         labourCost: labourCost || 0,
         nowPaying: paidAmount,
         remainingDue: customer
-          ? totalBill - paidAmount + customer.deuAmount - (discountAmount || 0) + (labourCost || 0)
+          ? totalBill -
+            paidAmount +
+            customer.deuAmount -
+            (discountAmount || 0) +
+            (labourCost || 0)
           : 0,
         shopOwnerName: req.shopOwner.shopName,
         shopOwnerPhone: req.shopOwner.mobile,
@@ -163,7 +174,9 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
     };
 
     // Update or create cash entry with this income
-    const existingCash = await prisma.cash.findUnique({ where: { shopOwnerId } });
+    const existingCash = await prisma.cash.findUnique({
+      where: { shopOwnerId },
+    });
     if (existingCash) {
       await prisma.cash.update({
         where: { shopOwnerId },
@@ -184,7 +197,8 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
 
     // Update customer due and payment history if customer involved
     if (customerId) {
-      const newDue = totalBill - (paidAmount + (discountAmount || 0)) + (labourCost || 0);
+      const newDue =
+        totalBill - (paidAmount + (discountAmount || 0)) + (labourCost || 0);
 
       await prisma.customer.update({
         where: { id: customerId, shopOwnerId },
@@ -218,7 +232,11 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
         labourCost: labourCost || 0,
         nowPaying: paidAmount,
         remainingDue: customer
-          ? totalBill - paidAmount + customer.deuAmount - (discountAmount || 0) + (labourCost || 0)
+          ? totalBill -
+            paidAmount +
+            customer.deuAmount -
+            (discountAmount || 0) +
+            (labourCost || 0)
           : "anonymous",
         shopOwnerName: req.shopOwner.shopName,
         shopOwnerPhone: req.shopOwner.mobile,
@@ -242,7 +260,6 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
     });
   }
 };
-
 
 const getProductVoicersWithoutCustomer = async (
   req: ExtendedRequest,

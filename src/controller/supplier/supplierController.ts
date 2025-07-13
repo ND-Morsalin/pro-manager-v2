@@ -5,12 +5,11 @@ import { Supplier } from "@prisma/client";
 
 const createSupplier = async (req: ExtendedRequest, res: Response) => {
   try {
-    const { address, balance, institution, name, phone } = req.body as Supplier;
+    const { address,  institution, name, phone } = req.body as Supplier;
 
     const newSupplier = await prisma.supplier.create({
       data: {
         address,
-        balance,
         institution,
         name,
         phone,
@@ -135,7 +134,7 @@ const getSingleSupplier = async (req: ExtendedRequest, res: Response) => {
 const updateSupplier = async (req: ExtendedRequest, res: Response) => {
   try {
     const { id } = req.params as { id: string };
-    const { address, balance, institution, name, phone } = req.body as Supplier;
+    const { address,  institution, name, phone } = req.body as Supplier;
 
     const supplier = await prisma.supplier.update({
       where: {
@@ -143,7 +142,6 @@ const updateSupplier = async (req: ExtendedRequest, res: Response) => {
       },
       data: {
         address,
-        balance,
         institution,
         name,
         phone,

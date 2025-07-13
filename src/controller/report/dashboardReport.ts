@@ -71,7 +71,7 @@ const dashboardReport = async (req: ExtendedRequest, res: Response) => {
     const totalLossOnThisPeriod = sellingProductsOnThisPeriod.reduce(
       (acc, curr) => {
         return (
-          acc + (curr.quantity * curr.product.buyingPrice - curr.totalPrice)
+          acc + (curr.quantity * curr.product.totalInvestment - curr.totalPrice)
         );
       },
       0

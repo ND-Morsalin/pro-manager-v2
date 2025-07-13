@@ -6,8 +6,8 @@ import {
   getSellingProductByDate,
   getSingleProduct,
   updateInventory,
-  updateProduct
-} from "../../controller/products/productsController";
+  updateProduct,
+} from "./productsController";
 import checkValidUser from "../../middleware/checkValidUser";
 
 const router = Router();

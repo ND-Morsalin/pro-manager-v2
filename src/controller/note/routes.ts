@@ -8,8 +8,8 @@ import {
   getSingleNote,
   getUncompletedNotes,
   updateNote,
-  deleteNote
-} from "../../controller/note/noteController";
+  deleteNote,
+} from "./noteController";
 import checkValidUser from "../../middleware/checkValidUser";
 
 const router = Router();

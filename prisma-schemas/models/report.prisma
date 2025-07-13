@@ -1,0 +1,20 @@
+//**************************/
+// Purchase Report Model start
+//**************************/
+model PurchaseReport {
+  id                String    @id @default(auto()) @map("_id") @db.ObjectId
+  shopOwner         ShopOwner @relation(fields: [shopOwnerId], references: [id], onDelete: Cascade)
+  shopOwnerId       String    @db.ObjectId
+  date              DateTime  // Date of the report (e.g., 2025-07-06 for daily)
+  month             String    // Month name (e.g., "July")
+  year              String    // Year (e.g., "2025")
+  purchaseHistoryIds String[]  @db.ObjectId // Array of PurchasedHistory IDs
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@index([shopOwnerId, date]) // Index for faster queries by shopOwnerId and date
+  @@index([shopOwnerId, month, year]) // Index for faster monthly/yearly queries
+}
+//**************************/
+// Purchase Report Model end
+//**************************/

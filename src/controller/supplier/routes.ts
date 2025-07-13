@@ -4,8 +4,8 @@ import {
   deleteSupplier,
   getAllSuppliers,
   getSingleSupplier,
-  updateSupplier
-} from "../../controller/supplier/supplierController";
+  updateSupplier,
+} from "./supplierController";
 import checkValidUser from "../../middleware/checkValidUser";
 
 const router = Router();

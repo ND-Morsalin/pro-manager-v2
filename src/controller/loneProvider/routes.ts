@@ -4,8 +4,8 @@ import {
   deleteLoneProvider,
   getAllLoneProviders,
   getSingleLoneProvider,
-  updateLoneProvider
-} from "../../controller/loneProvider/loneProviderController";
+  updateLoneProvider,
+} from "./loneProviderController";
 import checkValidUser from "../../middleware/checkValidUser";
 
 const router = Router();

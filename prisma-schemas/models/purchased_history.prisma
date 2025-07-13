@@ -11,9 +11,15 @@ model PurchasedHistory {
   discountAmount Float        @default(0)
   paymentType    PaymentType  @default(CASH)
 
+  productId  String     @db.ObjectId
+  product    Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+
   supplierId String     @db.ObjectId
   supplier   Supplier   @relation(fields: [supplierId], references: [id], onDelete: Cascade)
   Inventory  Inventory?
+
+   createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt 
 }
 
 enum DiscountType {

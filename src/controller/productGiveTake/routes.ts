@@ -10,7 +10,7 @@ import {
   getSingleProductReceive,
   updateProductGive,
   updateProductReceive
-} from "../../controller/productGiveTake/productGiveTake";
+} from "./productGiveTake";
 import checkValidUser from "../../middleware/checkValidUser";
 
 const router = Router();

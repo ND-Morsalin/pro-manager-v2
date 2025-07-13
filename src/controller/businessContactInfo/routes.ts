@@ -4,8 +4,8 @@ import {
   deleteBusinessContactInfo,
   getAllBusinessContactInfo,
   getSingleBusinessContactInfo,
-  updateBusinessContactInfo
-} from "../../controller/businessContactInfo/businessContactInfo";
+  updateBusinessContactInfo,
+} from "./businessContactInfo";
 import checkValidUser from "../../middleware/checkValidUser";
 
 const router = Router();

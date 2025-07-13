@@ -3,7 +3,7 @@
 
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["prismaSchemaFolder"]
+  // previewFeatures = ["prismaSchemaFolder"]
 }
 
 datasource db {
@@ -265,8 +265,8 @@ model Product {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
   SellingProduct SellingProduct?
+  PurchasedHistory PurchasedHistory[]
 }
 
 model Inventory {
@@ -487,9 +487,15 @@ model PurchasedHistory {
   discountAmount Float        @default(0)
   paymentType    PaymentType  @default(CASH)
 
+  productId  String     @db.ObjectId
+  product    Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+
   supplierId String     @db.ObjectId
   supplier   Supplier   @relation(fields: [supplierId], references: [id], onDelete: Cascade)
   Inventory  Inventory?
+
+   createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt 
 }
 
 enum DiscountType {
@@ -502,6 +508,27 @@ enum PaymentType {
   BANK_CHEQUE
 }
 
+
+//**************************/
+// Purchase Report Model start
+//**************************/
+model PurchaseReport {
+  id                String    @id @default(auto()) @map("_id") @db.ObjectId
+  shopOwner         ShopOwner @relation(fields: [shopOwnerId], references: [id], onDelete: Cascade)
+  shopOwnerId       String    @db.ObjectId
+  date              DateTime  // Date of the report (e.g., 2025-07-06 for daily)
+  month             String    // Month name (e.g., "July")
+  year              String    // Year (e.g., "2025")
+  purchaseHistoryIds String[]  @db.ObjectId // Array of PurchasedHistory IDs
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@index([shopOwnerId, date]) // Index for faster queries by shopOwnerId and date
+  @@index([shopOwnerId, month, year]) // Index for faster monthly/yearly queries
+}
+//**************************/
+// Purchase Report Model end
+//**************************/
 
 
 //**************************/
@@ -565,6 +592,9 @@ model ShopOwner {
   PurchasedHistory PurchasedHistory[]
 
   Inventory Inventory[]
+
+
+  PurchaseReport PurchaseReport[]
 }
 
 //**************************/

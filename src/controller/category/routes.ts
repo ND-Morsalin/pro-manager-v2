@@ -2,8 +2,8 @@ import { Router } from "express";
 import {
   createCategory,
   deleteCategory,
-  getAllCategory
-} from "../../controller/category/categoryController";
+  getAllCategory,
+} from "./categoryController";
 import checkValidUser from "../../middleware/checkValidUser";
 
 const router = Router();
