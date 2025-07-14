@@ -1,30 +1,36 @@
-name: Node.js CI/CD flutter-shop-management-api
+name: pro-manager api
 
 on:
   push:
-    branches: ["main"]
+    branches: [ "main" ]
 
 jobs:
   build:
     runs-on: self-hosted
+    
 
     strategy:
       matrix:
-        node-version: [23.5.0]
+        node-version: [23.9.0]
 
     steps:
-      - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+    - name: Check runner user and groups
+      run: |
+        whoami
+        groups
+    # - name: copy .env file
+    #   run: |
+    #     echo "Copying .env file from env secrets"
+    #     echo "${{secrets.ENV_FILE}}" | sed 's/\\n/\n/g' > .env
 
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: "pnpm" # Change cache to pnpm
-
-      - name: pnpm install
-        run: pnpm install
-      - run: pnpm build --if-present
-      - name: Change Directory
-        run: cd /home/api/actions-runner/_work/flutter-shop-management-api/flutter-shop-management-api
-
-      - run: pm2 restart all
+    - name: Set up Docker Compose
+      run: |
+        echo "up docker compose"
+        docker compose up -d --build
+        
