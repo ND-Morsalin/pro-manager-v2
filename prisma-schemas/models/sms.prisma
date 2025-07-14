@@ -1,5 +1,5 @@
-
-model SMSPurchase {
+//  this is one to one relation with shopOwner it i current balance
+model ShopOwnerSMS {
   id          String    @id @default(auto()) @map("_id") @db.ObjectId
   shopOwnerId String    @unique @db.ObjectId
   shopOwner   ShopOwner @relation(fields: [shopOwnerId], references: [id], onDelete: Cascade)
@@ -9,4 +9,28 @@ model SMSPurchase {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+// only create by admin 
+model SMSPackages {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  smsAmount  Float
+  smsPrice   Float?
+  expireDate DateTime
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  SMSOrder SMSOrder[]
+}
+
+model SMSOrder {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  shopOwnerId String    @db.ObjectId
+  shopOwner   ShopOwner @relation(fields: [shopOwnerId], references: [id], onDelete: Cascade)
+
+  smsPackageId String      @db.ObjectId
+  smsPackage   SMSPackages @relation(fields: [smsPackageId], references: [id], onDelete: Cascade)
+  isPaid       Boolean     @default(false)
 }

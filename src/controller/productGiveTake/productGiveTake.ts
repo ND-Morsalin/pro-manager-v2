@@ -30,9 +30,6 @@ const createProductGive = async (req: ExtendedRequest, res: Response) => {
         id: productId,
       },
       data: {
-        stokeAmount: {
-          decrement: amount,
-        },
       },
     });
 
@@ -71,9 +68,7 @@ const createProductReceive = async (req: ExtendedRequest, res: Response) => {
         id: productId,
       },
       data: {
-        stokeAmount: {
-          increment: amount,
-        },
+        
       },
     });
 

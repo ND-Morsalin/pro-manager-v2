@@ -59,56 +59,27 @@ const addRawProduct = async (req: ExtendedRequest, res: Response) => {
       },
     });
     if (supplierId) {
-          const supplier = await prisma.supplier.findUnique({
-            where: {
-              id: supplierId,
+      const supplier = await prisma.supplier.findUnique({
+        where: {
+          id: supplierId,
+        },
+      });
+      if (!supplier) {
+        return res.status(404).json({
+          success: false,
+          errors: [
+            {
+              type: "not found",
+              value: supplierId,
+              msg: "Supplier not found",
+              path: "supplierId",
+              location: "addProduct function",
             },
-          });
-          if (!supplier) {
-            return res.status(404).json({
-              success: false,
-              errors: [
-                {
-                  type: "not found",
-                  value: supplierId,
-                  msg: "Supplier not found",
-                  path: "supplierId",
-                  location: "addProduct function",
-                },
-              ],
-            });
-          }
-          const supplierProduct = await prisma.supplierProduct.create({
-            data: {
-              productId: rawProduct.id,
-              supplierId: supplier.id,
-              productBrand: rawProduct.brandName,
-              quantity: rawProduct.quantity,
-              productName: rawProduct.name,
-              unit: rawProduct.unit,
-              remainingDue: rawProduct.quantity * rawProduct.buyingPrice - paidAmount || 0,
-              paidAmount: paidAmount || 0,
-              totalPrice: rawProduct.quantity * rawProduct.buyingPrice,
-              shopOwnerId: req.shopOwner.id as string,
-            },
-          });
-    
-          if (!supplierProduct) {
-            return res.status(500).json({
-              success: false,
-              errors: [
-                {
-                  type: "server error",
-                  value: "",
-                  msg: "Internal server error",
-                  path: "server",
-                  location: "addProduct function",
-                },
-              ],
-            });
-          }
-        }
-    
+          ],
+        });
+      }
+      
+    }
 
     return res.status(200).json({
       success: true,
@@ -360,7 +331,7 @@ export const createRawProductHistory = async (req: Request, res: Response) => {
     // Get last balance
     const lastEntry = await prisma.rawProductHistory.findFirst({
       where: { rawProductId },
-      orderBy: { transactionDate: 'desc' },
+      orderBy: { transactionDate: "desc" },
     });
 
     const lastBalance = lastEntry?.balance || 0;
@@ -376,14 +347,16 @@ export const createRawProductHistory = async (req: Request, res: Response) => {
         buyingPrice,
         sellingPrice,
         note,
-        transactionDate: transactionDate ? new Date(transactionDate) : new Date(),
+        transactionDate: transactionDate
+          ? new Date(transactionDate)
+          : new Date(),
       },
     });
 
     res.status(201).json({ success: true, data: history });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ success: false, message: 'Internal server error' });
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
 
@@ -394,7 +367,9 @@ export const getRawProductReport = async (req: Request, res: Response) => {
     const { startDate, endDate } = req.body;
 
     if (!shopOwnerId || !startDate || !endDate) {
-      return res.status(400).json({ success: false, message: 'Missing required fields' });
+      return res
+        .status(400)
+        .json({ success: false, message: "Missing required fields" });
     }
 
     const reports = await prisma.rawProductHistory.findMany({
@@ -405,7 +380,7 @@ export const getRawProductReport = async (req: Request, res: Response) => {
           lte: new Date(endDate),
         },
       },
-      orderBy: { transactionDate: 'asc' },
+      orderBy: { transactionDate: "asc" },
       include: {
         rawProduct: true,
       },
@@ -414,7 +389,7 @@ export const getRawProductReport = async (req: Request, res: Response) => {
     res.status(200).json({ success: true, data: reports });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ success: false, message: 'Failed to get report' });
+    res.status(500).json({ success: false, message: "Failed to get report" });
   }
 };
 export {
@@ -426,7 +401,10 @@ export {
 };
 
 // raw product to production it will only reduce the quantity of raw product
-export const useRawProductForProduction = async (req: ExtendedRequest, res: Response) => {
+export const useRawProductForProduction = async (
+  req: ExtendedRequest,
+  res: Response
+) => {
   try {
     const { rawProductId, quantity } = req.body as {
       rawProductId: string;

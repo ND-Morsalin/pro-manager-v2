@@ -28,10 +28,10 @@ const dashboardReport = async (req: ExtendedRequest, res: Response) => {
     }, 0);
 
     const totalProfit = sellingProducts.reduce((acc, curr) => {
-      return acc + (curr.totalPrice - curr.quantity * curr.product.buyingPrice);
+      return acc +  curr.product.totalProfit;
     }, 0);
     const totalLoss = sellingProducts.reduce((acc, curr) => {
-      return acc + (curr.quantity * curr.product.buyingPrice - curr.totalPrice);
+      return acc +  curr.product.totalLoss;
     }, 0);
 
     const sellingProductsOnThisPeriod = await prisma.sellingProduct.findMany({
@@ -54,19 +54,7 @@ const dashboardReport = async (req: ExtendedRequest, res: Response) => {
       0
     );
 
-    const totalProfitOnThisPeriod = sellingProductsOnThisPeriod.reduce(
-      (acc, curr) => {
-        console.log({
-          totalPrice: curr.totalPrice,
-          quantity: curr.quantity,
-          buyingPrice: curr.product.buyingPrice
-        })
-        return (
-          acc + (curr.totalPrice - curr.quantity * curr.product.buyingPrice)
-        );
-      },
-      0
-    );
+ 
 
     const totalLossOnThisPeriod = sellingProductsOnThisPeriod.reduce(
       (acc, curr) => {
@@ -80,7 +68,7 @@ const dashboardReport = async (req: ExtendedRequest, res: Response) => {
     const numberOfProductOnStock = await prisma.product.count({
       where: {
         shopOwnerId: req.shopOwner.id,
-        stokeAmount: {
+        totalStokeAmount: {
           gt: 0,
         },
       },
@@ -88,7 +76,7 @@ const dashboardReport = async (req: ExtendedRequest, res: Response) => {
     const numberOfProductOnStockOnThisPeriod = await prisma.product.count({
       where: {
         shopOwnerId: req.shopOwner.id,
-        stokeAmount: {
+        totalStokeAmount: {
           gt: 0,
         },
         createdAt: {
@@ -101,7 +89,7 @@ const dashboardReport = async (req: ExtendedRequest, res: Response) => {
     const numberOfProductOutOfStockOnThisPeriod = await prisma.product.count({
       where: {
         shopOwnerId: req.shopOwner.id,
-        stokeAmount: {
+        totalStokeAmount: {
           lte: 0,
         },
         createdAt: {
@@ -114,7 +102,7 @@ const dashboardReport = async (req: ExtendedRequest, res: Response) => {
     const numberOfProductOutOfStock = await prisma.product.count({
       where: {
         shopOwnerId: req.shopOwner.id,
-        stokeAmount: {
+        totalStokeAmount: {
           lte: 0,
         },
       },
@@ -208,7 +196,7 @@ const dashboardReport = async (req: ExtendedRequest, res: Response) => {
     });
 
     const totalInvestmentAmount = totalInvestment.reduce((acc, curr) => {
-      return acc + curr.buyingPrice * curr.stokeAmount;
+      return acc + curr.totalInvestment;
     }, 0);
     const totalInvestmentOnThisPeriod = await prisma.product.findMany({
       where: {
@@ -222,7 +210,7 @@ const dashboardReport = async (req: ExtendedRequest, res: Response) => {
 
     const totalInvestmentAmountPeriod = totalInvestmentOnThisPeriod.reduce(
       (acc, curr) => {
-        return acc + curr.buyingPrice * curr.stokeAmount;
+        return acc + curr.totalInvestment;
       },
       0
     );
@@ -288,7 +276,6 @@ const dashboardReport = async (req: ExtendedRequest, res: Response) => {
         totalCashOutOnThisPeriod,
         sellingProductsCountOnThisPeriod: sellingProductsOnThisPeriod.length,
         sellingProductsOnThisPeriod,
-        totalProfitOnThisPeriod,
         totalLossOnThisPeriod:
           totalLossOnThisPeriod > 0 ? totalLossOnThisPeriod : 0,
         numberOfProductOnStock,
@@ -339,9 +326,8 @@ export const totalInvestment = async (req: ExtendedRequest, res: Response) => {
       return {
         id: product.id,
         name: product.productName,
-        stokeAmount: product.stokeAmount,
-        buyingPrice: product.buyingPrice,
-        totalInvestment: product.stokeAmount * product.buyingPrice,
+        stokeAmount: product.totalStokeAmount,
+        totalInvestment: product.totalInvestment,
       };
     });
     return res.status(200).json({

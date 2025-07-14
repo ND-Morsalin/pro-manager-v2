@@ -1,8 +1,6 @@
-
 //**************************/
 // Shop Owner Model start
 //**************************/
-
 
 model ShopOwner {
   id           String   @id @default(auto()) @map("_id") @db.ObjectId
@@ -12,6 +10,7 @@ model ShopOwner {
   address      String?
   pincode      String
   otp          String?
+  smsBalance   Int      @default(0)
   //  relations with product, customer, loneProvider, businessContactInfo model
   //  shopOwner can have multiple product, customer, loneProvider, businessContactInfo
 
@@ -47,7 +46,7 @@ model ShopOwner {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  SMSPurchase SMSPurchase?
+  shopOwnerSMS ShopOwnerSMS?
 
   RawProduct RawProduct[]
 
@@ -61,8 +60,9 @@ model ShopOwner {
 
   Inventory Inventory[]
 
-
   PurchaseReport PurchaseReport[]
+
+  SMSOrder SMSOrder[]
 }
 
 //**************************/

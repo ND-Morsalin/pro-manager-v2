@@ -62,7 +62,7 @@ const CreateShopOwner = async (req: Request, res: Response) => {
     },
   });
 
-  const SMSPurchase = await prisma.sMSPurchase.create({
+  const SMSPurchase = await prisma.shopOwnerSMS.create({
     data: {
       shopOwnerId: shopOwner.id,
       // from creating date to 30 days
