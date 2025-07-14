@@ -7,7 +7,7 @@
     "postinstall": "prisma generate",
     "gps": "ts-node prisma-schemas/merge-schema.ts",
     "pg": "ts-node prisma-schemas/merge-schema.ts && prisma generate",
-    "build": "prisma generate && tsc",
+    "build": "pnpm pg && prisma generate && tsc",
     "copy-files": "copyfiles -u 1 src/**/*.hbs dist/",
     "dev": "nodemon",
     "start": "node dist/index.js",
