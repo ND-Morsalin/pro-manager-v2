@@ -2,7 +2,7 @@ import prisma from "./prisma";
 
 // Helper function to get or create dashboard for a specific date
 export async function getOrCreateDashboard(shopOwnerId: string, date: Date) {
-  const dateStr = date.toISOString().split('T')[0];
+  const dateStr = date.toISOString();
   const year = date.getFullYear().toString();
   const month = date.toLocaleString('default', { month: 'long' });
 
@@ -10,7 +10,10 @@ export async function getOrCreateDashboard(shopOwnerId: string, date: Date) {
   let dashboard = await prisma.dashboard.findFirst({
     where: {
       shopOwnerId,
-      date: dateStr
+      date: {
+        lt: new Date(dateStr),
+        gte: new Date(dateStr + 'T00:00:00.000Z')
+      }
     }
   });
 
