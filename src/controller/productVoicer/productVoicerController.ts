@@ -2,6 +2,7 @@ import { Response } from "express";
 import { ExtendedRequest } from "../../types/types";
 import { SellingProduct } from "@prisma/client";
 import prisma from "../../utility/prisma";
+import { getOrCreateDashboard } from "../../utility/getOrCreateDashboard";
 
 // Atomic increment for MongoDB
 async function getNextInvoiceId(shopOwnerId: string): Promise<string> {
@@ -64,6 +65,8 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
     let totalProfit = 0; // Tracks total profit for this sale
     let totalLoss = 0; // Tracks total loss for this sale
     let totalBill = 0; // Total bill amount for all products
+    let totalInvestment = 0;
+    let totalProductsSold = 0;
 
     // Loop through each product being sold
     for (const item of sellingProducts) {
@@ -108,9 +111,10 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
 
       totalProfit += productProfit;
       totalLoss += productLoss;
+      totalInvestment += investment;
+      totalProductsSold += quantity;
 
       totalBill += quantity * sellingPrice; // Calculate total selling price of this product
-
       // Prepare entry for this sold product
       sellingProductsData.push({
         productId,
@@ -134,7 +138,37 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
           },
         },
       });
+
+      // update dashboard data
     }
+
+    // Update Dashboard for the specific date
+    const saleDate = new Date(date);
+    const dashboard = await getOrCreateDashboard(shopOwnerId, saleDate);
+    await prisma.dashboard.update({
+      where: {
+        id: dashboard.id,
+      },
+      data: {
+        totalProfit: { increment: totalProfit },
+        totalLosses: { increment: totalLoss },
+        totalProductsSold: { increment: totalProductsSold },
+        totalInvoices: { increment: 1 },
+        totalInvestments: { decrement: totalInvestment },
+        totalDueFromCustomers: customer
+          ? {
+              increment:
+                totalBill -
+                paidAmount -
+                (discountAmount || 0) +
+                (labourCost || 0),
+            }
+          : { increment: 0 },
+        totalProductsOnStock: { decrement: totalProductsSold },
+        totalSales: { increment: totalBill },
+        totalOrders: { increment: 1 },
+      },
+    });
 
     // Create the product voicer record with sale info
     const newProductVoicer = await prisma.productVoicer.create({

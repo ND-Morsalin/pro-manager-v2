@@ -63,6 +63,8 @@ model ShopOwner {
   PurchaseReport PurchaseReport[]
 
   SMSOrder SMSOrder[]
+
+  Dashboard Dashboard[]
 }
 
 //**************************/

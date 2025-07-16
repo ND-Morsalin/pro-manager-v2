@@ -4,6 +4,7 @@ import prisma from "../../utility/prisma";
 import qrcode from "qrcode";
 import { ExtendedRequest } from "../../types/types";
 import { AddProductsPayload } from "./products.types";
+import { getOrCreateDashboard } from "../../utility/getOrCreateDashboard";
 
 const addProduct = async (req: ExtendedRequest, res: Response) => {
   try {
@@ -101,6 +102,19 @@ const addProduct = async (req: ExtendedRequest, res: Response) => {
         shopOwnerId: req.shopOwner.id as string,
         purchasedHistoryId: purchasedHistory.id,
       },
+    });
+     // Update Dashboard
+    const currentDate = new Date();
+   const dashboard =  await getOrCreateDashboard(req.shopOwner.id, currentDate);
+    await prisma.dashboard.update({
+      where: {
+        id: dashboard.id,
+      },
+      data: {
+        totalProductsOnStock: { increment: stokeAmount },
+        totalDueToSuppliers: { increment: totalInvestment - paidAmount },
+        totalInvestments: { increment: totalInvestment }
+      }
     });
 
     // Update Supplier
@@ -264,6 +278,19 @@ const updateInventory = async (req: ExtendedRequest, res: Response) => {
         shopOwnerId: req.shopOwner.id as string,
         purchasedHistoryId: purchasedHistory.id,
       },
+    });
+  // Update Dashboard
+    const currentDate = new Date();
+   const dashboard =  await getOrCreateDashboard(req.shopOwner.id, currentDate);
+    await prisma.dashboard.update({
+      where: {
+        id: dashboard.id,
+      },
+      data: {
+        totalProductsOnStock: { increment: stokeAmount },
+        totalDueToSuppliers: { increment: totalInvestment - paidAmount },
+        totalInvestments: { increment: totalInvestment }
+      }
     });
 
     // Update Supplier

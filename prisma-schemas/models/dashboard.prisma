@@ -1,0 +1,38 @@
+//**************************/
+// Dashboard  Model start
+//**************************/
+model Dashboard {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  shopOwner   ShopOwner @relation(fields: [shopOwnerId], references: [id], onDelete: Cascade)
+  shopOwnerId String    @db.ObjectId  // Reference to the shop owner
+  date        DateTime // Date of the report (e.g., 2025-07-06 for daily)
+  month       String // Month name (e.g., "July")
+  year        String // Year (e.g., "2025")
+
+  totalSales        Float @default(0) // Total sales amount for the day/month
+  totalOrders       Int   @default(0) // Total number of orders for the day/month
+  totalCustomers    Int   @default(0) // Total number of unique customers for the day/month
+  totalProductsSold Int   @default(0) // Total number of products sold for the day/month
+
+  totalLosses Float @default(0) // Total losses incurred for the day/month
+  totalProfit Float @default(0) // Total profit made for the day/month
+
+  totalInvoices Int @default(0) // Total number of invoices generated for the day/month
+
+  totalInvestments Float @default(0) // Total investments made for the day/month
+
+  totalDueFromCustomers Float @default(0) // Total amount due from customers for the day/month
+  totalDueToSuppliers   Float @default(0) // Total amount due to suppliers for  the day/month
+
+  totalProductsOnStock Int @default(0) // Total number of products in stock for the day/month
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([shopOwnerId, date]) // Index for faster queries by shopOwnerId and date
+  @@index([shopOwnerId, month, year]) // Index for faster monthly/yearly queries
+}
+
+//**************************/
+// Dashboard  Model end
+//**************************/
