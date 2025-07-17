@@ -14,42 +14,16 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-
-      - name: Install pnpm
-        run: npm install -g pnpm
-
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           cache: "pnpm"
-          cache-dependency-path: pnpm-lock.yaml
-
-      - name: Cache node_modules
-        id: cache-node-modules
-        uses: actions/cache@v4
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-node-${{ hashFiles('pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-
-      - name: Install Dependencies
-        if: steps.cache-node-modules.outputs.cache-hit != 'true'
-        run: pnpm install
-
       - name: Check runner user and groups
         run: |
           whoami
           groups
-
-      - name: Debug filesystem
-        run: |
-          pwd
-          ls -la
-          find . -type d
-
-      # - name: Copy .env file
+      # - name: copy .env file
       #   run: |
       #     echo "Copying .env file from env secrets"
       #     echo "${{secrets.ENV_FILE}}" | sed 's/\\n/\n/g' > .env
