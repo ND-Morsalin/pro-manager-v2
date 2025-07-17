@@ -270,15 +270,15 @@ const finalExpireDate = baseDate.clone().add(smsPackage.expireDays, 'days').toDa
 //     const baseDate = max([shopOwnerSms?.expireDate ?? today, today]);
 // const finalExpireDate = addDays(baseDate, smsPackage.expireDays);
 
-    const updatedShopOwnerSms = await prisma.shopOwnerSMS.update({
+    const updatedShopOwnerSms = await prisma.shopOwnerSMS.findUnique({
       where: { shopOwnerId: paidSmsOrder.shopOwnerId },
-      data: {
-        smsAmount: {
-          increment: smsPackage.smsAmount,
-        },
-        expireDate: finalExpireDate,
-        smsPrice: smsPackage.smsPrice,
-      },
+      // data: {
+      //   smsAmount: {
+      //     increment: smsPackage.smsAmount,
+      //   },
+      //   expireDate: finalExpireDate,
+      //   smsPrice: smsPackage.smsPrice,
+      // },
     });
 
     return res.status(200).json({
