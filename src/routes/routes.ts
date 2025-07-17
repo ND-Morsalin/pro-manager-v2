@@ -15,6 +15,7 @@ import rawCategoriesRouter from "../controller/rawCategory/routes";
 import suppliersRouter from "../controller/supplier/routes";
 import reportsRouter from "../controller/report/routes";
 import dashboardRouter from "../controller/dashboard/dashboard.routes";
+import { adminRoutes } from "../controller/admin/admin.routes";
 const router = Router();
 
 router.use("/auth", authRouter);
@@ -34,5 +35,6 @@ router.use("/notes", notesRouter);
 router.use("/raw-categories", rawCategoriesRouter);
 router.use("/suppliers", suppliersRouter);
 router.use("/dashboard", dashboardRouter);
+router.use("/admin", adminRoutes);
 
 export default router;

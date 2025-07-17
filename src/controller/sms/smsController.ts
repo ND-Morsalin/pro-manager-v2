@@ -1,8 +1,9 @@
 import axios from "axios";
 import { Response } from "express";
-import { ExtendedRequest } from "types/types";
+import { ExtendedRequest } from "../../types/types";
+import prisma from "../../utility/prisma";
 
-const sendMessageToAll = async (req: ExtendedRequest, res: Response) => {
+export const sendMessageToAll = async (req: ExtendedRequest, res: Response) => {
   try {
     const { numbers, message } = req.body as {
       message: string;
@@ -41,5 +42,229 @@ const sendMessageToAll = async (req: ExtendedRequest, res: Response) => {
     });
   }
 };
+export const createSMSPackage = async (req: ExtendedRequest, res: Response) => {
+  try {
+    const { expireDays, packageName, smsAmount, smsPrice } = req.body as {
+      packageName: string;
+      smsAmount: number;
+      smsPrice: number;
+      expireDays: number;
+    };
 
-export { sendMessageToAll };
+    if (!expireDays || !packageName || !smsAmount || !smsPrice) {
+      return res.status(403).json({
+        success: false,
+        errors: [
+          {
+            type: "expireDays, packageName, smsAmount, smsPrice all field is required",
+            msg: " expireDays, packageName, smsAmount, smsPrice all field is required ",
+            path: "createSMSPackage",
+          },
+        ],
+      });
+    }
+
+    const smsPackage = await prisma.sMSPackages.create({
+      data: {
+        expireDays,
+        packageName,
+        smsAmount,
+        smsPrice,
+      },
+    });
+    return res.status(200).json({
+      success: true,
+      data: smsPackage,
+    });
+  } catch (error) {
+    console.error("Error in createProductVoicer:", error);
+    return res.status(500).json({
+      success: false,
+      errors: [
+        {
+          type: "server error",
+          msg: "Internal server error",
+          path: "createSMSPackage",
+        },
+      ],
+    });
+  }
+};
+
+export const getAllSmsPackages = async (
+  req: ExtendedRequest,
+  res: Response
+) => {
+  try {
+    const smsPackages = await prisma.sMSPackages.findMany();
+    return res.status(200).json({
+      success: true,
+      data: smsPackages,
+    });
+  } catch (error) {
+    console.error("Error in createProductVoicer:", error);
+    return res.status(500).json({
+      success: false,
+      errors: [
+        {
+          type: "server error",
+          msg: "Internal server error",
+          path: "createSMSPackage",
+        },
+      ],
+    });
+  }
+};
+
+export const orderSms = async (req: ExtendedRequest, res: Response) => {
+  try {
+    const { smsPackageId } = req.body as {
+      smsPackageId: string;
+    };
+
+    const smsOrder = await prisma.sMSOrder.create({
+      data: {
+        shopOwnerId: req.shopOwner.id,
+        smsPackageId,
+      },
+    });
+
+    return res.status(200).json({
+      success: true,
+      data: smsOrder,
+    });
+  } catch (error) {
+    console.error("Error in createProductVoicer:", error);
+    return res.status(500).json({
+      success: false,
+      errors: [
+        {
+          type: "server error",
+          msg: "Internal server error",
+          path: "createSMSPackage",
+        },
+      ],
+    });
+  }
+};
+
+export const getAllUnpaidOrdersSms = async (
+  req: ExtendedRequest,
+  res: Response
+) => {
+  try {
+    const allSmsOrders = await prisma.sMSOrder.findMany({
+      where: { isPaid: false },
+    });
+    return res.status(200).json({
+      success: true,
+      data: allSmsOrders,
+    });
+  } catch (error) {
+    console.error("Error in createProductVoicer:", error);
+    return res.status(500).json({
+      success: false,
+      errors: [
+        {
+          type: "server error",
+          msg: "Internal server error",
+          path: "createSMSPackage",
+        },
+      ],
+    });
+  }
+};
+
+export const getAllPaidOrdersSms = async (
+  req: ExtendedRequest,
+  res: Response
+) => {
+  try {
+    const allSmsOrders = await prisma.sMSOrder.findMany({
+      where: { isPaid: true },
+    });
+    return res.status(200).json({
+      success: true,
+      data: allSmsOrders,
+    });
+  } catch (error) {
+    console.error("Error in createProductVoicer:", error);
+    return res.status(500).json({
+      success: false,
+      errors: [
+        {
+          type: "server error",
+          msg: "Internal server error",
+          path: "createSMSPackage",
+        },
+      ],
+    });
+  }
+};
+
+export const confirmOrder = async (req: ExtendedRequest, res: Response) => {
+  try {
+    const smsOrderId = req.params.smsOrderId as string;
+    console.log({ smsOrderId: req.params });
+
+    const isPaid = await prisma.sMSOrder.findUnique({
+      where: { id: smsOrderId, isPaid: true },
+    });
+
+    if (isPaid) {
+      return res.status(203).json({
+        success: true,
+        message: "This order is already paid",
+        data: isPaid,
+      });
+    }
+
+    const smsPackage = await prisma.sMSPackages.findUnique({
+      where: { id: isPaid?.smsPackageId },
+    });
+
+    if (!smsPackage) {
+      return res.status(404).json({
+        success: false,
+        message: "SMS package not found",
+        data: null,
+      });
+    }
+
+    const paidSmsOrder = await prisma.sMSOrder.update({
+      where: {
+        id: smsOrderId,
+      },
+      data: {
+        isPaid: true,
+      },
+    });
+
+    const shopOwner = await prisma.shopOwnerSMS.update({
+      where: { id: paidSmsOrder.shopOwnerId },
+      data: {
+        smsAmount: {
+          increment: smsPackage.smsAmount,
+        },
+      },
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Order confirmed successfully",
+      data: paidSmsOrder,
+    });
+  } catch (error) {
+    console.error("Error in confirmOrder:", error);
+    return res.status(500).json({
+      success: false,
+      errors: [
+        {
+          type: "server error",
+          msg: "Internal server error",
+          path: "confirmOrder",
+        },
+      ],
+    });
+  }
+};

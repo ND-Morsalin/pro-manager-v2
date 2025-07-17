@@ -660,10 +660,10 @@ model ShopOwnerSMS {
 // only create by admin 
 model SMSPackages {
   id String @id @default(auto()) @map("_id") @db.ObjectId
-
+  packageName String
   smsAmount  Float
-  smsPrice   Float?
-  expireDate DateTime
+  smsPrice   Float
+  expireDays Int
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

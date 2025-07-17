@@ -1,4 +1,4 @@
-import express from "express";
+import express, { ErrorRequestHandler, NextFunction, Request, Response } from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import router from "./routes/routes";
@@ -37,7 +37,7 @@ app.use("/public", express.static("public"));
 
 
 // test route
-app.get("/test", async (req, res) => {
+app.get("/", async (req, res) => {
   /*  await prisma.user.create({
         data: {
           name: 'Rich',
@@ -60,5 +60,18 @@ app.get("/test", async (req, res) => {
       console.dir(allUsers, { depth: null }) */
       return res.json({ success: true, message: "test successful" });
 });
-
+// global error handler
+app.use((err:ErrorRequestHandler, req:Request, res:Response, next:NextFunction) => {
+  console.error(err);
+  
+ return res.status(500).json({
+    success: false,
+    errors: [
+      {
+        type: "server error",
+        msg: "Internal server error",
+      },
+    ],
+  });
+});
 export default app;
