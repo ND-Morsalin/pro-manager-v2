@@ -5,17 +5,22 @@ export async function getOrCreateDashboard(shopOwnerId: string, date: Date) {
   const dateStr = date.toISOString();
   const year = date.getFullYear().toString();
   const month = date.toLocaleString('default', { month: 'long' });
+  
+const startOfDay = new Date(date);
+startOfDay.setHours(0, 0, 0, 0);
 
-  // Check if dashboard exists for the date
-  let dashboard = await prisma.dashboard.findFirst({
-    where: {
-      shopOwnerId,
-      date: {
-        lt: new Date(dateStr),
-        gte: new Date(dateStr + 'T00:00:00.000Z')
-      }
+const endOfDay = new Date(date);
+endOfDay.setHours(23, 59, 59, 999);
+
+let dashboard = await prisma.dashboard.findFirst({
+  where: {
+    shopOwnerId,
+    date: {
+      gte: startOfDay,
+      lte: endOfDay
     }
-  });
+  }
+});
 
   if (dashboard) {
     return dashboard;

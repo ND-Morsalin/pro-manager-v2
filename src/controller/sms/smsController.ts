@@ -2,6 +2,7 @@ import axios from "axios";
 import { Response } from "express";
 import { ExtendedRequest } from "../../types/types";
 import prisma from "../../utility/prisma";
+import { addDays, isAfter, max } from 'date-fns';
 
 export const sendMessageToAll = async (req: ExtendedRequest, res: Response) => {
   try {
@@ -211,13 +212,13 @@ export const confirmOrder = async (req: ExtendedRequest, res: Response) => {
       where: { id: smsOrderId, isPaid: true },
     });
 
-    // if (isPaid) {
-    //   return res.status(203).json({
-    //     success: true,
-    //     message: "This order is already paid",
-    //     data: isPaid,
-    //   });
-    // }
+    if (isPaid) {
+      return res.status(203).json({
+        success: true,
+        message: "This order is already paid",
+        data: isPaid,
+      });
+    }
 
     const smsOrder = await prisma.sMSOrder.findUnique({
       where: { id: smsOrderId },
@@ -258,12 +259,11 @@ export const confirmOrder = async (req: ExtendedRequest, res: Response) => {
     newExpireDate.setDate(today.getDate() + smsPackage.expireDays);
 
     const shopOwnerSms = await prisma.shopOwnerSMS.findUnique({
-      where: { id: paidSmsOrder.shopOwnerId },
+      where: { shopOwnerId: paidSmsOrder.shopOwnerId },
     });
 
-    const currentExpireDate = shopOwnerSms?.expireDate;
-    const finalExpireDate = currentExpireDate > today ? new Date(currentExpireDate) : today;
-    finalExpireDate.setDate(finalExpireDate.getDate() + smsPackage.expireDays);
+    const baseDate = max([shopOwnerSms?.expireDate ?? today, today]);
+const finalExpireDate = addDays(baseDate, smsPackage.expireDays);
 
     const updatedShopOwnerSms = await prisma.shopOwnerSMS.update({
       where: { shopOwnerId: paidSmsOrder.shopOwnerId },
