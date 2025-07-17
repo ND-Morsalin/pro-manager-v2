@@ -13,6 +13,7 @@ import {
 import forgetPassword from "./forgetPass";
 import checkOtp from "./checkOtp";
 import resetPassword from "./resetPassword";
+import verifyToken from "../../middleware/verifyToken";
 
 const router = Router();
 
@@ -30,6 +31,12 @@ router.post("/check-otp", checkOtp);
 router.post("/reset-password", resetPassword);
 router.put("/update-shop-owner/:id", checkValidUser, updateShopOwner);
 router.get("/shop-owner/:id", checkValidUser, getShopOwnerById);
-router.delete("/delete-shop-owner/:id", checkValidUser, deleteShopOwner);
+
+// Admin can delete 
+router.delete(
+  "/delete-shop-owner/:id",
+  verifyToken(["ADMIN"]),
+  deleteShopOwner
+);
 
 export default router;

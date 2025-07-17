@@ -1,8 +1,8 @@
 import axios from "axios";
 import { Response } from "express";
 import { ExtendedRequest } from "../../types/types";
-import prisma from "../../utility/prisma";
-import { addDays, isAfter, max } from 'date-fns';
+import prisma from "../../utility/prisma"; 
+import moment from 'moment';
 
 export const sendMessageToAll = async (req: ExtendedRequest, res: Response) => {
   try {
@@ -261,9 +261,14 @@ export const confirmOrder = async (req: ExtendedRequest, res: Response) => {
     const shopOwnerSms = await prisma.shopOwnerSMS.findUnique({
       where: { shopOwnerId: paidSmsOrder.shopOwnerId },
     });
-
-    const baseDate = max([shopOwnerSms?.expireDate ?? today, today]);
-const finalExpireDate = addDays(baseDate, smsPackage.expireDays);
+// Assuming shopOwnerSms?.expireDate and today are Date objects or strings parseable by moment
+const baseDate = moment.max([
+  moment(shopOwnerSms?.expireDate ?? today),
+  moment(today),
+]);
+const finalExpireDate = baseDate.clone().add(smsPackage.expireDays, 'days').toDate();
+//     const baseDate = max([shopOwnerSms?.expireDate ?? today, today]);
+// const finalExpireDate = addDays(baseDate, smsPackage.expireDays);
 
     const updatedShopOwnerSms = await prisma.shopOwnerSMS.update({
       where: { shopOwnerId: paidSmsOrder.shopOwnerId },

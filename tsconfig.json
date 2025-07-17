@@ -6,7 +6,10 @@
         "outDir": "dist",
         "sourceMap": true,
         "noImplicitAny": true,
-        "types": ["node", "puppeteer"],
+    "target": "ESNext",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+        "types": ["node"],
     },
     "include": ["src/**/*"]
 }
