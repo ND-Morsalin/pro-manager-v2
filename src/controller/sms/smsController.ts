@@ -211,16 +211,28 @@ export const confirmOrder = async (req: ExtendedRequest, res: Response) => {
       where: { id: smsOrderId, isPaid: true },
     });
 
-    if (isPaid) {
-      return res.status(203).json({
-        success: true,
-        message: "This order is already paid",
-        data: isPaid,
+    // if (isPaid) {
+    //   return res.status(203).json({
+    //     success: true,
+    //     message: "This order is already paid",
+    //     data: isPaid,
+    //   });
+    // }
+
+    const smsOrder = await prisma.sMSOrder.findUnique({
+      where: { id: smsOrderId },
+    });
+
+    if (!smsOrder) {
+      return res.status(404).json({
+        success: false,
+        message: "SMS order not found",
+        data: null,
       });
     }
 
     const smsPackage = await prisma.sMSPackages.findUnique({
-      where: { id: isPaid?.smsPackageId },
+      where: { id: smsOrder.smsPackageId },
     });
 
     if (!smsPackage) {
@@ -240,19 +252,34 @@ export const confirmOrder = async (req: ExtendedRequest, res: Response) => {
       },
     });
 
-    const shopOwner = await prisma.shopOwnerSMS.update({
+    // Calculate new expireDate: max of current expireDate or today + smsPackage.expireDays
+    const today = new Date();
+    const newExpireDate = new Date(today);
+    newExpireDate.setDate(today.getDate() + smsPackage.expireDays);
+
+    const shopOwnerSms = await prisma.shopOwnerSMS.findUnique({
       where: { id: paidSmsOrder.shopOwnerId },
+    });
+
+    const currentExpireDate = shopOwnerSms?.expireDate;
+    const finalExpireDate = currentExpireDate > today ? new Date(currentExpireDate) : today;
+    finalExpireDate.setDate(finalExpireDate.getDate() + smsPackage.expireDays);
+
+    const updatedShopOwnerSms = await prisma.shopOwnerSMS.update({
+      where: { shopOwnerId: paidSmsOrder.shopOwnerId },
       data: {
         smsAmount: {
           increment: smsPackage.smsAmount,
         },
+        expireDate: finalExpireDate,
+        smsPrice: smsPackage.smsPrice,
       },
     });
 
     return res.status(200).json({
       success: true,
       message: "Order confirmed successfully",
-      data: paidSmsOrder,
+      data: {updatedShopOwnerSms},
     });
   } catch (error) {
     console.error("Error in confirmOrder:", error);
