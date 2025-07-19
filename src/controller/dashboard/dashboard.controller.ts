@@ -69,10 +69,27 @@ export async function getDashboardData(req: ExtendedRequest, res: Response) {
         data: [newDashboard],
       });
     }
-
+const suppliers = await prisma.supplier.aggregate({
+    where: { shopOwnerId },
+    _sum: {
+      totalDue: true,
+    },
+  });
+  const customers = await prisma.customer.aggregate({
+    where: { shopOwnerId },
+    _sum: {
+      deuAmount: true,
+    },
+  });
+  console.log(customers);
+  const data = dashboardData.map((dashboard)=>({
+...dashboard,
+totalDueFromCustomers: customers._sum.deuAmount,
+      totalDueToSuppliers: suppliers._sum.totalDue,
+  }))
     return res.status(200).json({
       success: true,
-      data: dashboardData,
+      data: data
     });
   } catch (error) {
     console.error("Error in getDashboardData:", error);
