@@ -287,7 +287,7 @@ const updateCustomer = async (req: ExtendedRequest, res: Response) => {
       note: string;
     };
 
-    const infoUpdate = await prisma.customer.update({
+    await prisma.customer.update({
       where: {
         id: id as string,
         shopOwnerId: req.shopOwner.id,
@@ -299,79 +299,65 @@ const updateCustomer = async (req: ExtendedRequest, res: Response) => {
         otherMobiles,
       },
     });
-
-    const updatedCustomerDeu =
-      deuAmount &&
-      (await prisma.customer.update({
-        where: {
-          id: id as string,
-          shopOwnerId: req.shopOwner.id,
-        },
-        data: {
-          deuAmount: {
-            increment: deuAmount,
+    if (deuAmount || paidAmount) {
+      
+        deuAmount &&
+        (await prisma.customer.update({
+          where: {
+            id: id as string,
+            shopOwnerId: req.shopOwner.id,
           },
+          data: {
+            deuAmount: {
+              increment: deuAmount,
+            },
 
-          customerPaymentHistories: {
-            create: {
-              deuAmount: deuAmount,
-              paymentAmount: 0,
-              paymentStatus: "SHOPOWNERGIVE",
-              shopOwnerId: req.shopOwner.id,
-              note,
+            customerPaymentHistories: {
+              create: {
+                deuAmount: deuAmount,
+                paymentAmount: 0,
+                paymentStatus: "SHOPOWNERGIVE",
+                shopOwnerId: req.shopOwner.id,
+                note,
+              },
             },
           },
-        },
-      }));
+        }));
 
-    const updatedCustomerPaid =
-      paidAmount &&
-      (await prisma.customer.update({
-        where: {
-          id: id as string,
-          shopOwnerId: req.shopOwner.id,
-        },
-        data: {
-          paidAmount: {
-            increment: paidAmount,
+      
+        paidAmount &&
+        (await prisma.customer.update({
+          where: {
+            id: id as string,
+            shopOwnerId: req.shopOwner.id,
           },
-          deuAmount: {
-            decrement: paidAmount,
-          },
-          customerPaymentHistories: {
-            create: {
-              deuAmount: 0,
-              paymentAmount: paidAmount,
-              paymentStatus: "SHOPOWNERRECIVED",
-              shopOwnerId: req.shopOwner.id,
-              note,
+          data: {
+            paidAmount: {
+              increment: paidAmount,
+            },
+            deuAmount: {
+              decrement: paidAmount,
+            },
+            customerPaymentHistories: {
+              create: {
+                deuAmount: 0,
+                paymentAmount: paidAmount,
+                paymentStatus: "SHOPOWNERRECIVED",
+                shopOwnerId: req.shopOwner.id,
+                note,
+              },
             },
           },
-        },
-      }));
+        }));
 
-    // update cash balance
+      // update cash balance
 
-    const startTime = new Date(date);
-    startTime.setHours(0, 0, 0, 0);
-    const endTime = new Date(date);
-    endTime.setHours(23, 59, 59, 999);
+      const startTime = new Date(date);
+      startTime.setHours(0, 0, 0, 0);
+      const endTime = new Date(date);
+      endTime.setHours(23, 59, 59, 999);
 
-    const cash = await prisma.cash.findUnique({
-      where: {
-        shopOwnerId: req.shopOwner.id,
-        createdAt: {
-          gte: startTime,
-          lte: endTime,
-        },
-      },
-    });
-    console.log({
-      paidAmount,
-      cash,
-    });
-    if (paidAmount > 0 && cash) {
-      await prisma.cash.update({
+      const cash = await prisma.cash.findUnique({
         where: {
           shopOwnerId: req.shopOwner.id,
           createdAt: {
@@ -379,82 +365,98 @@ const updateCustomer = async (req: ExtendedRequest, res: Response) => {
             lte: endTime,
           },
         },
-        data: {
-          cashBalance: {
-            increment: paidAmount,
-          },
-          cashInHistory: {
-            create: {
-              cashInAmount: paidAmount,
-              cashInFor: note || "customer give his/her previous deu",
-              shopOwnerId: req.shopOwner.id,
-            },
-          },
-        },
       });
-    } else if (paidAmount > 0) {
-      await prisma.cash.create({
-        data: {
-          cashBalance: paidAmount,
-          cashInHistory: {
-            create: {
-              cashInAmount: paidAmount,
-              cashInFor: note,
-              shopOwnerId: req.shopOwner.id,
-              cashInDate: new Date(date),
-            },
-          },
-          shopOwner: {
-            connect: {
-              id: req.shopOwner.id,
-            },
-          },
-        },
+      console.log({
+        paidAmount,
+        cash,
       });
-    } else if (deuAmount > 0 && cash) {
-      await prisma.cash.update({
-        where: {
-          shopOwnerId: req.shopOwner.id,
-          createdAt: {
-            gte: startTime,
-            lte: endTime,
-          },
-        },
-        data: {
-          cashBalance: {
-            decrement: deuAmount,
-          },
-          cashOutHistory: {
-            create: {
-              cashOutAmount: deuAmount,
-              cashOutFor: note,
-              shopOwnerId: req.shopOwner.id,
-              cashOutDate: new Date(date),
+      if (paidAmount > 0 && cash) {
+        await prisma.cash.update({
+          where: {
+            shopOwnerId: req.shopOwner.id,
+            createdAt: {
+              gte: startTime,
+              lte: endTime,
             },
           },
-        },
-      });
-    } else if (deuAmount > 0) {
-      await prisma.cash.create({
-        data: {
-          cashBalance: -deuAmount,
-          cashOutHistory: {
-            create: {
-              cashOutAmount: deuAmount,
-              cashOutFor: note,
-              shopOwnerId: req.shopOwner.id,
-              cashOutDate: new Date(date),
+          data: {
+            cashBalance: {
+              increment: paidAmount,
+            },
+            cashInHistory: {
+              create: {
+                cashInAmount: paidAmount,
+                cashInFor: note || "customer give his/her previous deu",
+                shopOwnerId: req.shopOwner.id,
+              },
             },
           },
-          shopOwner: {
-            connect: {
-              id: req.shopOwner.id,
+        });
+      } else if (paidAmount > 0) {
+        await prisma.cash.create({
+          data: {
+            cashBalance: paidAmount,
+            cashInHistory: {
+              create: {
+                cashInAmount: paidAmount,
+                cashInFor: note,
+                shopOwnerId: req.shopOwner.id,
+                cashInDate: new Date(date),
+              },
+            },
+            shopOwner: {
+              connect: {
+                id: req.shopOwner.id,
+              },
             },
           },
-        },
-      });
+        });
+      }
+
+      if (deuAmount > 0 && cash) {
+        await prisma.cash.update({
+          where: {
+            shopOwnerId: req.shopOwner.id,
+            createdAt: {
+              gte: startTime,
+              lte: endTime,
+            },
+          },
+          data: {
+            cashBalance: {
+              decrement: deuAmount,
+            },
+            cashOutHistory: {
+              create: {
+                cashOutAmount: deuAmount,
+                cashOutFor: note,
+                shopOwnerId: req.shopOwner.id,
+                cashOutDate: new Date(date),
+              },
+            },
+          },
+        });
+      } else if (deuAmount > 0) {
+        await prisma.cash.create({
+          data: {
+            cashBalance: -deuAmount,
+            cashOutHistory: {
+              create: {
+                cashOutAmount: deuAmount,
+                cashOutFor: note,
+                shopOwnerId: req.shopOwner.id,
+                cashOutDate: new Date(date),
+              },
+            },
+            shopOwner: {
+              connect: {
+                id: req.shopOwner.id,
+              },
+            },
+          },
+        });
+      }
     }
-
     const customer = await prisma.customer.findUnique({
       where: {
         shopOwnerId: req.shopOwner.id,

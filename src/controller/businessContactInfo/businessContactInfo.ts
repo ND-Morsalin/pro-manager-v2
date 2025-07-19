@@ -10,6 +10,20 @@ const createBusinessContactInfo = async (
   try {
     const businessInfo = req.body as BusinessContactInfo;
 
+    const isExist = await prisma.businessContactInfo.findFirst({
+      where: {
+        phoneNumber: businessInfo.phoneNumber,
+        shopOwnerId: req.shopOwner.id,
+      },
+    });
+    if (isExist) {
+      return res.status(403).json({
+        success: false,
+        message: "business Contact already Exist",
+        isExist,
+      });
+    }
+
     const businessContactInfo = await prisma.businessContactInfo.create({
       data: {
         shopOwnerId: req.shopOwner.id,
@@ -56,7 +70,6 @@ const getAllBusinessContactInfo = async (
       allBusinessContactInfo,
       message: "all business info",
     });
-    
   } catch (error) {
     return res.status(500).json({
       success: false,
@@ -115,7 +128,20 @@ const updateBusinessContactInfo = async (
   try {
     const { id } = req.params;
     const { organization, name, phoneNumber } = req.body as BusinessContactInfo;
-
+    if (phoneNumber) {
+      const isExist = await prisma.businessContactInfo.findFirst({
+        where: {
+          phoneNumber: phoneNumber,
+          shopOwnerId: req.shopOwner.id,
+        },
+      });
+      if (isExist) {
+        return res.status(403).json({
+          success: false,
+          message: "You have already use this phone for another business owner",
+        });
+      }
+    }
     const updatedBusinessContactInfo = await prisma.businessContactInfo.update({
       where: {
         id,
@@ -163,12 +189,11 @@ const deleteBusinessContactInfo = async (
       },
     });
 
-    return res.status(200). json({
-      success:true,
-      message:'Business contact deleted',
-      deletedBusinessContact
-    })
-
+    return res.status(200).json({
+      success: true,
+      message: "Business contact deleted",
+      deletedBusinessContact,
+    });
   } catch (error) {
     return res.status(500).json({
       success: false,

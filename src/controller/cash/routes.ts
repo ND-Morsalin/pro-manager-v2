@@ -13,11 +13,11 @@ import { dailySellingReport } from "../../controller/report/dailySellingReport";
 const router = Router();
 
 router.post("/", checkValidUser, crateCash);
-router.post("/create-many", checkValidUser, createManyCash);
+// router.post("/create-many", checkValidUser, createManyCash);
 router.get("/", checkValidUser, getAllCash);
 router.get("/today/:today", checkValidUser, getTodayCash);
 router.get("/daily-sell", checkValidUser, dailySellingReport);
-router.get("/today-cash-in/:today", checkValidUser, getTodayCashInHistory);
-router.get("/today-cash-out/:today", checkValidUser, getTodayCashOutHistory);
+router.get("/cash-in/:date", checkValidUser, getTodayCashInHistory);
+router.get("/cash-out/:date", checkValidUser, getTodayCashOutHistory);
 
 export default router;

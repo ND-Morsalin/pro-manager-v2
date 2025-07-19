@@ -8,8 +8,8 @@ model Customer {
   phoneNumber  String
   otherMobiles String[] @default([])
   address      String
-  deuAmount    Float
-  paidAmount   Float
+  deuAmount    Float @default(0)
+  paidAmount   Float @default(0)
   // customer payment history
 
   // ShopOwner id

@@ -515,10 +515,11 @@ const getTodayCash = async (req: ExtendedRequest, res: Response) => {
 // Get Cash In History of Shop Owner using cash id
 const getTodayCashInHistory = async (req: ExtendedRequest, res: Response) => {
   try {
-    const today = req.params.today;
-    const startDate = new Date(today);
+    const date = req.params.date as unknown as Date;
+    
+    const startDate = new Date(date);
     startDate.setHours(0, 0, 0, 0);
-    const endDate = new Date(today);
+    const endDate = new Date(date);
     endDate.setHours(23, 59, 59, 999);
 
     const cashInHistory = await prisma.cashInHistory.findMany({
@@ -545,12 +546,12 @@ const getTodayCashInHistory = async (req: ExtendedRequest, res: Response) => {
       });
     }
 
-    const todayTotalCashIn = cashInHistory.reduce(
+    const totalCashIn = cashInHistory.reduce(
       (acc, curr) => acc + curr.cashInAmount,
       0
     );
 
-    return res.json({ success: true, cashInHistory, todayTotalCashIn });
+    return res.json({ success: true, cashInHistory, totalCashIn });
   } catch (error) {
     console.log(error);
     return res.status(500).json({
@@ -570,10 +571,10 @@ const getTodayCashInHistory = async (req: ExtendedRequest, res: Response) => {
 
 const getTodayCashOutHistory = async (req: ExtendedRequest, res: Response) => {
   try {
-    const today = req.params.today;
-    const startDate = new Date(today);
+    const date = req.params.date as unknown as Date;
+    const startDate = new Date(date);
     startDate.setHours(0, 0, 0, 0);
-    const endDate = new Date(today);
+    const endDate = new Date(date);
     endDate.setHours(23, 59, 59, 999);
 
     const cashOutHistory = await prisma.cashOutHistory.findMany({
@@ -600,12 +601,12 @@ const getTodayCashOutHistory = async (req: ExtendedRequest, res: Response) => {
       });
     }
 
-    const todayTotalCashOut = cashOutHistory.reduce(
+    const totalCashOut = cashOutHistory.reduce(
       (acc, curr) => acc + curr.cashOutAmount,
       0
     );
 
-    return res.json({ success: true, cashOutHistory, todayTotalCashOut });
+    return res.json({ success: true, cashOutHistory, totalCashOut });
   } catch (error) {
     console.log(error);
     return res.status(500).json({

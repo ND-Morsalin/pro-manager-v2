@@ -99,7 +99,7 @@ export const deleteMeanyNotesByGivenId = async (
 ) => {
   const ids = req.body.ids as string[];
   try {
-    const deletedNote = await prisma.note.deleteMany({
+    await prisma.note.deleteMany({
       where: {
         id: {
           in: ids,
@@ -107,7 +107,13 @@ export const deleteMeanyNotesByGivenId = async (
         shopOwnerId: req.shopOwner.id,
       },
     });
-    res.status(200).json(deletedNote);
+
+    const notes = await prisma.note.findMany({
+      where: {
+        shopOwnerId: req.shopOwner.id,
+      },
+    });
+    res.status(200).json(notes);
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: "Internal server error" });
@@ -169,8 +175,9 @@ export const completeInCompleteManyNotes = async (
   res: Response
 ) => {
   const ids = req.body.ids as string[];
+  console.log({ ids });
   try {
-    const updatedNotes = await prisma.note.updateMany({
+    await prisma.note.updateMany({
       where: {
         id: {
           in: ids,
@@ -181,7 +188,15 @@ export const completeInCompleteManyNotes = async (
         isComplete: req.body.isComplete,
       },
     });
-    res.status(200).json(updatedNotes);
+    const notes = await prisma.note.findMany({
+      where: {
+        id: {
+          in: ids,
+        },
+        shopOwnerId: req.shopOwner.id,
+      },
+    });
+    res.status(200).json(notes);
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: "Internal server error" });

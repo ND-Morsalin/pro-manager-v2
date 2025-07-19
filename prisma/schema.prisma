@@ -120,8 +120,8 @@ model Customer {
   phoneNumber  String
   otherMobiles String[] @default([])
   address      String
-  deuAmount    Float
-  paidAmount   Float
+  deuAmount    Float @default(0)
+  paidAmount   Float @default(0)
   // customer payment history
 
   // ShopOwner id
@@ -219,9 +219,9 @@ model LoneProvider {
   address          String
   note             String?
   loneTakenDate    DateTime
-  totalLoneTaken   Float
-  loneDeuAmount    Float
-  lonePaidAmount   Float
+  totalLoneTaken   Float @default(0)
+  loneDeuAmount    Float @default(0)
+  lonePaidAmount   Float @default(0)
   // paymentHistory
   // ShopOwner id
   shopOwner        ShopOwner @relation(fields: [shopOwnerId], references: [id], onDelete: Cascade)

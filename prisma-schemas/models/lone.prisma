@@ -10,9 +10,9 @@ model LoneProvider {
   address          String
   note             String?
   loneTakenDate    DateTime
-  totalLoneTaken   Float
-  loneDeuAmount    Float
-  lonePaidAmount   Float
+  totalLoneTaken   Float @default(0)
+  loneDeuAmount    Float @default(0)
+  lonePaidAmount   Float @default(0)
   // paymentHistory
   // ShopOwner id
   shopOwner        ShopOwner @relation(fields: [shopOwnerId], references: [id], onDelete: Cascade)
