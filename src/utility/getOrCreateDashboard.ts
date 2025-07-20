@@ -63,8 +63,8 @@ export async function getOrCreateDashboard(shopOwnerId: string, date: Date) {
     previousValues = {
       totalInvestments: previousDashboard.totalInvestments,
       totalProductsOnStock: previousDashboard.totalProductsOnStock,
-      totalDueToSuppliers: previousDashboard.totalDueToSuppliers,
-      totalDueFromCustomers: previousDashboard.totalDueFromCustomers,
+      totalDueToSuppliers: suppliers._sum.totalDue,
+      totalDueFromCustomers: customers._sum.deuAmount,
     };
   } else {
     const products = await prisma.product.aggregate({
