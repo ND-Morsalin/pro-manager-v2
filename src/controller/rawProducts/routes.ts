@@ -18,6 +18,6 @@ router.get("/:id", checkValidUser, getRawSingleProduct);
 router.put("/:id", checkValidUser, updateRawProduct);
 router.delete("/:id", checkValidUser, deleteRawProduct);
 router.put("/to-production/:id", checkValidUser, useRawProductForProduction);
-router.get("/history/report", checkValidUser, getRawProductReport);
+router.get("/raw-report", checkValidUser, getRawProductReport);
 
-export default router;
+export const rawProductsRouter = router;

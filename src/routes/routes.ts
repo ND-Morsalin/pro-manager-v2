@@ -16,6 +16,7 @@ import suppliersRouter from "../controller/supplier/routes";
 import reportsRouter from "../controller/report/routes";
 import dashboardRouter from "../controller/dashboard/dashboard.routes";
 import { adminRoutes } from "../controller/admin/admin.routes";
+import { rawProductsRouter } from "../controller/rawProducts/routes";
 const router = Router();
 
 router.use("/admin", adminRoutes);
@@ -32,7 +33,7 @@ router.use("/product-voicers", productVoicersRouter);
 router.use("/reports", reportsRouter);
 // router.use("/product-give-take", productGiveTakeRouter);
 router.use("/sms", smsRouter);
-// router.use("/raw-products", rawProductsRouter);
+router.use("/raw-products", rawProductsRouter);
 router.use("/raw-categories", rawCategoriesRouter);
 router.use("/suppliers", suppliersRouter);
 router.use("/dashboard", dashboardRouter);

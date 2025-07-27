@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import prisma from "../../utility/prisma";
 import qrcode from "qrcode";
 import { ExtendedRequest } from "../../types/types";
+import { parseDateRange } from "../../utility/parseDateRange";
 
 const addRawProduct = async (req: ExtendedRequest, res: Response) => {
   try {
@@ -13,8 +14,6 @@ const addRawProduct = async (req: ExtendedRequest, res: Response) => {
       rawCategoryID,
       brandName,
       unit,
-      paidAmount,
-      supplierId,
     } = req.body as {
       name: string;
       buyingPrice: number;
@@ -23,8 +22,6 @@ const addRawProduct = async (req: ExtendedRequest, res: Response) => {
       rawCategoryID: string;
       brandName: string;
       unit: string;
-      supplierId?: string;
-      paidAmount?: number;
     };
 
     const rawCategory = await prisma.rawCategory.findUnique({
@@ -58,28 +55,17 @@ const addRawProduct = async (req: ExtendedRequest, res: Response) => {
         rawCategory: rawCategory.name,
       },
     });
-    if (supplierId) {
-      const supplier = await prisma.supplier.findUnique({
-        where: {
-          id: supplierId,
-        },
-      });
-      if (!supplier) {
-        return res.status(404).json({
-          success: false,
-          errors: [
-            {
-              type: "not found",
-              value: supplierId,
-              msg: "Supplier not found",
-              path: "supplierId",
-              location: "addProduct function",
-            },
-          ],
-        });
-      }
-      
-    }
+
+    await prisma.rawProductHistory.create({
+      data: {
+        stockInOut: "RawProductIn",
+        buyingPrice,
+        sellingPrice,
+        quantity,
+        shopOwnerId: req.shopOwner.id,
+        rawProductId: rawProduct.id,
+      },
+    });
 
     return res.status(200).json({
       success: true,
@@ -192,6 +178,7 @@ const updateRawProduct = async (req: ExtendedRequest, res: Response) => {
       name,
       quantity,
       rawCategoryID,
+      stockInOutType,
     } = req.body as {
       name: string;
       buyingPrice: number;
@@ -200,6 +187,7 @@ const updateRawProduct = async (req: ExtendedRequest, res: Response) => {
       rawCategoryID: string;
       brandName: string;
       unit: string;
+      stockInOutType: "RawProductIn" | "RawProductOut";
     };
 
     const oldRawProduct = await prisma.rawProduct.findUnique({
@@ -247,7 +235,10 @@ const updateRawProduct = async (req: ExtendedRequest, res: Response) => {
       data: {
         // if the value is not provided, it will not be updated
         name: name || oldRawProduct?.name,
-        quantity: quantity || oldRawProduct?.quantity,
+        quantity: {
+          increment: stockInOutType === "RawProductIn" ? quantity : 0,
+          decrement: stockInOutType === "RawProductOut" ? quantity : 0,
+        },
         buyingPrice: buyingPrice || oldRawProduct?.buyingPrice,
         sellingPrice: sellingPrice || oldRawProduct?.sellingPrice,
         unit: unit || oldRawProduct?.unit,
@@ -257,6 +248,19 @@ const updateRawProduct = async (req: ExtendedRequest, res: Response) => {
         shopOwnerId: req.shopOwner.id as string,
       },
     });
+
+    if (stockInOutType) {
+      await prisma.rawProductHistory.create({
+        data: {
+          stockInOut: stockInOutType,
+          buyingPrice: buyingPrice || oldRawProduct?.buyingPrice,
+          sellingPrice: sellingPrice || oldRawProduct?.sellingPrice,
+          quantity,
+          shopOwnerId: req.shopOwner.id,
+          rawProductId: rawProduct.id,
+        },
+      });
+    }
 
     return res.status(200).json({
       success: true,
@@ -314,59 +318,18 @@ const deleteRawProduct = async (req: ExtendedRequest, res: Response) => {
   }
 };
 
-// Create a stock history entry (stock in or out)
-export const createRawProductHistory = async (req: Request, res: Response) => {
-  try {
-    const {
-      shopOwnerId,
-      rawProductId,
-      quantityIn = 0,
-      quantityOut = 0,
-      buyingPrice,
-      sellingPrice,
-      note,
-      transactionDate,
-    } = req.body;
-
-    // Get last balance
-    const lastEntry = await prisma.rawProductHistory.findFirst({
-      where: { rawProductId },
-      orderBy: { transactionDate: "desc" },
-    });
-
-    const lastBalance = lastEntry?.balance || 0;
-    const newBalance = lastBalance + quantityIn - quantityOut;
-
-    const history = await prisma.rawProductHistory.create({
-      data: {
-        shopOwnerId,
-        rawProductId,
-        quantityIn,
-        quantityOut,
-        balance: newBalance,
-        buyingPrice,
-        sellingPrice,
-        note,
-        transactionDate: transactionDate
-          ? new Date(transactionDate)
-          : new Date(),
-      },
-    });
-
-    res.status(201).json({ success: true, data: history });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ success: false, message: "Internal server error" });
-  }
-};
-
 // Fetch report by date range
-export const getRawProductReport = async (req: Request, res: Response) => {
-  try {
-    const { shopOwnerId } = req.query;
-    const { startDate, endDate } = req.body;
-
-    if (!shopOwnerId || !startDate || !endDate) {
+export const getRawProductReport = async (req: ExtendedRequest, res: Response) => {
+  try { 
+    const { startDate, endDate, stockInOutType } = req.query as {
+      startDate: string;
+      endDate: string;
+      stockInOutType: "RawProductIn" | "RawProductOut";
+      // shopOwnerId: string;
+    };
+    const startRange = parseDateRange(startDate as string);
+    const endRange = parseDateRange(endDate as string);
+    if ( !startDate || !endDate || !stockInOutType) {
       return res
         .status(400)
         .json({ success: false, message: "Missing required fields" });
@@ -374,11 +337,12 @@ export const getRawProductReport = async (req: Request, res: Response) => {
 
     const reports = await prisma.rawProductHistory.findMany({
       where: {
-        shopOwnerId: shopOwnerId as string,
+        shopOwnerId: req.shopOwner.id,
         transactionDate: {
-          gte: new Date(startDate),
-          lte: new Date(endDate),
+          gte: startRange.start,
+          lte: endRange.end,
         },
+        stockInOut: stockInOutType,
       },
       orderBy: { transactionDate: "asc" },
       include: {
