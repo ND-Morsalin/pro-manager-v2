@@ -103,6 +103,7 @@ const getAllRawProducts = async (req: ExtendedRequest, res: Response) => {
       rawProducts,
     });
   } catch (error) {
+   
     return res.status(500).json({
       success: false,
       errors: [
@@ -236,8 +237,7 @@ const updateRawProduct = async (req: ExtendedRequest, res: Response) => {
         // if the value is not provided, it will not be updated
         name: name || oldRawProduct?.name,
         quantity: {
-          increment: stockInOutType === "RawProductIn" ? quantity : 0,
-          decrement: stockInOutType === "RawProductOut" ? quantity : 0,
+          [stockInOutType === "RawProductIn" ? "increment" : "decrement"]: quantity || 0
         },
         buyingPrice: buyingPrice || oldRawProduct?.buyingPrice,
         sellingPrice: sellingPrice || oldRawProduct?.sellingPrice,
