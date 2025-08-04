@@ -338,7 +338,7 @@ export const getRawProductReport = async (req: ExtendedRequest, res: Response) =
     const reports = await prisma.rawProductHistory.findMany({
       where: {
         shopOwnerId: req.shopOwner.id,
-        transactionDate: {
+        createdAt: {
           gte: startRange.start,
           lte: endRange.end,
         },

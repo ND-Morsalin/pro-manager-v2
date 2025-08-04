@@ -39,9 +39,20 @@ model Product {
   createdAt        DateTime           @default(now())
   updatedAt        DateTime           @updatedAt
   SellingProduct   SellingProduct?
-  PurchasedHistory PurchasedHistory[]
+  
+
+  purchasedHistories PurchasedHistoryProduct[] // Relation to the join table
 }
 
+enum DiscountType {
+  FLAT
+  PERCENTAGE
+}
+
+enum PaymentType {
+  CASH
+  BANK_CHEQUE
+}
 model Inventory {
   id           String  @id @default(auto()) @map("_id") @db.ObjectId
   buyingPrice  Float

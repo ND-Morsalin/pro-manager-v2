@@ -42,7 +42,14 @@ const generateDailyPurchaseReport = async (
       select: {
         id: true,
         createdAt: true,
-        product: { select: { productName: true } },
+        products: {
+          select: {
+            product: true,
+            productId: true,
+            purchasedHistory: true,
+            purchasedHistoryId: true,
+          },
+        },
         Inventory: { select: { stokeAmount: true, buyingPrice: true } },
         supplier: { select: { name: true } },
         paymentType: true,
@@ -109,7 +116,7 @@ const generateDailyPurchaseReport = async (
     // Format report data
     const reportData = purchases.map((purchase) => ({
       date: purchase.createdAt,
-      productName: purchase.product.productName,
+      products: purchase.products,
       quantity: purchase.Inventory?.stokeAmount || 0,
       buyingPrice: purchase.Inventory?.buyingPrice || 0,
       supplierName: purchase.supplier?.name || "Unknown",
@@ -181,7 +188,14 @@ const generateMonthlyPurchaseReport = async (
       select: {
         id: true,
         createdAt: true,
-        product: { select: { productName: true } },
+        products: {
+          select: {
+            product: true,
+            productId: true,
+            purchasedHistory: true,
+            purchasedHistoryId: true,
+          },
+        },
         Inventory: { select: { stokeAmount: true, buyingPrice: true } },
         supplier: { select: { name: true } },
         paymentType: true,
@@ -191,7 +205,7 @@ const generateMonthlyPurchaseReport = async (
     // Format report data
     const reportData = purchases.map((purchase) => ({
       date: purchase.createdAt,
-      productName: purchase.product.productName,
+      products: purchase.products,
       quantity: purchase.Inventory?.stokeAmount || 0,
       buyingPrice: purchase.Inventory?.buyingPrice || 0,
       supplierName: purchase.supplier?.name || "Unknown",
@@ -254,7 +268,14 @@ const generateYearlyPurchaseReport = async (
       select: {
         id: true,
         createdAt: true,
-        product: { select: { productName: true } },
+        products: {
+          select: {
+            product: true,
+            productId: true,
+            purchasedHistory: true,
+            purchasedHistoryId: true,
+          },
+        },
         Inventory: { select: { stokeAmount: true, buyingPrice: true } },
         supplier: { select: { name: true } },
         paymentType: true,
@@ -264,7 +285,7 @@ const generateYearlyPurchaseReport = async (
     // Format report data
     const reportData = purchases.map((purchase) => ({
       date: purchase.createdAt,
-      productName: purchase.product.productName,
+      products: purchase.products,
       quantity: purchase.Inventory?.stokeAmount || 0,
       buyingPrice: purchase.Inventory?.buyingPrice || 0,
       supplierName: purchase.supplier?.name || "Unknown",
@@ -334,7 +355,14 @@ const getPurchaseReports = async (req: ExtendedRequest, res: Response) => {
           select: {
             id: true,
             createdAt: true,
-            product: { select: { productName: true } },
+            products: {
+              select: {
+                product: true,
+                productId: true,
+                purchasedHistory: true,
+                purchasedHistoryId: true,
+              },
+            },
             Inventory: { select: { stokeAmount: true, buyingPrice: true } },
             supplier: { select: { name: true } },
             paymentType: true,
@@ -343,7 +371,7 @@ const getPurchaseReports = async (req: ExtendedRequest, res: Response) => {
 
         const reportData = purchases.map((purchase) => ({
           date: purchase.createdAt,
-          productName: purchase.product.productName,
+          products: purchase.products,
           quantity: purchase.Inventory?.stokeAmount || 0,
           buyingPrice: purchase.Inventory?.buyingPrice || 0,
           supplierName: purchase.supplier?.name || "Unknown",
@@ -376,9 +404,12 @@ const getPurchaseReports = async (req: ExtendedRequest, res: Response) => {
   }
 };
 
-const getSellingReport = async (req: ExtendedRequest, res: Response) =>  {
+const getSellingReport = async (req: ExtendedRequest, res: Response) => {
   try {
-    const { viewBy = "daily", date } = req.query as { viewBy: string; date?: string };
+    const { viewBy = "daily", date } = req.query as {
+      viewBy: string;
+      date?: string;
+    };
     const shopOwnerId = req.shopOwner.id;
 
     // Set date filter depending on viewBy (daily, monthly, yearly)
@@ -390,7 +421,15 @@ const getSellingReport = async (req: ExtendedRequest, res: Response) =>  {
       end = new Date(filterDate.setHours(23, 59, 59, 999));
     } else if (viewBy === "monthly") {
       start = new Date(filterDate.getFullYear(), filterDate.getMonth(), 1);
-      end = new Date(filterDate.getFullYear(), filterDate.getMonth() + 1, 0, 23, 59, 59, 999);
+      end = new Date(
+        filterDate.getFullYear(),
+        filterDate.getMonth() + 1,
+        0,
+        23,
+        59,
+        59,
+        999
+      );
     } else if (viewBy === "yearly") {
       start = new Date(filterDate.getFullYear(), 0, 1);
       end = new Date(filterDate.getFullYear(), 11, 31, 23, 59, 59, 999);
@@ -438,7 +477,10 @@ const getSellingReport = async (req: ExtendedRequest, res: Response) =>  {
         for (const inv of inventories) {
           if (quantityLeft <= 0) break;
 
-          const usedQty = Math.min(quantityLeft, inv.stokeAmount + product.quantity); // + product.quantity because inventory already decremented
+          const usedQty = Math.min(
+            quantityLeft,
+            inv.stokeAmount + product.quantity
+          ); // + product.quantity because inventory already decremented
           const diff = product.sellingPrice - inv.buyingPrice;
 
           if (diff >= 0) profit += diff * usedQty;

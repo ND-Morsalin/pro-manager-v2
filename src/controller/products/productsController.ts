@@ -87,10 +87,14 @@ const addProduct = async (req: ExtendedRequest, res: Response) => {
         due: totalInvestment - paidAmount,
         shopOwnerId: req.shopOwner.id as string,
         paymentType,
-        productId: product.id, // link the purchased history to the product
       },
     });
-
+    await prisma.purchasedHistoryProduct.create({
+      data: {
+        purchasedHistoryId: purchasedHistory.id,
+        productId: product.id,
+      },
+    });
     // create inventory
     const inventory = await prisma.inventory.create({
       data: {
@@ -103,9 +107,9 @@ const addProduct = async (req: ExtendedRequest, res: Response) => {
         purchasedHistoryId: purchasedHistory.id,
       },
     });
-     // Update Dashboard
+    // Update Dashboard
     const currentDate = new Date();
-   const dashboard =  await getOrCreateDashboard(req.shopOwner.id, currentDate);
+    const dashboard = await getOrCreateDashboard(req.shopOwner.id, currentDate);
     await prisma.dashboard.update({
       where: {
         id: dashboard.id,
@@ -113,8 +117,8 @@ const addProduct = async (req: ExtendedRequest, res: Response) => {
       data: {
         totalProductsOnStock: { increment: stokeAmount },
         totalDueToSuppliers: { increment: totalInvestment - paidAmount },
-        totalInvestments: { increment: totalInvestment }
-      }
+        totalInvestments: { increment: totalInvestment },
+      },
     });
 
     // Update Supplier
@@ -263,9 +267,15 @@ const updateInventory = async (req: ExtendedRequest, res: Response) => {
         due: totalInvestment - paidAmount,
         shopOwnerId: req.shopOwner.id as string,
         paymentType,
-        productId: product.id, // link the purchased history to the product
+        
       },
     });
+     await prisma.purchasedHistoryProduct.create({
+        data: {
+          purchasedHistoryId: purchasedHistory.id,
+          productId: product.id,
+        },
+      });
 
     // create inventory
     const inventory = await prisma.inventory.create({
@@ -279,9 +289,9 @@ const updateInventory = async (req: ExtendedRequest, res: Response) => {
         purchasedHistoryId: purchasedHistory.id,
       },
     });
-  // Update Dashboard
+    // Update Dashboard
     const currentDate = new Date();
-   const dashboard =  await getOrCreateDashboard(req.shopOwner.id, currentDate);
+    const dashboard = await getOrCreateDashboard(req.shopOwner.id, currentDate);
     await prisma.dashboard.update({
       where: {
         id: dashboard.id,
@@ -289,8 +299,8 @@ const updateInventory = async (req: ExtendedRequest, res: Response) => {
       data: {
         totalProductsOnStock: { increment: stokeAmount },
         totalDueToSuppliers: { increment: totalInvestment - paidAmount },
-        totalInvestments: { increment: totalInvestment }
-      }
+        totalInvestments: { increment: totalInvestment },
+      },
     });
 
     // Update Supplier
@@ -369,6 +379,250 @@ const updateInventory = async (req: ExtendedRequest, res: Response) => {
   }
 };
 
+const updateMultipleProductsInventory = async (
+  req: ExtendedRequest,
+  res: Response
+) => {
+  const {
+    products,
+    supplierId,
+    paidAmount,
+    discount,
+    cost,
+    discountType,
+    paymentType,
+  } = req.body as {
+    products: {
+      productId: string;
+      stokeAmount: number;
+      buyingPrice: number;
+      sellingPrice: number;
+    }[];
+    supplierId: string;
+    paidAmount: number;
+    discount: number;
+    cost: number;
+    discountType: DiscountType;
+    paymentType: PaymentType;
+  };
+
+  try {
+    // Validate inputs
+    if (!products || !Array.isArray(products) || products.length === 0) {
+      return res.status(400).json({
+        success: false,
+        errors: [
+          {
+            type: "validation",
+            value: "",
+            msg: "Products array is required and must not be empty",
+            path: "products",
+            location: "updateMultipleProductsInventory function",
+          },
+        ],
+      });
+    }
+
+    // Validate supplier
+    const supplier = await prisma.supplier.findUnique({
+      where: {
+        id: supplierId,
+      },
+    });
+    if (!supplier) {
+      return res.status(404).json({
+        success: false,
+        errors: [
+          {
+            type: "not found",
+            value: supplierId,
+            msg: "Supplier not found",
+            path: "supplierId",
+            location: "updateMultipleProductsInventory function",
+          },
+        ],
+      });
+    }
+
+    const results = [];
+    const currentDate = new Date();
+    const dashboard = await getOrCreateDashboard(req.shopOwner.id, currentDate);
+    let totalDashboardDue = 0;
+    let totalDashboardInvestment = 0;
+    let totalDashboardStock = 0;
+    let totalInvestment = 0;
+
+    // Calculate total investment for all products
+    for (const productData of products) {
+      const { stokeAmount, buyingPrice } = productData;
+      totalInvestment += stokeAmount * buyingPrice;
+    }
+
+    // Calculate discount amount based on totalInvestment
+    let discountAmount = 0;
+    if (discountType === DiscountType.PERCENTAGE) {
+      discountAmount = (totalInvestment * discount) / 100;
+    } else if (discountType === DiscountType.FLAT) {
+      discountAmount = discount;
+    }
+
+    // Create purchased history (single entry for all products)
+    const purchasedHistory = await prisma.purchasedHistory.create({
+      data: {
+        cost,
+        supplierId,
+        discountAmount,
+        discountType,
+        paid: paidAmount,
+        totalPrice: totalInvestment,
+        due: totalInvestment - paidAmount,
+        shopOwnerId: req.shopOwner.id as string,
+        paymentType,
+      },
+    });
+
+    // Process each product
+    for (const productData of products) {
+      const { productId, stokeAmount, buyingPrice, sellingPrice } = productData;
+
+      // Update product
+      const product = await prisma.product.update({
+        where: {
+          id: productId,
+        },
+        data: {
+          totalStokeAmount: {
+            increment: stokeAmount,
+          },
+          currentSellingPrice: sellingPrice,
+          totalInvestment: {
+            increment: stokeAmount * buyingPrice,
+          },
+        },
+      });
+
+      // Create inventory entry
+      await prisma.inventory.create({
+        data: {
+          buyingPrice,
+          sellingPrice,
+          stokeAmount,
+          productId: product.id,
+          supplierId,
+          shopOwnerId: req.shopOwner.id as string,
+          purchasedHistoryId: purchasedHistory.id,
+        },
+      });
+
+      // Create PurchasedHistoryProduct entry to link product to purchased history
+      await prisma.purchasedHistoryProduct.create({
+        data: {
+          purchasedHistoryId: purchasedHistory.id,
+          productId: product.id,
+        },
+      });
+
+      // Accumulate dashboard updates
+      totalDashboardStock += stokeAmount;
+      totalDashboardInvestment += stokeAmount * buyingPrice;
+
+      results.push({
+        productId,
+        success: true,
+        message: `Product ${productId} updated successfully`,
+        product,
+      });
+    }
+
+    // Update dashboard
+    totalDashboardDue = totalInvestment - paidAmount;
+    await prisma.dashboard.update({
+      where: {
+        id: dashboard.id,
+      },
+      data: {
+        totalProductsOnStock: { increment: totalDashboardStock },
+        totalDueToSuppliers: { increment: totalDashboardDue },
+        totalInvestments: { increment: totalDashboardInvestment },
+      },
+    });
+
+    // Update supplier with totals from all products
+    await prisma.supplier.update({
+      where: {
+        id: supplierId,
+      },
+      data: {
+        totalDue: {
+          increment: totalInvestment - paidAmount,
+        },
+        totalPaid: {
+          increment: paidAmount,
+        },
+        totalTransaction: {
+          increment: totalInvestment,
+        },
+      },
+    });
+
+    // Handle cash payment
+    if (paymentType === PaymentType.CASH) {
+      const cash = await prisma.cash.findUnique({
+        where: {
+          shopOwnerId: req.shopOwner.id,
+        },
+      });
+
+      if (!cash) {
+        return res.status(200).json({
+          success: true,
+          message:
+            "Products updated successfully, but cash balance is not enough to pay the supplier",
+          results,
+        });
+      }
+
+      await prisma.cash.update({
+        where: {
+          shopOwnerId: req.shopOwner.id,
+        },
+        data: {
+          cashBalance: {
+            decrement: paidAmount,
+          },
+          cashOutHistory: {
+            create: {
+              cashOutFor: `Purchased products from supplier ${supplier.name}`,
+              shopOwnerId: req.shopOwner.id as string,
+              cashOutAmount: paidAmount,
+              cashOutDate: new Date(),
+            },
+          },
+        },
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Products updated successfully",
+      results,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      success: false,
+      errors: [
+        {
+          type: "server error",
+          value: "",
+          msg: "Internal server error",
+          path: "server",
+          location: "updateMultipleProductsInventory function",
+        },
+      ],
+    });
+  }
+};
 const getAllProducts = async (req: ExtendedRequest, res: Response) => {
   try {
     const products = await prisma.product.findMany({
@@ -624,4 +878,5 @@ export {
   deleteProduct,
   getSellingProductByDate,
   updateInventory,
+  updateMultipleProductsInventory,
 };

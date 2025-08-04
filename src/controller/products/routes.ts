@@ -6,6 +6,7 @@ import {
   getSellingProductByDate,
   getSingleProduct,
   updateInventory,
+  updateMultipleProductsInventory,
   updateProduct,
 } from "./productsController";
 import checkValidUser from "../../middleware/checkValidUser";
@@ -19,5 +20,10 @@ router.put("/:id", checkValidUser, updateProduct); // only update product inform
 router.put("/inventory/:id", checkValidUser, updateInventory); // only update product information
 router.delete("/:id", checkValidUser, deleteProduct);
 router.post("/selling-by-date", checkValidUser, getSellingProductByDate);
+router.patch(
+  "/multiple-product-inv-update",
+  checkValidUser,
+  updateMultipleProductsInventory
+);
 
 export default router;
