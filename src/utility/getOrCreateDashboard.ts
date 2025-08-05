@@ -33,12 +33,17 @@ export async function getOrCreateDashboard(shopOwnerId: string, date: Date) {
       deuAmount: true,
     },
   });
-  console.log(customers);
+  const totalCustomers = await prisma.customer.count({
+      where:{
+        shopOwnerId
+      }
+    })
   if (dashboard) {
     return {
       ...dashboard,
       totalDueFromCustomers: customers._sum.deuAmount,
       totalDueToSuppliers: suppliers._sum.totalDue,
+      totalCustomers,
     };
   }
 
@@ -57,6 +62,7 @@ export async function getOrCreateDashboard(shopOwnerId: string, date: Date) {
     totalProductsOnStock: 0,
     totalDueToSuppliers: 0,
     totalDueFromCustomers: 0,
+    totalCustomers:0,
   };
 
   if (previousDashboard) {
@@ -65,6 +71,7 @@ export async function getOrCreateDashboard(shopOwnerId: string, date: Date) {
       totalProductsOnStock: previousDashboard.totalProductsOnStock,
       totalDueToSuppliers: suppliers._sum.totalDue,
       totalDueFromCustomers: customers._sum.deuAmount,
+      totalCustomers
     };
   } else {
     const products = await prisma.product.aggregate({
@@ -83,6 +90,7 @@ export async function getOrCreateDashboard(shopOwnerId: string, date: Date) {
         deuAmount: true,
       },
     });
+    
 
     const suppliers = await prisma.supplier.aggregate({
       where: { shopOwnerId },
@@ -103,6 +111,7 @@ export async function getOrCreateDashboard(shopOwnerId: string, date: Date) {
       totalProductsOnStock: products._sum.totalStokeAmount || 0,
       totalDueToSuppliers: suppliers._sum.totalDue || 0,
       totalDueFromCustomers: customers._sum.deuAmount || 0,
+      totalCustomers,
     };
   }
 
@@ -115,7 +124,7 @@ export async function getOrCreateDashboard(shopOwnerId: string, date: Date) {
       year,
       totalSales: 0,
       totalOrders: 0,
-      totalCustomers: 0,
+      totalCustomers: totalCustomers,
       totalProductsSold: 0,
       totalLosses: 0,
       totalProfit: 0,

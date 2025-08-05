@@ -220,9 +220,35 @@ const getShopOwnerById = async (req: Request, res: Response) => {
       where: {
         id,
       },
-      include: {
-       
-      },
+      select:{
+        address:true,
+        businessContactInfos:true,
+        cashInHistory:true,
+        cashOutHistory:true,
+        cashs:true,
+        customerPaymentHistories:true,
+        customers:true,
+        Dashboard:true,
+        Inventory:true,
+        id:true,
+        createdAt:true,
+        lonePaymentHistories:true,
+        loneProviders:true,
+        mobile:true,
+        notes:true,
+        otherMobiles:true,
+        products:true,
+        productVoicers:true,
+        PurchasedHistory:true,
+        PurchaseReport:true,
+        RawCategory:true,
+        RawProduct:true,
+        RawProductHistory:true,
+        shopName:true,
+        sellingProducts:true,
+        shopOwnerSMS:true,
+        Supplier:true,
+      }
     });
 
     if (!shopOwner) {

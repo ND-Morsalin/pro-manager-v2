@@ -5,6 +5,7 @@ import { getOrCreateDashboard } from "../../utility/getOrCreateDashboard";
 
 export async function getDashboardData(req: ExtendedRequest, res: Response) {
   try {
+   
     const { year, month, date } = req.query;
     const shopOwnerId = req.shopOwner.id;
 
@@ -81,11 +82,14 @@ export async function getDashboardData(req: ExtendedRequest, res: Response) {
         deuAmount: true,
       },
     });
-    console.log(customers);
+    const totalCustomers = await prisma.customer.count({
+      where:{shopOwnerId}
+    })
     const data = dashboardData.map((dashboard) => ({
       ...dashboard,
       totalDueFromCustomers: customers._sum.deuAmount,
       totalDueToSuppliers: suppliers._sum.totalDue,
+      totalCustomers
     }));
     return res.status(200).json({
       success: true,

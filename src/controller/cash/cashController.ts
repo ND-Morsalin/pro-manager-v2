@@ -1,16 +1,18 @@
 import { Response } from "express";
 import { ExtendedRequest } from "../../types/types";
 import prisma from "../../utility/prisma";
+import { getPagination } from "../../utility/getPaginatin";
 
 const crateCash = async (req: ExtendedRequest, res: Response) => {
   try {
-    const { cashInBalance, cashOutBalance, note, requestType, date } = req.body as {
-      cashInBalance: number;
-      cashOutBalance: number;
-      note: string;
-      requestType: "cashIn" | "cashOut";
-      date: Date;
-    };
+    const { cashInBalance, cashOutBalance, note, requestType, date } =
+      req.body as {
+        cashInBalance: number;
+        cashOutBalance: number;
+        note: string;
+        requestType: "cashIn" | "cashOut";
+        date: Date;
+      };
 
     const cash = await prisma.cash.findUnique({
       where: {
@@ -146,7 +148,7 @@ const crateCash = async (req: ExtendedRequest, res: Response) => {
 //     if (!cash) {
 //       let newCash;
 //       if (requestType === "cashIn") {
-//         /* 
+//         /*
 //         const newCash = await prisma.cash.create({
 //         data: {
 //           shopOwnerId: req.shopOwner.id,
@@ -381,7 +383,7 @@ const getAllCash = async (req: ExtendedRequest, res: Response) => {
       include: {
         cashInHistory: true,
         cashOutHistory: true,
-      }
+      },
     });
 
     // if cash is not available then return error
@@ -494,7 +496,6 @@ const getTodayCash = async (req: ExtendedRequest, res: Response) => {
       cashInHistory,
       cashOutHistory,
     });
-
   } catch (error) {
     console.log(error);
     return res.status(500).json({
@@ -515,43 +516,58 @@ const getTodayCash = async (req: ExtendedRequest, res: Response) => {
 // Get Cash In History of Shop Owner using cash id
 const getTodayCashInHistory = async (req: ExtendedRequest, res: Response) => {
   try {
-    const date = req.params.date as unknown as Date;
-    
+    const date = new Date(req.params.date);
+    const { page, limit, skip } = getPagination(req);
+
     const startDate = new Date(date);
     startDate.setHours(0, 0, 0, 0);
     const endDate = new Date(date);
     endDate.setHours(23, 59, 59, 999);
 
-    const cashInHistory = await prisma.cashInHistory.findMany({
-      where: {
-        shopOwnerId: req.shopOwner.id,
-        cashInDate: {
-          gte: startDate,
-          lte: endDate,
-        },
-      },
-    });
-
-    // if cashInHistory is not available then return error
-    if (!cashInHistory) {
-      return res.status(404).json({
-        success: false,
-        errors: [
-          {
-            type: "not found",
-            value: "",
-            msg: "Cash In History not found",
+    const [cashInHistory, count, totalCashIn] = await Promise.all([
+      prisma.cashInHistory.findMany({
+        where: {
+          shopOwnerId: req.shopOwner.id,
+          cashInDate: {
+            gte: startDate,
+            lte: endDate,
           },
-        ],
-      });
-    }
+        },
+        skip,
+        take: limit,
+        orderBy: {
+          cashInDate: "desc",
+        },
+      }),
+      prisma.cashInHistory.count({
+        where: {
+          shopOwnerId: req.shopOwner.id,
+          cashInDate: {
+            gte: startDate,
+            lte: endDate,
+          },
+        },
+      }),
+      prisma.cashInHistory.aggregate({
+        where: {
+          shopOwnerId: req.shopOwner.id,
+        },
+        _sum: {
+          cashInAmount: true,
+        },
+      }),
+    ]);
 
-    const totalCashIn = cashInHistory.reduce(
-      (acc, curr) => acc + curr.cashInAmount,
-      0
-    );
-
-    return res.json({ success: true, cashInHistory, totalCashIn });
+    return res.json({
+      success: true,
+      meta: {
+        page,
+        limit,
+        count,
+      },
+      cashInHistory,
+      totalCashIn: totalCashIn._sum.cashInAmount,
+    });
   } catch (error) {
     console.log(error);
     return res.status(500).json({
@@ -568,45 +584,62 @@ const getTodayCashInHistory = async (req: ExtendedRequest, res: Response) => {
 };
 
 // Get Cash Out History of Shop Owner using cash id
-
 const getTodayCashOutHistory = async (req: ExtendedRequest, res: Response) => {
   try {
-    const date = req.params.date as unknown as Date;
+    const date = new Date(req.params.date);
+    const { page, limit, skip } = getPagination(req);
+
     const startDate = new Date(date);
     startDate.setHours(0, 0, 0, 0);
     const endDate = new Date(date);
     endDate.setHours(23, 59, 59, 999);
 
-    const cashOutHistory = await prisma.cashOutHistory.findMany({
-      where: {
-        shopOwnerId: req.shopOwner.id,
-        cashOutDate: {
-          gte: startDate,
-          lte: endDate,
-        },
-      },
-    });
-
-    // if cashOutHistory is not available then return error
-    if (!cashOutHistory) {
-      return res.status(404).json({
-        success: false,
-        errors: [
-          {
-            type: "not found",
-            value: "",
-            msg: "Cash Out History not found",
+    const [cashOutHistory, count,totalCashOut] = await Promise.all([
+      prisma.cashOutHistory.findMany({
+        where: {
+          shopOwnerId: req.shopOwner.id,
+          cashOutDate: {
+            gte: startDate,
+            lte: endDate,
           },
-        ],
-      });
-    }
+        },
+        skip,
+        take: limit,
+        orderBy: {
+          cashOutDate: "desc",
+        },
+      }),
+      prisma.cashOutHistory.count({
+        where: {
+          shopOwnerId: req.shopOwner.id,
+          cashOutDate: {
+            gte: startDate,
+            lte: endDate,
+          },
+        },
+      }),
+       prisma.cashOutHistory.aggregate({
+        where: {
+          shopOwnerId: req.shopOwner.id,
+        },
+        _sum: {
+          cashOutAmount: true,
+        },
+      }),
+    ]);
 
-    const totalCashOut = cashOutHistory.reduce(
-      (acc, curr) => acc + curr.cashOutAmount,
-      0
-    );
+     
 
-    return res.json({ success: true, cashOutHistory, totalCashOut });
+    return res.json({
+      success: true,
+      meta: {
+        page,
+        limit,
+        count,
+      },
+      cashOutHistory,
+      totalCashOut:totalCashOut._sum.cashOutAmount,
+    });
   } catch (error) {
     console.log(error);
     return res.status(500).json({

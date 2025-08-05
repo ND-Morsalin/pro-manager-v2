@@ -96,6 +96,10 @@ const addCustomer = async (req: ExtendedRequest, res: Response) => {
 
 const getAllCustomers = async (req: ExtendedRequest, res: Response) => {
   try {
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 20;
+    const skip = (page - 1) * limit;
+
     const customers = await prisma.customer.findMany({
       where: {
         shopOwnerId: req.shopOwner.id,
@@ -104,14 +108,25 @@ const getAllCustomers = async (req: ExtendedRequest, res: Response) => {
         customerPaymentHistories: true,
         invoiceHistory: true,
       },
+      skip,
+      take: limit,
+    });
+    const count = await prisma.customer.count({
+      where: { shopOwnerId: req.shopOwner.id },
     });
 
     return res.status(200).json({
       success: true,
       message: "All customers",
       customers,
+      meta: {
+        page,
+        limit,
+        count,
+      },
     });
   } catch (error) {
+    console.log(error);
     return res.status(500).json({
       success: false,
       errors: [
@@ -300,8 +315,7 @@ const updateCustomer = async (req: ExtendedRequest, res: Response) => {
       },
     });
     if (deuAmount || paidAmount) {
-      
-        deuAmount &&
+      deuAmount &&
         (await prisma.customer.update({
           where: {
             id: id as string,
@@ -324,8 +338,7 @@ const updateCustomer = async (req: ExtendedRequest, res: Response) => {
           },
         }));
 
-      
-        paidAmount &&
+      paidAmount &&
         (await prisma.customer.update({
           where: {
             id: id as string,
