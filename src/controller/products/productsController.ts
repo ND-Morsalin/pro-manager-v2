@@ -267,15 +267,14 @@ const updateInventory = async (req: ExtendedRequest, res: Response) => {
         due: totalInvestment - paidAmount,
         shopOwnerId: req.shopOwner.id as string,
         paymentType,
-        
       },
     });
-     await prisma.purchasedHistoryProduct.create({
-        data: {
-          purchasedHistoryId: purchasedHistory.id,
-          productId: product.id,
-        },
-      });
+    await prisma.purchasedHistoryProduct.create({
+      data: {
+        purchasedHistoryId: purchasedHistory.id,
+        productId: product.id,
+      },
+    });
 
     // create inventory
     const inventory = await prisma.inventory.create({
@@ -502,7 +501,7 @@ const updateMultipleProductsInventory = async (
       });
 
       // Create inventory entry
-      await prisma.inventory.create({
+      const inv = await prisma.inventory.create({
         data: {
           buyingPrice,
           sellingPrice,
@@ -519,6 +518,7 @@ const updateMultipleProductsInventory = async (
         data: {
           purchasedHistoryId: purchasedHistory.id,
           productId: product.id,
+          inventoryId: inv.id, // Assuming inventoryId is part of productData
         },
       });
 
@@ -709,52 +709,59 @@ const getSingleProduct = async (req: ExtendedRequest, res: Response) => {
 const updateProduct = async (req: ExtendedRequest, res: Response) => {
   try {
     const { id } = req.params;
-    // ! update only stokeAmount, buyingPrice, sellingPrice, unit
-    const { categoryId, productBrand, productName, sellingPrice, unit } =
-      req.body as Partial<AddProductsPayload>;
+    const shopOwnerId = req.shopOwner.id;
+
+    // Check if product exists
+    const existingProduct = await prisma.product.findFirst({
+      where: {
+        id,
+        shopOwnerId,
+      },
+    });
+
+    if (!existingProduct) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found or you do not have permission to update it.",
+      });
+    }
+
+    const {
+      categoryId,
+      productBrand,
+      productName,
+      sellingPrice,
+      unit,
+    } = req.body as Partial<AddProductsPayload>;
+
+    let updateData: any = {
+      currentSellingPrice: sellingPrice,
+      unit,
+      productBrand,
+      productName,
+    };
 
     if (categoryId) {
       const category = await prisma.category.findUnique({
-        where: {
-          id: categoryId,
-        },
+        where: { id: categoryId },
       });
 
-      const product = await prisma.product.update({
-        where: {
-          id,
-          shopOwnerId: req.shopOwner.id,
-        },
-        data: {
-          // if the value is not provided, it will not be updated
-          currentSellingPrice: sellingPrice,
-          unit: unit,
-          productBrand: productBrand,
-          productName: productName,
-          productCategoryID: categoryId,
-          productCategory: category.category,
-        },
-      });
+      if (!category) {
+        return res.status(404).json({
+          success: false,
+          message: "Category not found",
+        });
+      }
 
-      return res.status(200).json({
-        success: true,
-        message: "Product updated successfully",
-        product,
-      });
+      updateData.productCategoryID = categoryId;
+      updateData.productCategory = category.category;
     }
 
     const product = await prisma.product.update({
       where: {
         id,
-        shopOwnerId: req.shopOwner.id,
       },
-      data: {
-        // if the value is not provided, it will not be updated
-        currentSellingPrice: sellingPrice,
-        unit: unit,
-        productBrand: productBrand,
-        productName: productName,
-      },
+      data: updateData,
     });
 
     return res.status(200).json({
@@ -763,13 +770,12 @@ const updateProduct = async (req: ExtendedRequest, res: Response) => {
       product,
     });
   } catch (error) {
-    console.log(error);
+    console.error("updateProduct error:", error);
     return res.status(500).json({
       success: false,
       errors: [
         {
           type: "server error",
-          value: "",
           msg: "Internal server error",
           path: "server",
           location: "updateProduct function",
@@ -784,17 +790,18 @@ const deleteProduct = async (req: ExtendedRequest, res: Response) => {
     const { id } = req.params;
     const shopOwnerId = req.shopOwner.id;
 
-    const deletedProduct = await prisma.product.delete({
-      where: {
-        id,
-        shopOwnerId: shopOwnerId as string,
-      },
-    });
+    await prisma.$transaction([
+      prisma.inventory.deleteMany({
+        where: { productId: id, shopOwnerId },
+      }),
+      prisma.product.delete({
+        where: { id },
+      }),
+    ]);
 
     return res.status(200).json({
       success: true,
       message: "Product deleted successfully",
-      deletedProduct,
     });
   } catch (error) {
     console.log(error);

@@ -58,19 +58,21 @@ model Inventory {
   buyingPrice  Float
   sellingPrice Float
   stokeAmount  Float
-  product      Product @relation(fields: [productId], references: [id])
+  product      Product @relation(fields: [productId], references: [id] ,onDelete: Cascade)
   productId    String  @db.ObjectId
 
   supplierId         String?           @db.ObjectId
   supplier           Supplier?         @relation(fields: [supplierId], references: [id])
   purchasedHistoryId String?           @unique @db.ObjectId
-  purchasedHistory   PurchasedHistory? @relation(fields: [purchasedHistoryId], references: [id])
+  
 
   shopOwner   ShopOwner @relation(fields: [shopOwnerId], references: [id], onDelete: Cascade)
   shopOwnerId String    @db.ObjectId
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  PurchasedHistoryProduct PurchasedHistoryProduct[]
 }
 
 //**************************/

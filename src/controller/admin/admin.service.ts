@@ -18,8 +18,8 @@ class Service {
       },
     });
 
-    if (!admin) {
-      throw new ApiError(404,"Admin not found");
+    if (admin) {
+      throw new ApiError(404,"Admin Already Exists" );
     }
 
     const salt = await bcryptjs.genSalt(10);

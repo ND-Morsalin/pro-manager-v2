@@ -48,11 +48,17 @@ const generateDailyPurchaseReport = async (
             productId: true,
             purchasedHistory: true,
             purchasedHistoryId: true,
+            inventory: true,
           },
         },
-        Inventory: { select: { stokeAmount: true, buyingPrice: true } },
         supplier: { select: { name: true } },
         paymentType: true,
+        due: true,
+        discountAmount: true,
+        discountType: true,
+        cost: true,
+        paid: true,
+        totalPrice: true,
       },
     });
 
@@ -117,8 +123,7 @@ const generateDailyPurchaseReport = async (
     const reportData = purchases.map((purchase) => ({
       date: purchase.createdAt,
       products: purchase.products,
-      quantity: purchase.Inventory?.stokeAmount || 0,
-      buyingPrice: purchase.Inventory?.buyingPrice || 0,
+
       supplierName: purchase.supplier?.name || "Unknown",
       paymentType: purchase.paymentType,
     }));
@@ -194,22 +199,41 @@ const generateMonthlyPurchaseReport = async (
             productId: true,
             purchasedHistory: true,
             purchasedHistoryId: true,
+            inventory: true,
           },
         },
-        Inventory: { select: { stokeAmount: true, buyingPrice: true } },
+
         supplier: { select: { name: true } },
         paymentType: true,
+        due: true,
+        discountAmount: true,
+        discountType: true,
+        cost: true,
+        paid: true,
+        totalPrice: true,
       },
     });
 
     // Format report data
     const reportData = purchases.map((purchase) => ({
       date: purchase.createdAt,
-      products: purchase.products,
-      quantity: purchase.Inventory?.stokeAmount || 0,
-      buyingPrice: purchase.Inventory?.buyingPrice || 0,
-      supplierName: purchase.supplier?.name || "Unknown",
       paymentType: purchase.paymentType,
+      products: purchase.products,
+      quantity: purchase.products.reduce(
+        (sum, product) => sum + (product.inventory?.stokeAmount || 0),
+        0
+      ),
+      buyingPrice: purchase.products.reduce(
+        (sum, product) => sum + (product.inventory?.buyingPrice || 0),
+        0
+      ),
+      supplierName: purchase.supplier?.name || "Unknown",
+      due: purchase.due,
+      discountAmount: purchase.discountAmount,
+      discountType: purchase.discountType,
+      cost: purchase.cost,
+      paid: purchase.paid,
+      totalPrice: purchase.totalPrice,
     }));
 
     return res.status(200).json({
@@ -274,11 +298,17 @@ const generateYearlyPurchaseReport = async (
             productId: true,
             purchasedHistory: true,
             purchasedHistoryId: true,
+            inventory: true,
           },
         },
-        Inventory: { select: { stokeAmount: true, buyingPrice: true } },
         supplier: { select: { name: true } },
         paymentType: true,
+        due: true,
+        discountAmount: true,
+        discountType: true,
+        cost: true,
+        paid: true,
+        totalPrice: true,
       },
     });
 
@@ -286,8 +316,21 @@ const generateYearlyPurchaseReport = async (
     const reportData = purchases.map((purchase) => ({
       date: purchase.createdAt,
       products: purchase.products,
-      quantity: purchase.Inventory?.stokeAmount || 0,
-      buyingPrice: purchase.Inventory?.buyingPrice || 0,
+      quantity: purchase.products.reduce(
+        (sum, product) => sum + (product.inventory?.stokeAmount || 0),
+        0
+      ),
+      buyingPrice: purchase.products.reduce(
+        (sum, product) => sum + (product.inventory?.buyingPrice || 0),
+        0
+      ),
+      due: purchase.due,
+      discountAmount: purchase.discountAmount,
+      discountType: purchase.discountType,
+      cost: purchase.cost,
+      paid: purchase.paid,
+      totalPrice: purchase.totalPrice,
+      createdAt: purchase.createdAt,
       supplierName: purchase.supplier?.name || "Unknown",
       paymentType: purchase.paymentType,
     }));
@@ -361,21 +404,43 @@ const getPurchaseReports = async (req: ExtendedRequest, res: Response) => {
                 productId: true,
                 purchasedHistory: true,
                 purchasedHistoryId: true,
+                inventory: true,
+
               },
             },
-            Inventory: { select: { stokeAmount: true, buyingPrice: true } },
+            
             supplier: { select: { name: true } },
             paymentType: true,
+            due: true,
+            discountAmount: true,
+            discountType: true,
+            cost: true,
+            paid: true,
+            totalPrice: true,
+
           },
         });
 
         const reportData = purchases.map((purchase) => ({
           date: purchase.createdAt,
           products: purchase.products,
-          quantity: purchase.Inventory?.stokeAmount || 0,
-          buyingPrice: purchase.Inventory?.buyingPrice || 0,
           supplierName: purchase.supplier?.name || "Unknown",
           paymentType: purchase.paymentType,
+          quantity: purchase.products.reduce(
+            (sum, product) => sum + (product.inventory?.stokeAmount || 0),
+            0
+          ),
+          buyingPrice: purchase.products.reduce(
+            (sum, product) => sum + (product.inventory?.buyingPrice || 0),
+            0
+          ),
+          due: purchase.due,
+          discountAmount: purchase.discountAmount,
+          discountType: purchase.discountType,
+          cost: purchase.cost,
+          paid: purchase.paid,
+          totalPrice: purchase.totalPrice,
+
         }));
 
         return {

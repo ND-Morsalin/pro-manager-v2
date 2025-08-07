@@ -331,13 +331,15 @@ model Inventory {
   supplierId         String?           @db.ObjectId
   supplier           Supplier?         @relation(fields: [supplierId], references: [id])
   purchasedHistoryId String?           @unique @db.ObjectId
-  purchasedHistory   PurchasedHistory? @relation(fields: [purchasedHistoryId], references: [id])
+  
 
   shopOwner   ShopOwner @relation(fields: [shopOwnerId], references: [id], onDelete: Cascade)
   shopOwnerId String    @db.ObjectId
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  PurchasedHistoryProduct PurchasedHistoryProduct[]
 }
 
 //**************************/
@@ -529,24 +531,23 @@ enum ReceiveGiveStatus {
 }
 
 
-
 model PurchasedHistory {
-  id             String       @id @default(auto()) @map("_id") @db.ObjectId
-  shopOwnerId    String       @db.ObjectId
-  shopOwner      ShopOwner    @relation(fields: [shopOwnerId], references: [id], onDelete: Cascade)
-  due            Float        @default(0) // how much due 
-  paid           Float        @default(0) // total paid
-  cost           Float        @default(0) // labour cost
-  totalPrice     Float        @default(0) // how much is purchased price paid + due 
-  discountType   DiscountType @default(FLAT)
-  discountAmount Float        @default(0)
-  paymentType    PaymentType  @default(CASH)
-  supplierId     String       @db.ObjectId
-  supplier       Supplier     @relation(fields: [supplierId], references: [id], onDelete: Cascade)
+  id             String                    @id @default(auto()) @map("_id") @db.ObjectId
+  shopOwnerId    String                    @db.ObjectId
+  shopOwner      ShopOwner                 @relation(fields: [shopOwnerId], references: [id], onDelete: Cascade)
+  due            Float                     @default(0) // how much due 
+  paid           Float                     @default(0) // total paid
+  cost           Float                     @default(0) // labour cost
+  totalPrice     Float                     @default(0) // how much is purchased price paid + due 
+  discountType   DiscountType              @default(FLAT)
+  discountAmount Float                     @default(0)
+  paymentType    PaymentType               @default(CASH)
+  supplierId     String                    @db.ObjectId
+  supplier       Supplier                  @relation(fields: [supplierId], references: [id], onDelete: Cascade)
   products       PurchasedHistoryProduct[] // Relation to the join table
-  Inventory      Inventory?
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt 
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model PurchasedHistoryProduct {
@@ -554,6 +555,8 @@ model PurchasedHistoryProduct {
   purchasedHistoryId String           @db.ObjectId
   purchasedHistory   PurchasedHistory @relation(fields: [purchasedHistoryId], references: [id], onDelete: Cascade)
   productId          String           @db.ObjectId
+  inventory          Inventory?       @relation(fields: [inventoryId], references: [id])
+  inventoryId        String?          @db.ObjectId
   product            Product          @relation(fields: [productId], references: [id], onDelete: Cascade)
 }
 
