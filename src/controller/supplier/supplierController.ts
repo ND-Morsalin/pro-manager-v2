@@ -5,7 +5,7 @@ import { Supplier } from "@prisma/client";
 
 const createSupplier = async (req: ExtendedRequest, res: Response) => {
   try {
-    const { address,  institution, name, phone } = req.body as Supplier;
+    const { address, institution, name, phone } = req.body as Supplier;
 
     const newSupplier = await prisma.supplier.create({
       data: {
@@ -134,7 +134,7 @@ const getSingleSupplier = async (req: ExtendedRequest, res: Response) => {
 const updateSupplier = async (req: ExtendedRequest, res: Response) => {
   try {
     const { id } = req.params as { id: string };
-    const { address,  institution, name, phone } = req.body as Supplier;
+    const { address, institution, name, phone } = req.body as Supplier;
 
     const supplier = await prisma.supplier.update({
       where: {
@@ -145,6 +145,48 @@ const updateSupplier = async (req: ExtendedRequest, res: Response) => {
         institution,
         name,
         phone,
+      },
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Supplier updated successfully",
+      supplier,
+    });
+  } catch (error) {
+    console.log({ error });
+    return res.status(500).json({
+      success: false,
+      errors: [
+        {
+          type: "server error",
+          value: "",
+          msg: "Internal server error",
+          path: "server",
+          location: "updateSupplier",
+        },
+      ],
+    });
+  }
+};
+const supplierCashSupplier = async (req: ExtendedRequest, res: Response) => {
+  try {
+    const { id } = req.params as { id: string };
+    const { paidAmount } = req.body as {
+      paidAmount: number;
+    };
+
+    const supplier = await prisma.supplier.update({
+      where: {
+        id: id as string,
+      },
+      data: {
+        totalDue: {
+          decrement: paidAmount,
+        },
+        totalPaid: {
+          increment: paidAmount,
+        },
       },
     });
 
@@ -207,4 +249,5 @@ export {
   getSingleSupplier,
   updateSupplier,
   deleteSupplier,
+  supplierCashSupplier,
 };
