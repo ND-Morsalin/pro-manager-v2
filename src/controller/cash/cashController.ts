@@ -375,6 +375,7 @@ const createManyCash = async (req: ExtendedRequest, res: Response) => {
 };
 
 const getAllCash = async (req: ExtendedRequest, res: Response) => {
+   const { page, limit, skip } = getPagination(req);
   try {
     const cash = await prisma.cash.findMany({
       where: {
@@ -384,6 +385,8 @@ const getAllCash = async (req: ExtendedRequest, res: Response) => {
         cashInHistory: true,
         cashOutHistory: true,
       },
+       skip,
+      take: limit,
     });
 
     // if cash is not available then return error
@@ -401,7 +404,16 @@ const getAllCash = async (req: ExtendedRequest, res: Response) => {
         ],
       });
     }
-    res.json({ success: true, cash });
+    const count = await prisma.cash.count({
+      where: {
+        shopOwnerId: req.shopOwner.id,
+      },
+    });
+    res.json({ success: true, cash ,  meta: {
+        page,
+        limit,
+        count,
+      },});
   } catch (error) {
     console.log({ error });
     return res.status(500).json({
@@ -420,6 +432,7 @@ const getAllCash = async (req: ExtendedRequest, res: Response) => {
 };
 
 const getTodayCash = async (req: ExtendedRequest, res: Response) => {
+   
   try {
     console.log({
       today: req.params.today,
@@ -495,6 +508,7 @@ const getTodayCash = async (req: ExtendedRequest, res: Response) => {
       todayTotalCashIn,
       cashInHistory,
       cashOutHistory,
+   
     });
   } catch (error) {
     console.log(error);

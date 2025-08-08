@@ -5,6 +5,7 @@ import qrcode from "qrcode";
 import { ExtendedRequest } from "../../types/types";
 import { AddProductsPayload } from "./products.types";
 import { getOrCreateDashboard } from "../../utility/getOrCreateDashboard";
+import { getPagination } from "../../utility/getPaginatin";
 
 const addProduct = async (req: ExtendedRequest, res: Response) => {
   try {
@@ -624,6 +625,7 @@ const updateMultipleProductsInventory = async (
   }
 };
 const getAllProducts = async (req: ExtendedRequest, res: Response) => {
+  const { page, limit, skip } = getPagination(req);
   try {
     const products = await prisma.product.findMany({
       where: {
@@ -632,12 +634,25 @@ const getAllProducts = async (req: ExtendedRequest, res: Response) => {
       include: {
         inventories: true,
       },
+      skip,
+      take: limit,
+    });
+
+    const count = await prisma.product.count({
+      where: {
+        shopOwnerId: req.shopOwner.id,
+      },
     });
 
     return res.status(200).json({
       success: true,
       message: "All products",
       products,
+      meta: {
+        page,
+        limit,
+        count,
+      },
     });
   } catch (error) {
     return res.status(500).json({
@@ -722,17 +737,13 @@ const updateProduct = async (req: ExtendedRequest, res: Response) => {
     if (!existingProduct) {
       return res.status(404).json({
         success: false,
-        message: "Product not found or you do not have permission to update it.",
+        message:
+          "Product not found or you do not have permission to update it.",
       });
     }
 
-    const {
-      categoryId,
-      productBrand,
-      productName,
-      sellingPrice,
-      unit,
-    } = req.body as Partial<AddProductsPayload>;
+    const { categoryId, productBrand, productName, sellingPrice, unit } =
+      req.body as Partial<AddProductsPayload>;
 
     let updateData: any = {
       currentSellingPrice: sellingPrice,

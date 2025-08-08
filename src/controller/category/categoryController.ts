@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import prisma from "../../utility/prisma";
 import { ExtendedRequest } from "../../types/types";
+import { getPagination } from "../../utility/getPaginatin";
 
 const createCategory = async (req: ExtendedRequest, res: Response) => {
   try {
@@ -35,8 +36,19 @@ const createCategory = async (req: ExtendedRequest, res: Response) => {
 };
 
 const getAllCategory = async (req: ExtendedRequest, res: Response) => {
+  const { page, limit, skip } = getPagination(req);
   try {
     const allCategory = await prisma.category.findMany({
+      where: {
+        shopOwnerId: req.shopOwner.id,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+      skip,
+      take: limit,
+    });
+    const count = await prisma.category.count({
       where: {
         shopOwnerId: req.shopOwner.id,
       },
@@ -44,6 +56,7 @@ const getAllCategory = async (req: ExtendedRequest, res: Response) => {
 
     return res.status(200).json({
       success: true,
+      meta: { page, limit, count },
       message: "All category",
       allCategory,
     });
@@ -72,9 +85,9 @@ const updateCategory = async (req: Request, res: Response) => {
       where: {
         id: id as string,
       },
-      data:{
-        category
-      }
+      data: {
+        category,
+      },
     });
 
     return res.status(200).json({
@@ -101,12 +114,11 @@ const updateCategory = async (req: Request, res: Response) => {
 const getSingleCategory = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-  
 
     const category = await prisma.category.findUnique({
       where: {
         id: id as string,
-      }
+      },
     });
 
     return res.status(200).json({
@@ -160,4 +172,10 @@ const deleteCategory = async (req: Request, res: Response) => {
   }
 };
 
-export { createCategory, getAllCategory, deleteCategory, updateCategory,getSingleCategory };
+export {
+  createCategory,
+  getAllCategory,
+  deleteCategory,
+  updateCategory,
+  getSingleCategory,
+};

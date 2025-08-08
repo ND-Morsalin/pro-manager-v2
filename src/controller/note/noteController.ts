@@ -1,6 +1,7 @@
 import { Response } from "express";
 import { ExtendedRequest } from "../../types/types";
 import prisma from "../../utility/prisma";
+import { getPagination } from "../../utility/getPaginatin";
 
 export const createNote = async (req: ExtendedRequest, res: Response) => {
   try {
@@ -25,13 +26,24 @@ export const createNote = async (req: ExtendedRequest, res: Response) => {
 };
 
 export const getNotes = async (req: ExtendedRequest, res: Response) => {
+  const { page, limit, skip } = getPagination(req);
   try {
     const notes = await prisma.note.findMany({
       where: {
         shopOwnerId: req.shopOwner.id,
       },
+      orderBy: {
+        createdAt: "desc",
+      },
+      skip,
+      take: limit,
     });
-    res.status(200).json(notes);
+    const count = await prisma.note.count({
+      where: {
+        shopOwnerId: req.shopOwner.id,
+      },
+    });
+    res.status(200).json({ notes, meta: { page, limit, count } });
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: "Internal server error" });
@@ -138,6 +150,7 @@ export const getCompletedNotes = async (
   req: ExtendedRequest,
   res: Response
 ) => {
+  const { page, limit, skip } = getPagination(req);
   try {
     const notes = await prisma.note.findMany({
       where: {
@@ -145,7 +158,20 @@ export const getCompletedNotes = async (
         isComplete: true,
       },
     });
-    res.status(200).json(notes);
+    const count = await prisma.note.count({
+      where: {
+        shopOwnerId: req.shopOwner.id,
+        isComplete: true,
+      },
+    });
+    res.status(200).json({
+      notes,
+      meta: {
+        page,
+        limit,
+        count,
+      },
+    });
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: "Internal server error" });
@@ -156,14 +182,27 @@ export const getUncompletedNotes = async (
   req: ExtendedRequest,
   res: Response
 ) => {
+  const { page, limit, skip } = getPagination(req);
   try {
     const notes = await prisma.note.findMany({
       where: {
         shopOwnerId: req.shopOwner.id,
         isComplete: false,
       },
+      orderBy: {
+        createdAt: "desc",
+      },
+      skip,
+      take: limit,
     });
-    res.status(200).json(notes);
+    const count = await prisma.note.count({
+      where: {
+        shopOwnerId: req.shopOwner.id,
+        isComplete: false,
+      },
+    });
+
+    res.status(200).json({ notes, meta: { page, limit, count } });
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: "Internal server error" });

@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import prisma from "../../utility/prisma";
 import { ExtendedRequest } from "../../types/types";
+import { getPagination } from "../../utility/getPaginatin";
 
 const createRawCategory = async (req: ExtendedRequest, res: Response) => {
   try {
@@ -35,15 +36,26 @@ const createRawCategory = async (req: ExtendedRequest, res: Response) => {
 };
 
 const getAllRawCategory = async (req: ExtendedRequest, res: Response) => {
+  const { page, limit, skip } = getPagination(req);
   try {
     const allRawCategory = await prisma.rawCategory.findMany({
       where: {
         shopOwnerId: req.shopOwner.id,
       },
+      orderBy: {
+        createdAt: "desc",
+      },
+      skip,
+      take: limit,
     });
-
+    const count = await prisma.rawCategory.count({
+      where: {
+        shopOwnerId: req.shopOwner.id,
+      },
+    });
     return res.status(200).json({
       success: true,
+      meta: { page, limit, count },
       message: "All Rawcategory",
       allRawCategory,
     });

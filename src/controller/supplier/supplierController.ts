@@ -2,6 +2,7 @@ import { Response } from "express";
 import { ExtendedRequest } from "../../types/types";
 import prisma from "../../utility/prisma";
 import { Supplier } from "@prisma/client";
+import { getPagination } from "../../utility/getPaginatin";
 
 const createSupplier = async (req: ExtendedRequest, res: Response) => {
   try {
@@ -42,15 +43,21 @@ const createSupplier = async (req: ExtendedRequest, res: Response) => {
 };
 
 const getAllSuppliers = async (req: ExtendedRequest, res: Response) => {
+   const { page, limit, skip } = getPagination(req);
   try {
-    const Suppliers = await prisma.supplier.findMany({
+    const suppliers = await prisma.supplier.findMany({
       where: {
         shopOwnerId: req.shopOwner.id,
       },
+      orderBy: {
+        createdAt: "desc",
+      },
+      skip,
+      take: limit,
     });
 
     // if no lone provider found
-    if (!Suppliers.length) {
+    if (!suppliers.length) {
       return res.status(404).json({
         success: false,
         errors: [
@@ -64,11 +71,21 @@ const getAllSuppliers = async (req: ExtendedRequest, res: Response) => {
         ],
       });
     }
+    const count = await prisma.supplier.count({
+      where: {
+        shopOwnerId: req.shopOwner.id,
+      },
+    });
 
     return res.status(200).json({
       success: true,
       message: "All lone providers",
-      Suppliers,
+      suppliers,
+      meta: {
+        page,
+        limit,
+        count,
+      },
     });
   } catch (error) {
     return res.status(500).json({

@@ -3,6 +3,7 @@ import prisma from "../../utility/prisma";
 import qrcode from "qrcode";
 import { ExtendedRequest } from "../../types/types";
 import { parseDateRange } from "../../utility/parseDateRange";
+import { getPagination } from "../../utility/getPaginatin";
 
 const addRawProduct = async (req: ExtendedRequest, res: Response) => {
   try {
@@ -90,8 +91,19 @@ const addRawProduct = async (req: ExtendedRequest, res: Response) => {
 };
 
 const getAllRawProducts = async (req: ExtendedRequest, res: Response) => {
+   const { page, limit, skip } = getPagination(req);
   try {
     const rawProducts = await prisma.rawProduct.findMany({
+      where: {
+        shopOwnerId: req.shopOwner.id,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+      skip,
+      take: limit,
+    });
+    const count = await prisma.rawProduct.count({
       where: {
         shopOwnerId: req.shopOwner.id,
       },
@@ -99,6 +111,7 @@ const getAllRawProducts = async (req: ExtendedRequest, res: Response) => {
 
     return res.status(200).json({
       success: true,
+      meta:{ page, limit, count },
       message: "All Raw products",
       rawProducts,
     });
