@@ -6,7 +6,7 @@ export async function getDashboardData(req: ExtendedRequest, res: Response) {
   try {
     const { year, month, date } = req.query;
     const shopOwnerId = req.shopOwner.id;
-
+console.log({shopOwnerId});
     const where: any = { shopOwnerId };
 
     if (date) {
@@ -108,10 +108,10 @@ export async function getDashboardData(req: ExtendedRequest, res: Response) {
           totalLosses: 0,
           totalProfit: 0,
           totalInvoices: 0,
-          totalInvestments: products._sum.totalInvestment,
-          totalDueFromCustomers: customers._sum.deuAmount,
-          totalDueToSuppliers: suppliers._sum.totalDue,
-          totalProductsOnStock: products._sum.totalStokeAmount,
+          totalInvestments: products._sum.totalInvestment || 0,
+          totalDueFromCustomers: customers._sum.deuAmount || 0,
+          totalDueToSuppliers: suppliers._sum.totalDue || 0,
+          totalProductsOnStock: products._sum.totalStokeAmount  || 0,
         },
       });
       return res.status(200).json({
