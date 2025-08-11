@@ -106,6 +106,7 @@ export async function getOrCreateDashboard(shopOwnerId: string, date: Date) {
         totalPrice: true,
       },
     });
+    
     previousValues = {
       totalInvestments: products._sum.totalInvestment || 0,
       totalProductsOnStock: products._sum.totalStokeAmount || 0,

@@ -71,6 +71,40 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
     // Loop through each product being sold
     for (const item of sellingProducts) {
       const { productId, quantity, sellingPrice, productName, unit } = item;
+      //  Check if product exists
+      const isProductExists = await prisma.product.findUnique({
+        where: { id: productId, shopOwnerId },
+      });
+
+      if (!isProductExists) {
+        return res.status(404).json({
+          success: false,
+          errors: [
+            {
+              type: "validation error",
+              msg: "Product not found",
+            },
+          ],
+        });
+      }
+      // check if the product has enough stock
+      if (isProductExists.totalStokeAmount < quantity) {
+        console.log(`Not enough stock for product ${productName} (ID: ${productId}) 
+          available stock: ${isProductExists.totalStokeAmount}, requested quantity: ${quantity}
+          shopOwnerId: ${shopOwnerId}
+          `);
+        //
+        return res.status(400).json({
+          success: false,
+          errors: [
+            {
+              type: "validation error",
+              msg: "Not enough stock for this product",
+            },
+          ],
+        });
+      }
+
       let qtyLeftToSell = quantity; // This helps manage how much more we need to sell from inventory
 
       // Fetch inventories for this product in FIFO order (latest entries first)
@@ -93,11 +127,24 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
 
         const priceDiff = sellingPrice - buyingPrice; // Profit/Loss per item
         investment += buyingPrice * sellQty; // Accumulate investment for this product
-
+        // console.log({
+        //   priceDiff,
+        //   sellingPrice,
+        //   buyingPrice,
+        //   sellQty,
+        //   productId,
+        //   shopOwnerId,
+        //   productLoss,
+        //   productProfit,
+        // });
         if (priceDiff >= 0) {
-          productProfit += priceDiff * sellQty; // Accumulate profit
+          productProfit += priceDiff * quantity; // Accumulate profit
         } else {
-          productLoss += -priceDiff * sellQty; // Accumulate loss (use -priceDiff to make it positive)
+          // make priceDiff positive for loss calculation
+          productLoss += Math.abs(priceDiff) * quantity; // Accumulate loss
+          // console.log(
+          //   ` ${sellQty} ${quantity} Loss for product ${productName} (ID: ${productId}) at selling price ${sellingPrice} and buying price ${buyingPrice} is ${(+priceDiff) * quantity} testing: ${(Math.abs(priceDiff))}`
+          // );
         }
 
         // Update inventory to reduce stock
@@ -126,6 +173,11 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
         unit,
       });
 
+      // console.log(
+      //   `Sold ${quantity} of ${productName} (ID: ${productId}) at ${sellingPrice} each, total: ${
+      //     quantity * sellingPrice
+      //   }, profit: ${productProfit}, loss: ${productLoss}, investment: ${investment}`
+      // );
       // Update overall product tracking fields
       await prisma.product.update({
         where: { id: productId },
@@ -145,6 +197,7 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
     // Update Dashboard for the specific date
     const saleDate = new Date(date);
     const dashboard = await getOrCreateDashboard(shopOwnerId, saleDate);
+
     await prisma.dashboard.update({
       where: {
         id: dashboard.id,

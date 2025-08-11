@@ -1,11 +1,9 @@
 import { Response } from "express";
 import { ExtendedRequest } from "../../types/types";
 import prisma from "../../utility/prisma";
-import { getOrCreateDashboard } from "../../utility/getOrCreateDashboard";
 
 export async function getDashboardData(req: ExtendedRequest, res: Response) {
   try {
-   
     const { year, month, date } = req.query;
     const shopOwnerId = req.shopOwner.id;
 
@@ -20,7 +18,7 @@ export async function getDashboardData(req: ExtendedRequest, res: Response) {
         const endOfDay = new Date(parsedDate);
         endOfDay.setHours(23, 59, 59, 999);
 
-        where.date = {
+        where.createdAt = {
           gte: startOfDay,
           lte: endOfDay,
         };
@@ -61,35 +59,90 @@ export async function getDashboardData(req: ExtendedRequest, res: Response) {
           ],
         });
       }
-      const newDashboard = await getOrCreateDashboard(
-        shopOwnerId,
-        requestedDate
-      );
+
+      const products = await prisma.product.aggregate({
+        where: { shopOwnerId },
+        _sum: {
+          totalInvestment: true,
+          totalStokeAmount: true,
+          totalLoss: true,
+          totalProfit: true,
+        },
+      });
+
+      const customers = await prisma.customer.aggregate({
+        where: { shopOwnerId },
+        _sum: {
+          deuAmount: true,
+        },
+      });
+
+      const suppliers = await prisma.supplier.aggregate({
+        where: { shopOwnerId },
+        _sum: {
+          totalDue: true,
+        },
+      });
+
+      const totalCustomers = await prisma.customer.count({
+        where: {
+          shopOwnerId,
+        },
+      });
+        
+
+      const dateStr = requestedDate.toISOString();
+      const year = requestedDate.getFullYear().toString();
+      const month = requestedDate.toLocaleString("default", { month: "long" });
+      
+      const newDashboard = await prisma.dashboard.create({
+        data: {
+          shopOwnerId,
+          date: dateStr,
+          month,
+          year,
+          totalSales: 0,
+          totalOrders: 0,
+          totalCustomers: totalCustomers,
+          totalProductsSold: 0,
+          totalLosses: 0,
+          totalProfit: 0,
+          totalInvoices: 0,
+          totalInvestments: products._sum.totalInvestment,
+          totalDueFromCustomers: customers._sum.deuAmount,
+          totalDueToSuppliers: suppliers._sum.totalDue,
+          totalProductsOnStock: products._sum.totalStokeAmount,
+        },
+      });
       return res.status(200).json({
         success: true,
         data: [newDashboard],
       });
     }
+
     const suppliers = await prisma.supplier.aggregate({
       where: { shopOwnerId },
       _sum: {
         totalDue: true,
       },
     });
+
     const customers = await prisma.customer.aggregate({
       where: { shopOwnerId },
       _sum: {
         deuAmount: true,
       },
     });
+
     const totalCustomers = await prisma.customer.count({
-      where:{shopOwnerId}
-    })
+      where: { shopOwnerId },
+    });
+
     const data = dashboardData.map((dashboard) => ({
       ...dashboard,
       totalDueFromCustomers: customers._sum.deuAmount,
       totalDueToSuppliers: suppliers._sum.totalDue,
-      totalCustomers
+      totalCustomers,
     }));
     return res.status(200).json({
       success: true,
