@@ -15,4 +15,32 @@ model Supplier {
   PurchasedHistory PurchasedHistory[]
 
   Inventory Inventory[]
+
+  SupplierPaymentHistory SupplierPaymentHistory[]
+}
+model SupplierPaymentHistory {
+  id            String        @id @default(auto()) @map("_id") @db.ObjectId
+  paidAmount Float @default(0)
+  deuAmount     Float? @default(0)
+  transactionAmount Float @default(0) // total amount of the transaction if shop owner buys products
+
+  // transactionStatus is used to track the status of the payment
+  // whether it's for buying products or due payment
+  transactionStatus TransactionStatus
+  paymentDate   DateTime      @default(now())
+  note          String?
+
+  shopOwner   ShopOwner @relation(fields: [shopOwnerId], references: [id], onDelete: Cascade)
+  shopOwnerId String    @db.ObjectId
+
+  supplier   Supplier @relation(fields: [supplierId], references: [id], onDelete: Cascade)
+  supplierId String   @db.ObjectId
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum TransactionStatus {
+  BUYING_PRODUCTS
+  DUE_PAYMENT
 }

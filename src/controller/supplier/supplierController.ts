@@ -43,7 +43,7 @@ const createSupplier = async (req: ExtendedRequest, res: Response) => {
 };
 
 const getAllSuppliers = async (req: ExtendedRequest, res: Response) => {
-   const { page, limit, skip } = getPagination(req);
+  const { page, limit, skip } = getPagination(req);
   try {
     const suppliers = await prisma.supplier.findMany({
       where: {
@@ -207,6 +207,18 @@ const supplierCashSupplier = async (req: ExtendedRequest, res: Response) => {
       },
     });
 
+    // create a supplier SupplierPaymentHistory
+    await prisma.supplierPaymentHistory.create({
+      data: {
+        supplierId: id as string,
+        shopOwnerId: req.shopOwner.id as string,
+        paidAmount,
+        transactionStatus: "DUE_PAYMENT",
+        note: `Paid ${paidAmount} to supplier ${supplier.name}`,
+        paymentDate: new Date(),
+      },
+    });
+
     return res.status(200).json({
       success: true,
       message: "Supplier updated successfully",
@@ -260,6 +272,101 @@ const deleteSupplier = async (req: ExtendedRequest, res: Response) => {
   }
 };
 
+const getSupplierPaymentHistory = async (
+  req: ExtendedRequest,
+  res: Response
+) => {
+  try {
+    const { supplierId } = req.params as { supplierId: string };
+
+    const { page, limit, skip } = getPagination(req);
+
+    const { dateFrom, dateTo, order } = req.query as {
+      dateFrom?: string;
+      dateTo?: string;
+      order?: "asc" | "desc";
+    };
+
+    const supplier = await prisma.supplier.findUnique({
+      where: {
+        id: supplierId as string,
+      },
+    });
+    if (!supplier) {
+      return res.status(404).json({
+        success: false,
+        errors: [
+          {
+            type: "not found",
+            value: supplierId,
+            msg: "Supplier not found",
+          },
+        ],
+      });
+    }
+
+    const paymentHistory = await prisma.supplierPaymentHistory.findMany({
+      where: {
+        supplierId: supplierId as string,
+        shopOwnerId: req.shopOwner.id,
+        paymentDate: {
+          gte: dateFrom ? new Date(dateFrom) : undefined,
+          lte: dateTo ? new Date(dateTo) : undefined,
+        },
+      },
+      orderBy: {
+        paymentDate: order || "desc",
+      },
+      skip,
+      take: limit,
+    });
+
+    if (!paymentHistory.length) {
+      return res.status(404).json({
+        success: false,
+        errors: [
+          {
+            type: "not found",
+            value: supplierId,
+            msg: "No payment history found for this supplier",
+          },
+        ],
+      });
+    }
+    const count = await prisma.supplierPaymentHistory.count({
+      where: {
+        supplierId: supplierId as string,
+        shopOwnerId: req.shopOwner.id,
+        paymentDate: {
+          gte: dateFrom ? new Date(dateFrom) : undefined,
+          lte: dateTo ? new Date(dateTo) : undefined,
+        },
+      },
+    });
+    return res.status(200).json({
+      success: true,
+      meta: {
+        page,
+        limit,
+        count,
+      },
+      paymentHistory,
+    });
+  } catch (error) {
+    console.log({ error });
+    return res.status(500).json({
+      success: false,
+      errors: [
+        {
+          type: "server error",
+          value: "",
+          msg: "Internal server error",
+        },
+      ],
+    });
+  }
+};
+
 export {
   createSupplier,
   getAllSuppliers,
@@ -267,4 +374,5 @@ export {
   updateSupplier,
   deleteSupplier,
   supplierCashSupplier,
+  getSupplierPaymentHistory
 };

@@ -4,6 +4,7 @@ import {
   deleteSupplier,
   getAllSuppliers,
   getSingleSupplier,
+  getSupplierPaymentHistory,
   supplierCashSupplier,
   updateSupplier,
 } from "./supplierController";
@@ -17,5 +18,7 @@ router.get("/:id", checkValidUser, getSingleSupplier);
 router.put("/:id", checkValidUser, updateSupplier);
 router.put("/supplier-cash/:id", checkValidUser, supplierCashSupplier);
 router.delete("/:id", checkValidUser, deleteSupplier);
+
+router.get("/supplier-payment/:supplierId", checkValidUser, getSupplierPaymentHistory )
 
 export default router;

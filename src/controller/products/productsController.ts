@@ -177,6 +177,20 @@ const addProduct = async (req: ExtendedRequest, res: Response) => {
       }
     }
 
+     // create a supplier SupplierPaymentHistory
+    await prisma.supplierPaymentHistory.create({
+      data: {
+        supplierId,
+        shopOwnerId: req.shopOwner.id as string,
+        paidAmount,
+        deuAmount: totalInvestment - paidAmount ,
+        transactionStatus: "BUYING_PRODUCTS",
+        note: `Purchased products from supplier ${supplier.name}`,
+        transactionAmount: totalInvestment,
+        paymentDate: new Date(),
+      },
+    }); 
+
     return res.status(200).json({
       success: true,
       message: "Product created successfully",
@@ -357,6 +371,19 @@ const updateInventory = async (req: ExtendedRequest, res: Response) => {
         });
       }
     }
+     // create a supplier SupplierPaymentHistory
+    await prisma.supplierPaymentHistory.create({
+      data: {
+        supplierId,
+        shopOwnerId: req.shopOwner.id as string,
+        paidAmount,
+        deuAmount: totalInvestment - paidAmount ,
+        transactionStatus: "BUYING_PRODUCTS",
+        note: `Purchased products from supplier ${supplier.name}`,
+        transactionAmount: totalInvestment,
+        paymentDate: new Date(),
+      },
+    }); 
     return res.status(200).json({
       success: true,
       message: "Product created successfully",
@@ -602,6 +629,20 @@ const updateMultipleProductsInventory = async (
         },
       });
     }
+
+     // create a supplier SupplierPaymentHistory
+    await prisma.supplierPaymentHistory.create({
+      data: {
+        supplierId,
+        shopOwnerId: req.shopOwner.id as string,
+        paidAmount,
+        deuAmount: totalInvestment - paidAmount ,
+        transactionStatus: "BUYING_PRODUCTS",
+        note: `Purchased products from supplier ${supplier.name}`,
+        transactionAmount: totalInvestment,
+        paymentDate: new Date(),
+      },
+    }); 
 
     return res.status(200).json({
       success: true,
