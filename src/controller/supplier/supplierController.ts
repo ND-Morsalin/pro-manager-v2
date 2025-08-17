@@ -44,10 +44,27 @@ const createSupplier = async (req: ExtendedRequest, res: Response) => {
 
 const getAllSuppliers = async (req: ExtendedRequest, res: Response) => {
   const { page, limit, skip } = getPagination(req);
+  const { phone,  name} = req.query as {
+    phone?: string;
+    name?: string;
+  };
   try {
     const suppliers = await prisma.supplier.findMany({
       where: {
         shopOwnerId: req.shopOwner.id,
+        // filter by phone and name if provided using regex
+        ...(phone && {
+          phone: {
+            contains: phone,
+            mode: "insensitive",
+          },
+        }),
+        ...(name && {
+          name: {
+            contains: name,
+            mode: "insensitive",
+          },
+        }),
       },
       orderBy: {
         createdAt: "desc",
@@ -374,5 +391,5 @@ export {
   updateSupplier,
   deleteSupplier,
   supplierCashSupplier,
-  getSupplierPaymentHistory
+  getSupplierPaymentHistory,
 };
