@@ -2,6 +2,7 @@ import { Response } from "express";
 import { ExtendedRequest } from "../../types/types";
 import { BusinessContactInfo } from "@prisma/client";
 import prisma from "../../utility/prisma";
+import { getPagination } from "../../utility/getPaginatin";
 
 const createBusinessContactInfo = async (
   req: ExtendedRequest,
@@ -58,14 +59,30 @@ const getAllBusinessContactInfo = async (
   req: ExtendedRequest,
   res: Response
 ) => {
+  const { page, limit, skip } = getPagination(req);
   try {
     const allBusinessContactInfo = await prisma.businessContactInfo.findMany({
+      where: {
+        shopOwnerId: req.shopOwner.id,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+      skip,
+      take: limit,
+    });
+    const count = await prisma.businessContactInfo.count({
       where: {
         shopOwnerId: req.shopOwner.id,
       },
     });
 
     return res.status(200).json({
+      meta: {
+        page,
+        limit,
+        count,
+      },
       success: true,
       allBusinessContactInfo,
       message: "all business info",

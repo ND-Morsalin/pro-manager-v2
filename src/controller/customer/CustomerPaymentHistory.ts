@@ -2,6 +2,7 @@ import { Response } from "express";
 import { ExtendedRequest } from "../../types/types";
 import prisma from "../../utility/prisma";
 import { CustomerPaymentHistory } from "@prisma/client";
+import { getPagination } from "../../utility/getPaginatin";
 
 const createCustomerPaymentHistory = async (
   req: ExtendedRequest,
@@ -69,6 +70,7 @@ const getAllCustomerPaymentHistory = async (
 ) => {
   try {
     const { customerId } = req.query as { customerId: string };
+    const { page, limit, skip } = getPagination(req);
     const customer = await prisma.customer.findUnique({
       where: {
         id: customerId,
@@ -96,13 +98,29 @@ const getAllCustomerPaymentHistory = async (
         customerId,
         shopOwnerId: req.shopOwner.id,
       },
+      skip,
+      take: limit,
+      orderBy: {
+        paymentDate: "desc",
+      },
     });
-
+    const total = await prisma.customerPaymentHistory.count({
+      where: {
+        customerId,
+        shopOwnerId: req.shopOwner.id,
+      },
+    });
     return res.status(200).json({
+      meta: {
+        page,
+        limit,
+        total,
+      },
       success: true,
       paymentHistory,
     });
   } catch (error) {
+    console.error("Error fetching customer payment history:", error);
     return res.status(500).json({
       success: false,
       errors: [

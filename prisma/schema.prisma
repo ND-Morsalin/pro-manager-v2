@@ -274,6 +274,7 @@ model Product {
 
   // sum of stokeAmount of inventory.//! for reducing the calculation when any product enter o stock then it will increase and when any selling then the total amount will decrease
   totalStokeAmount Float @default(0)
+  totalSold Float @default(0) // how many products are sold  
 
   // the current price in market //! same 
   currentSellingPrice Float @default(0)

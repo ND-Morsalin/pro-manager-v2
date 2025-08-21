@@ -2,6 +2,7 @@ import { Customer } from "@prisma/client";
 import { Response } from "express";
 import { ExtendedRequest } from "types/types";
 import prisma from "../../utility/prisma";
+import { getPagination } from "../../utility/getPaginatin";
 
 const addCustomer = async (req: ExtendedRequest, res: Response) => {
   try {
@@ -96,34 +97,45 @@ const addCustomer = async (req: ExtendedRequest, res: Response) => {
 
 const getAllCustomers = async (req: ExtendedRequest, res: Response) => {
   try {
-    const page = Number(req.query.page) || 1;
-    const limit = Number(req.query.limit) || 20;
-    const skip = (page - 1) * limit;
+    // const page = Number(req.query.page) || 1;
+    // const limit = Number(req.query.limit) || 20;
+    // const skip = (page - 1) * limit;
+
+    const { page, limit, skip } = getPagination(req);
 
     const customers = await prisma.customer.findMany({
       where: {
         shopOwnerId: req.shopOwner.id,
       },
-      include: {
-        customerPaymentHistories: true,
-        invoiceHistory: true,
-      },
+      // include: {
+      //   customerPaymentHistories: true,
+      //   invoiceHistory: true,
+      // },
       skip,
       take: limit,
     });
     const count = await prisma.customer.count({
       where: { shopOwnerId: req.shopOwner.id },
     });
+    const customersTotalDuePaid = await prisma.customer.aggregate({
+         where: { shopOwnerId: req.shopOwner.id },
+         _sum:{
+          deuAmount:true,
+          paidAmount:true,
+         }
+    })
 
-    return res.status(200).json({
-      success: true,
-      message: "All customers",
-      customers,
-      meta: {
+    return res.status(200).json({meta: {
         page,
         limit,
         count,
       },
+      success: true,
+      message: "All customers",
+      customersTotalDue:customersTotalDuePaid._sum.deuAmount,
+      customersTotalPaid:customersTotalDuePaid._sum.paidAmount,
+      customers,
+      
     });
   } catch (error) {
     console.log(error);

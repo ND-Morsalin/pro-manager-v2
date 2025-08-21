@@ -4,7 +4,7 @@ import prisma from "../../utility/prisma";
 import qrcode from "qrcode";
 import { ExtendedRequest } from "../../types/types";
 import { AddProductsPayload } from "./products.types";
-import { getOrCreateDashboard } from "../../utility/getOrCreateDashboard";
+
 import { getPagination } from "../../utility/getPaginatin";
 
 const addProduct = async (req: ExtendedRequest, res: Response) => {
@@ -108,20 +108,8 @@ const addProduct = async (req: ExtendedRequest, res: Response) => {
         purchasedHistoryId: purchasedHistory.id,
       },
     });
-    // Update Dashboard
-    const currentDate = new Date();
-    const dashboard = await getOrCreateDashboard(req.shopOwner.id, currentDate);
-    await prisma.dashboard.update({
-      where: {
-        id: dashboard.id,
-      },
-      data: {
-        totalProductsOnStock: { increment: stokeAmount },
-        totalDueToSuppliers: { increment: totalInvestment - paidAmount },
-        totalInvestments: { increment: totalInvestment },
-      },
-    });
-
+   
+    
     // Update Supplier
     const updateSupplier = await prisma.supplier.update({
       where: {
@@ -304,19 +292,7 @@ const updateInventory = async (req: ExtendedRequest, res: Response) => {
       },
     });
     // Update Dashboard
-    const currentDate = new Date();
-    const dashboard = await getOrCreateDashboard(req.shopOwner.id, currentDate);
-    await prisma.dashboard.update({
-      where: {
-        id: dashboard.id,
-      },
-      data: {
-        totalProductsOnStock: { increment: stokeAmount },
-        totalDueToSuppliers: { increment: totalInvestment - paidAmount },
-        totalInvestments: { increment: totalInvestment },
-      },
-    });
-
+    
     // Update Supplier
     const updateSupplier = await prisma.supplier.update({
       where: {
@@ -472,8 +448,7 @@ const updateMultipleProductsInventory = async (
     }
 
     const results = [];
-    const currentDate = new Date();
-    const dashboard = await getOrCreateDashboard(req.shopOwner.id, currentDate);
+   
     let totalDashboardDue = 0;
     let totalDashboardInvestment = 0;
     let totalDashboardStock = 0;
@@ -562,19 +537,7 @@ const updateMultipleProductsInventory = async (
       });
     }
 
-    // Update dashboard
-    totalDashboardDue = totalInvestment - paidAmount;
-    await prisma.dashboard.update({
-      where: {
-        id: dashboard.id,
-      },
-      data: {
-        totalProductsOnStock: { increment: totalDashboardStock },
-        totalDueToSuppliers: { increment: totalDashboardDue },
-        totalInvestments: { increment: totalDashboardInvestment },
-      },
-    });
-
+  
     // Update supplier with totals from all products
     await prisma.supplier.update({
       where: {
@@ -673,7 +636,15 @@ const getAllProducts = async (req: ExtendedRequest, res: Response) => {
         shopOwnerId: req.shopOwner.id,
       },
       include: {
-        inventories: true,
+        // inventories: true,
+        // only return those inventories have stokeAmount greater than 0
+        inventories: {
+          where: {
+            stokeAmount: {
+              gt: 0,
+            },
+          },
+        },
       },
       skip,
       take: limit,
@@ -685,15 +656,15 @@ const getAllProducts = async (req: ExtendedRequest, res: Response) => {
       },
     });
 
-    return res.status(200).json({
-      success: true,
-      message: "All products",
-      products,
-      meta: {
+    return res.status(200).json({ meta: {
         page,
         limit,
         count,
       },
+      success: true,
+      message: "All products",
+      products,
+     
     });
   } catch (error) {
     return res.status(500).json({

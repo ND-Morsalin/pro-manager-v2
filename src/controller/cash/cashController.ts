@@ -3,6 +3,8 @@ import { ExtendedRequest } from "../../types/types";
 import prisma from "../../utility/prisma";
 import { getPagination } from "../../utility/getPaginatin";
 
+import { parseDateRange } from "../../utility/parseDateRange";
+
 const crateCash = async (req: ExtendedRequest, res: Response) => {
   try {
     const { cashInBalance, cashOutBalance, note, requestType, date } =
@@ -375,17 +377,17 @@ const createManyCash = async (req: ExtendedRequest, res: Response) => {
 };
 
 const getAllCash = async (req: ExtendedRequest, res: Response) => {
-   const { page, limit, skip } = getPagination(req);
+  const { page, limit, skip } = getPagination(req);
   try {
     const cash = await prisma.cash.findMany({
       where: {
         shopOwnerId: req.shopOwner.id,
       },
-      include: {
-        cashInHistory: true,
-        cashOutHistory: true,
-      },
-       skip,
+      // include: {
+      //   cashInHistory: true,
+      //   cashOutHistory: true,
+      // },
+      skip,
       take: limit,
     });
 
@@ -409,11 +411,15 @@ const getAllCash = async (req: ExtendedRequest, res: Response) => {
         shopOwnerId: req.shopOwner.id,
       },
     });
-    res.json({ success: true, cash ,  meta: {
+    res.json({
+      meta: {
         page,
         limit,
         count,
-      },});
+      },
+      success: true,
+      cash,
+    });
   } catch (error) {
     console.log({ error });
     return res.status(500).json({
@@ -432,25 +438,20 @@ const getAllCash = async (req: ExtendedRequest, res: Response) => {
 };
 
 const getTodayCash = async (req: ExtendedRequest, res: Response) => {
-   
   try {
-    console.log({
-      today: req.params.today,
-    });
-
     const today = req.params.today;
-    const startDate = new Date(today);
-    startDate.setHours(0, 0, 0, 0);
-    const endDate = new Date(today);
-    endDate.setHours(23, 59, 59, 999);
+
+    const { start, end } = parseDateRange(today);
+    const createdAtFilter: any = {};
+    if (today) {
+      createdAtFilter.gte = start;
+      createdAtFilter.lte = end;
+    }
 
     const cash = await prisma.cash.findUnique({
       where: {
         shopOwnerId: req.shopOwner.id,
-        createdAt: {
-          gte: startDate,
-          lte: endDate,
-        },
+        ...(today ? { createdAt: createdAtFilter } : {}),
       },
     });
 
@@ -469,46 +470,112 @@ const getTodayCash = async (req: ExtendedRequest, res: Response) => {
     }
 
     // Today Cash In History
-    const cashInHistory = await prisma.cashInHistory.findMany({
+    const cashInHistory = await prisma.cashInHistory.aggregate({
       where: {
         shopOwnerId: req.shopOwner.id,
-        cashInDate: {
-          gte: startDate,
-          lte: endDate,
-        },
+        ...(today ? { createdAt: createdAtFilter } : {}),
+      },
+      _sum: {
+        cashInAmount: true,
       },
     });
 
     // Today Cash Out History
-    const cashOutHistory = await prisma.cashOutHistory.findMany({
+    const cashOutHistory = await prisma.cashOutHistory.aggregate({
       where: {
         shopOwnerId: req.shopOwner.id,
-        cashOutDate: {
-          gte: startDate,
-          lte: endDate,
-        },
+        ...(today ? { createdAt: createdAtFilter } : {}),
+      },
+      _sum: {
+        cashOutAmount: true,
       },
     });
-
-    const todayTotalCashIn = cashInHistory.reduce(
-      (acc, curr) => acc + curr.cashInAmount,
-      0
-    );
-
-    const todayTotalCashOut = cashOutHistory.reduce(
-      (acc, curr) => acc + curr.cashOutAmount,
-      0
-    );
 
     return res.json({
       success: true,
       message: "cash updated successfully",
       todayCashBalance: cash.cashBalance,
-      todayTotalCashOut,
-      todayTotalCashIn,
-      cashInHistory,
-      cashOutHistory,
-   
+      todayTotalCashOut: cashOutHistory._sum.cashOutAmount || 0,
+      todayTotalCashIn: cashInHistory._sum.cashInAmount || 0,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      success: false,
+      errors: [
+        {
+          type: "server error",
+          value: "",
+          msg: "Internal server error",
+        },
+      ],
+    });
+  }
+};
+
+const getCashBalance = async (req: ExtendedRequest, res: Response) => {
+  try {
+    const startDate = req.params.startDate;
+    const endDate = req.params.endDate;
+
+    const { start } = parseDateRange(startDate);
+    const { end } = parseDateRange(endDate);
+    const createdAtFilter: any = {};
+    if (startDate) {
+      createdAtFilter.gte = start; 
+    }
+    if (endDate) {
+      createdAtFilter.let = end; 
+    }
+
+    const cash = await prisma.cash.findUnique({
+      where: {
+        shopOwnerId: req.shopOwner.id,
+      },
+    });
+
+    // if cash is not available then return error
+    if (!cash) {
+      return res.status(404).json({
+        success: false,
+        errors: [
+          {
+            type: "not found",
+            value: "",
+            msg: "Cash not found",
+          },
+        ],
+      });
+    }
+
+    // Today Cash In History
+    const cashInHistory = await prisma.cashInHistory.aggregate({
+      where: {
+        shopOwnerId: req.shopOwner.id,
+        ...(startDate || endDate ? { createdAt: createdAtFilter } : {}),
+      },
+      _sum: {
+        cashInAmount: true,
+      },
+    });
+
+    // Today Cash Out History
+    const cashOutHistory = await prisma.cashOutHistory.aggregate({
+      where: {
+        shopOwnerId: req.shopOwner.id,
+        ...(startDate || endDate ? { createdAt: createdAtFilter } : {}),
+      },
+      _sum: {
+        cashOutAmount: true,
+      },
+    });
+
+    return res.json({
+      success: true,
+      message: ` Cash balance for  ${startDate} to ${endDate}`,
+      cashBalance: cash.cashBalance,
+      totalCashOutDateRange: cashOutHistory._sum.cashOutAmount || 0,
+      totalCashInDateRange: cashInHistory._sum.cashInAmount || 0,
     });
   } catch (error) {
     console.log(error);
@@ -530,22 +597,21 @@ const getTodayCash = async (req: ExtendedRequest, res: Response) => {
 // Get Cash In History of Shop Owner using cash id
 const getTodayCashInHistory = async (req: ExtendedRequest, res: Response) => {
   try {
-    const date = new Date(req.params.date);
+    const date = req.params.date;
+    const { start, end } = parseDateRange(date);
     const { page, limit, skip } = getPagination(req);
 
-    const startDate = new Date(date);
-    startDate.setHours(0, 0, 0, 0);
-    const endDate = new Date(date);
-    endDate.setHours(23, 59, 59, 999);
+    const createdAtFilter: any = {};
+    if (date) {
+      createdAtFilter.gte = start;
+      createdAtFilter.lte = end;
+    }
 
     const [cashInHistory, count, totalCashIn] = await Promise.all([
       prisma.cashInHistory.findMany({
         where: {
           shopOwnerId: req.shopOwner.id,
-          cashInDate: {
-            gte: startDate,
-            lte: endDate,
-          },
+          ...(date ? { createdAt: createdAtFilter } : {}),
         },
         skip,
         take: limit,
@@ -556,10 +622,7 @@ const getTodayCashInHistory = async (req: ExtendedRequest, res: Response) => {
       prisma.cashInHistory.count({
         where: {
           shopOwnerId: req.shopOwner.id,
-          cashInDate: {
-            gte: startDate,
-            lte: endDate,
-          },
+          ...(date ? { createdAt: createdAtFilter } : {}),
         },
       }),
       prisma.cashInHistory.aggregate({
@@ -600,22 +663,21 @@ const getTodayCashInHistory = async (req: ExtendedRequest, res: Response) => {
 // Get Cash Out History of Shop Owner using cash id
 const getTodayCashOutHistory = async (req: ExtendedRequest, res: Response) => {
   try {
-    const date = new Date(req.params.date);
+    const date = req.params.date;
     const { page, limit, skip } = getPagination(req);
 
-    const startDate = new Date(date);
-    startDate.setHours(0, 0, 0, 0);
-    const endDate = new Date(date);
-    endDate.setHours(23, 59, 59, 999);
+    const { start, end } = parseDateRange(date);
+    const createdAtFilter: any = {};
+    if (date) {
+      createdAtFilter.gte = start;
+      createdAtFilter.lte = end;
+    }
 
-    const [cashOutHistory, count,totalCashOut] = await Promise.all([
+    const [cashOutHistory, count, totalCashOut] = await Promise.all([
       prisma.cashOutHistory.findMany({
         where: {
           shopOwnerId: req.shopOwner.id,
-          cashOutDate: {
-            gte: startDate,
-            lte: endDate,
-          },
+          ...(date ? { createdAt: createdAtFilter } : {}),
         },
         skip,
         take: limit,
@@ -626,13 +688,10 @@ const getTodayCashOutHistory = async (req: ExtendedRequest, res: Response) => {
       prisma.cashOutHistory.count({
         where: {
           shopOwnerId: req.shopOwner.id,
-          cashOutDate: {
-            gte: startDate,
-            lte: endDate,
-          },
+          ...(date ? { createdAt: createdAtFilter } : {}),
         },
       }),
-       prisma.cashOutHistory.aggregate({
+      prisma.cashOutHistory.aggregate({
         where: {
           shopOwnerId: req.shopOwner.id,
         },
@@ -642,8 +701,6 @@ const getTodayCashOutHistory = async (req: ExtendedRequest, res: Response) => {
       }),
     ]);
 
-     
-
     return res.json({
       success: true,
       meta: {
@@ -652,7 +709,7 @@ const getTodayCashOutHistory = async (req: ExtendedRequest, res: Response) => {
         count,
       },
       cashOutHistory,
-      totalCashOut:totalCashOut._sum.cashOutAmount,
+      totalCashOut: totalCashOut._sum.cashOutAmount,
     });
   } catch (error) {
     console.log(error);
@@ -676,4 +733,5 @@ export {
   createManyCash,
   getTodayCashInHistory,
   getTodayCashOutHistory,
+  getCashBalance
 };

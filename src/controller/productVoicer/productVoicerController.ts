@@ -2,7 +2,7 @@ import { Response } from "express";
 import { ExtendedRequest } from "../../types/types";
 import { SellingProduct } from "@prisma/client";
 import prisma from "../../utility/prisma";
-import { getOrCreateDashboard } from "../../utility/getOrCreateDashboard";
+
 
 // Atomic increment for MongoDB
 async function getNextInvoiceId(shopOwnerId: string): Promise<string> {
@@ -185,43 +185,19 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
           totalProfit: { increment: productProfit },
           totalLoss: { increment: productLoss },
           totalStokeAmount: { decrement: quantity },
+          
           totalInvestment: {
             decrement: investment, // reduce the total investment by the amount sold because we are selling it
           },
+          totalSold:{
+            increment: quantity, // increment the total sold by the quantity sold
+          }
         },
       });
 
       // update dashboard data
     }
 
-    // Update Dashboard for the specific date
-    const saleDate = new Date(date);
-    const dashboard = await getOrCreateDashboard(shopOwnerId, saleDate);
-
-    await prisma.dashboard.update({
-      where: {
-        id: dashboard.id,
-      },
-      data: {
-        totalProfit: { increment: totalProfit },
-        totalLosses: { increment: totalLoss },
-        totalProductsSold: { increment: totalProductsSold },
-        totalInvoices: { increment: 1 },
-        totalInvestments: { decrement: totalInvestment },
-        totalDueFromCustomers: customer
-          ? {
-              increment:
-                totalBill -
-                paidAmount -
-                (discountAmount || 0) +
-                (labourCost || 0),
-            }
-          : { increment: 0 },
-        totalProductsOnStock: { decrement: totalProductsSold },
-        totalSales: { increment: totalBill },
-        totalOrders: { increment: 1 },
-      },
-    });
 
     // Create the product voicer record with sale info
     const newProductVoicer = await prisma.productVoicer.create({

@@ -1,5 +1,6 @@
 // Helper function to parse date and return start/end of period
  export const parseDateRange = (dateStr?: string) => {
+  console.log("Parsing date range for:", dateStr);
     if (!dateStr) return null;
 
     // Check if dateStr is year-only (e.g., "2024")
