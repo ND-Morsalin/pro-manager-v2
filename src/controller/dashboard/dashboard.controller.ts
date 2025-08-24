@@ -8,7 +8,12 @@ export async function getDashboardData(req: ExtendedRequest, res: Response) {
   try {
     const { startDate, endDate } = req.query;
     const shopOwnerId = req.shopOwner.id;
-
+/* . Total Sales 
+2. Total invoice 
+3. Total products sold 
+4. Profit 
+5. Loss
+ */
     const { start } = parseDateRange(
       (startDate as string) || new Date().toISOString().split("T")[0]
     );
@@ -23,19 +28,21 @@ export async function getDashboardData(req: ExtendedRequest, res: Response) {
     if (endDate) {
       createdAtFilter.lte = end;
     }
-    const suppliers = await prisma.supplier.aggregate({
+    
+    const suppliersDue = await prisma.supplier.aggregate({
       where: {
         shopOwnerId,
-        ...(startDate || endDate ? { createdAt: createdAtFilter } : {}), // add condition only if needed
+        // ...(startDate || endDate ? { createdAt: createdAtFilter } : {}), // add condition only if needed
       },
       _sum: {
         totalDue: true,
       },
     });
-    const customers = await prisma.customer.aggregate({
+    
+    const customersDue = await prisma.customer.aggregate({
       where: {
         shopOwnerId,
-        ...(startDate || endDate ? { createdAt: createdAtFilter } : {}), // add condition only if needed
+        // ...(startDate || endDate ? { createdAt: createdAtFilter } : {}), // add condition only if needed
       },
       _sum: {
         deuAmount: true,
@@ -45,13 +52,26 @@ export async function getDashboardData(req: ExtendedRequest, res: Response) {
     const totalCustomers = await prisma.customer.count({
       where: {
         shopOwnerId,
-        ...(startDate || endDate ? { createdAt: createdAtFilter } : {}), // add condition only if needed
+        // ...(startDate || endDate ? { createdAt: createdAtFilter } : {}), // add condition only if needed
       },
     });
     const products = await prisma.product.aggregate({
       where: {
         shopOwnerId,
         ...(startDate || endDate ? { createdAt: createdAtFilter } : {}), // add condition only if needed
+      },
+      _sum: {
+        totalInvestment: true,
+        totalStokeAmount: true,
+        totalLoss: true,
+        totalProfit: true,
+        totalSold: true, // total sold products
+      },
+    });
+    const productsInvestment = await prisma.product.aggregate({
+      where: {
+        shopOwnerId,
+        // ...(startDate || endDate ? { createdAt: createdAtFilter } : {}), // add condition only if needed
       },
       _sum: {
         totalInvestment: true,
@@ -84,10 +104,10 @@ export async function getDashboardData(req: ExtendedRequest, res: Response) {
       totalLosses: products._sum.totalLoss || 0,
       totalProfit: products._sum.totalProfit || 0,
       totalInvoices: productVoicersCount || 0,
-      totalInvestments: products._sum.totalInvestment || 0,
-      totalDueFromCustomers: customers._sum.deuAmount || 0,
-      totalDueToSuppliers: suppliers._sum.totalDue || 0,
-      totalProductsOnStock: products._sum.totalStokeAmount || 0,
+      totalInvestments: productsInvestment._sum.totalInvestment || 0,
+      totalDueFromCustomers: customersDue._sum.deuAmount || 0,
+      totalDueToSuppliers: suppliersDue._sum.totalDue || 0,
+      totalProductsOnStock: productsInvestment._sum.totalStokeAmount || 0,
     };
     return res.status(200).json({
       meta: {
