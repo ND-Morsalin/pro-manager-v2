@@ -1,6 +1,7 @@
 import { Response } from "express";
 import { ExtendedRequest } from "../../types/types";
 import prisma from "../../utility/prisma";
+import { getPagination } from "../../utility/getPaginatin";
 
 // Helper function to format date for daily report
 const getDateRange = (date: Date) => {
@@ -18,6 +19,7 @@ const generateDailyPurchaseReport = async (
 ) => {
   try {
     const { date } = req.query as { date: string };
+    const {page, limit, skip} = getPagination(req);
     const reportDate = new Date(date || new Date()); ;
     if (isNaN(reportDate.getTime())) {
       return res.status(400).json({
@@ -60,6 +62,8 @@ const generateDailyPurchaseReport = async (
         paid: true,
         totalPrice: true,
       },
+      skip,
+      take: limit,
     });
 
     // Extract PurchasedHistory IDs
@@ -157,6 +161,7 @@ const generateMonthlyPurchaseReport = async (
 ) => {
   try {
     let { month, year } = req.query as { month: string; year: string };
+      const {page, limit, skip} = getPagination(req);
     // if month and year not provided, return current month and year
     if (!month ) {
       const now = new Date();
@@ -176,6 +181,8 @@ const generateMonthlyPurchaseReport = async (
         year,
       },
       select: { purchaseHistoryIds: true },
+      skip,
+      take: limit,
     });
 
     // Aggregate PurchasedHistory IDs
@@ -234,7 +241,20 @@ const generateMonthlyPurchaseReport = async (
       totalPrice: purchase.totalPrice,
     }));
 
+    const reportCount = await prisma.purchaseReport.count({
+      where: {
+        shopOwnerId: req.shopOwner.id,
+        month,
+        year,
+      },
+    });
+
     return res.status(200).json({
+      meta: {
+        page,
+        limit,
+        count: reportCount,
+      },
       success: true,
       message: "Monthly purchase report generated successfully",
       report: {
@@ -260,6 +280,7 @@ const generateYearlyPurchaseReport = async (
   res: Response
 ) => {
   try {
+     const {page, limit, skip} = getPagination(req);
     let { year } = req.query as { year: string };
     if (!year) {
       year = new Date().getFullYear().toString();
@@ -272,6 +293,8 @@ const generateYearlyPurchaseReport = async (
         year,
       },
       select: { purchaseHistoryIds: true },
+      skip,
+      take: limit,
     });
 
     // Aggregate PurchasedHistory IDs
@@ -329,8 +352,19 @@ const generateYearlyPurchaseReport = async (
       supplierName: purchase.supplier?.name || "Unknown",
       paymentType: purchase.paymentType,
     }));
+    const reportCount = await prisma.purchaseReport.count({
+      where: {
+        shopOwnerId: req.shopOwner.id,
+        year,
+      },
+    });
 
     return res.status(200).json({
+      meta: {
+        page,
+        limit,
+        count: reportCount,
+      },
       success: true,
       message: "Yearly purchase report generated successfully",
       report: {
@@ -357,6 +391,7 @@ const getPurchaseReports = async (req: ExtendedRequest, res: Response) => {
       month?: string;
       year?: string;
     };
+     const {page, limit, skip} = getPagination(req);
 
     const where: any = { shopOwnerId: req.shopOwner.id };
     if (date) {
@@ -383,6 +418,8 @@ const getPurchaseReports = async (req: ExtendedRequest, res: Response) => {
         year: true,
         purchaseHistoryIds: true,
       },
+      skip,
+      take: limit,
     });
 
     // Fetch details for all reports
@@ -448,7 +485,16 @@ const getPurchaseReports = async (req: ExtendedRequest, res: Response) => {
       })
     );
 
+    const count = await prisma.purchaseReport.count({
+      where,
+    });
+
     return res.status(200).json({
+      meta: {
+        page,
+        limit,
+        count,
+      },
       success: true,
       message: "Purchase reports fetched successfully",
       reports: detailedReports,
@@ -471,6 +517,7 @@ const getSellingReport = async (req: ExtendedRequest, res: Response) => {
       date?: string;
     };
     const shopOwnerId = req.shopOwner.id;
+    const {page, limit, skip} = getPagination(req);
 
     // Set date filter depending on viewBy (daily, monthly, yearly)
     const filterDate = new Date(date || new Date());
@@ -507,6 +554,9 @@ const getSellingReport = async (req: ExtendedRequest, res: Response) => {
       orderBy: {
         createdAt: "asc",
       },
+      skip,
+      take: limit,
+
     });
 
     const report = [];
@@ -561,8 +611,19 @@ const getSellingReport = async (req: ExtendedRequest, res: Response) => {
         });
       }
     }
+    const count = await prisma.productVoicer.count({
+      where: {
+        shopOwnerId,
+        createdAt: { gte: start, lte: end },
+      },
+    });
 
     return res.status(200).json({
+      meta: {
+        page,
+        limit,
+        count,
+      },
       success: true,
       data: report,
     });
