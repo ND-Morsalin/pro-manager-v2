@@ -103,9 +103,36 @@ const getAllCustomers = async (req: ExtendedRequest, res: Response) => {
 
     const { page, limit, skip } = getPagination(req);
 
+    const { phone, name, due } = req.query as {
+      phone?: string;
+      name?: string;
+      due?: "true" | "false";
+    };
     const customers = await prisma.customer.findMany({
       where: {
         shopOwnerId: req.shopOwner.id,
+        // filter by phone and name if provided using regex
+        ...(phone && {
+          phoneNumber: {
+            contains: phone,
+            mode: "insensitive",
+          },
+        }),
+        ...(name && {
+          customerName: {
+            contains: name,
+            mode: "insensitive",
+          },
+        }),
+        ...(due === "true" && {
+          deuAmount: {
+            gt: 0,
+          },
+        }),
+        
+        ...(due === "false" && {
+          deuAmount:  0,
+        }),
       },
       // include: {
       //   customerPaymentHistories: true,
@@ -115,27 +142,47 @@ const getAllCustomers = async (req: ExtendedRequest, res: Response) => {
       take: limit,
     });
     const count = await prisma.customer.count({
-      where: { shopOwnerId: req.shopOwner.id },
+      where: { shopOwnerId: req.shopOwner.id,...(phone && {
+          phoneNumber: {
+            contains: phone,
+            mode: "insensitive",
+          },
+        }),
+        ...(name && {
+          customerName: {
+            contains: name,
+            mode: "insensitive",
+          },
+        }),
+        ...(due === "true" && {
+          deuAmount: {
+            gt: 0,
+          },
+        }),
+        
+        ...(due === "false" && {
+          deuAmount:  0,
+        }), },
     });
     const customersTotalDuePaid = await prisma.customer.aggregate({
-         where: { shopOwnerId: req.shopOwner.id },
-         _sum:{
-          deuAmount:true,
-          paidAmount:true,
-         }
-    })
+      where: { shopOwnerId: req.shopOwner.id },
+      _sum: {
+        deuAmount: true,
+        paidAmount: true,
+      },
+    });
 
-    return res.status(200).json({meta: {
+    return res.status(200).json({
+      meta: {
         page,
         limit,
         count,
       },
       success: true,
       message: "All customers",
-      customersTotalDue:customersTotalDuePaid._sum.deuAmount,
-      customersTotalPaid:customersTotalDuePaid._sum.paidAmount,
+      customersTotalDue: customersTotalDuePaid._sum.deuAmount,
+      customersTotalPaid: customersTotalDuePaid._sum.paidAmount,
       customers,
-      
     });
   } catch (error) {
     console.log(error);

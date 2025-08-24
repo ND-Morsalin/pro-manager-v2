@@ -18,7 +18,7 @@ const generateDailyPurchaseReport = async (
 ) => {
   try {
     const { date } = req.query as { date: string };
-    const reportDate = new Date(date);
+    const reportDate = new Date(date || new Date()); ;
     if (isNaN(reportDate.getTime())) {
       return res.status(400).json({
         success: false,
@@ -156,19 +156,17 @@ const generateMonthlyPurchaseReport = async (
   res: Response
 ) => {
   try {
-    const { month, year } = req.query as { month: string; year: string };
-    if (!month || !year) {
-      return res.status(400).json({
-        success: false,
-        errors: [
-          {
-            type: "validation",
-            msg: "Month and year are required",
-            path: "month, year",
-          },
-        ],
-      });
+    let { month, year } = req.query as { month: string; year: string };
+    // if month and year not provided, return current month and year
+    if (!month ) {
+      const now = new Date();
+      month = now.toLocaleString("default", { month: "long" });
+     
     }
+    if (!year) {
+      year = new Date().getFullYear().toString();
+    }
+
 
     // Fetch all daily reports for the given month and year
     const reports = await prisma.purchaseReport.findMany({
@@ -262,12 +260,9 @@ const generateYearlyPurchaseReport = async (
   res: Response
 ) => {
   try {
-    const { year } = req.query as { year: string };
+    let { year } = req.query as { year: string };
     if (!year) {
-      return res.status(400).json({
-        success: false,
-        errors: [{ type: "validation", msg: "Year is required", path: "year" }],
-      });
+      year = new Date().getFullYear().toString();
     }
 
     // Fetch all daily reports for the given year

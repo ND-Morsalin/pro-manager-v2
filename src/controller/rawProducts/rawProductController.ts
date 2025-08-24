@@ -92,10 +92,18 @@ const addRawProduct = async (req: ExtendedRequest, res: Response) => {
 
 const getAllRawProducts = async (req: ExtendedRequest, res: Response) => {
    const { page, limit, skip } = getPagination(req);
+   const { categoryId, search } = req.query as { categoryId?: string,search?:string };
   try {
     const rawProducts = await prisma.rawProduct.findMany({
       where: {
         shopOwnerId: req.shopOwner.id,
+        ...(categoryId && { rawCategoryID: categoryId }),
+        ...(search && {
+          name: {
+            contains: search,
+            mode: "insensitive",
+          },
+        }),
       },
       orderBy: {
         createdAt: "desc",

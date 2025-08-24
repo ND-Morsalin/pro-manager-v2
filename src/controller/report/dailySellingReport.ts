@@ -1,20 +1,18 @@
 import { Response } from "express";
 import prisma from "../../utility/prisma";
 import { ExtendedRequest } from "types/types";
+import { parseDateRange } from "../../utility/parseDateRange";
 
 const dailySellingReport = async (req: ExtendedRequest, res: Response) => {
   try {
     const { date } = req.query;
     console.log(date);
-    const startDate = new Date(date as string);
-    startDate.setHours(0, 0, 0, 0);
-    const endDate = new Date(date as string);
-    endDate.setHours(23, 59, 59, 999);
+    const { start, end } = parseDateRange(date as string || (new Date().toISOString().split('T')[0]));
     const dailySellingReport = await prisma.sellingProduct.findMany({
       where: {
         createdAt: {
-          gte: startDate,
-          lte: endDate,
+          gte:  start,
+          lte:  end,
         },
         shopOwnerId: req.shopOwner.id,
       },

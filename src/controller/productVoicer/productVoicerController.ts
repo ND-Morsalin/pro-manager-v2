@@ -117,7 +117,7 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
       let productLoss = 0; // Tracks loss from this product
       let investment = 0; // tracks the investment
 
-      // Start deducting inventory using LIFO
+      // Start deducting inventory using FIFO
       for (const inv of inventories) {
         if (qtyLeftToSell <= 0) break; // If we've fulfilled the sale, break the loop
 

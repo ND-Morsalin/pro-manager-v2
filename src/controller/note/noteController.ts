@@ -27,10 +27,27 @@ export const createNote = async (req: ExtendedRequest, res: Response) => {
 
 export const getNotes = async (req: ExtendedRequest, res: Response) => {
   const { page, limit, skip } = getPagination(req);
+  const search = req.query.search as string;
   try {
     const notes = await prisma.note.findMany({
       where: {
         shopOwnerId: req.shopOwner.id,
+        ...(search && {
+          OR: [
+            {
+              title: {
+                contains: search,
+                mode: "insensitive",
+              },
+            },
+            {
+              note: {
+                contains: search,
+                mode: "insensitive",
+              },
+            },
+          ],
+        }),
       },
       orderBy: {
         createdAt: "desc",
@@ -151,12 +168,34 @@ export const getCompletedNotes = async (
   res: Response
 ) => {
   const { page, limit, skip } = getPagination(req);
+  const search = req.query.search as string;
   try {
     const notes = await prisma.note.findMany({
       where: {
         shopOwnerId: req.shopOwner.id,
         isComplete: true,
+        ...(search && {
+          OR: [
+            {
+              title: {
+                contains: search,
+                mode: "insensitive",
+              },
+            },
+            {
+              note: {
+                contains: search,
+                mode: "insensitive",
+              },
+            },
+          ],
+        }),
       },
+       orderBy: {
+        createdAt: "desc",
+      },
+      skip,
+      take: limit,
     });
     const count = await prisma.note.count({
       where: {
@@ -183,11 +222,28 @@ export const getUncompletedNotes = async (
   res: Response
 ) => {
   const { page, limit, skip } = getPagination(req);
+  const search = req.query.search as string;
   try {
     const notes = await prisma.note.findMany({
       where: {
         shopOwnerId: req.shopOwner.id,
         isComplete: false,
+        ...(search && {
+          OR: [
+            {
+              title: {
+                contains: search,
+                mode: "insensitive",
+              },
+            },
+            {
+              note: {
+                contains: search,
+                mode: "insensitive",
+              },
+            },
+          ],
+        }),
       },
       orderBy: {
         createdAt: "desc",

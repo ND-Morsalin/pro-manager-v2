@@ -60,10 +60,26 @@ const getAllBusinessContactInfo = async (
   res: Response
 ) => {
   const { page, limit, skip } = getPagination(req);
+  const { phone, name } = req.query as {
+      phone?: string;
+      name?: string; 
+    };
   try {
     const allBusinessContactInfo = await prisma.businessContactInfo.findMany({
       where: {
         shopOwnerId: req.shopOwner.id,
+         ...(phone && {
+          phoneNumber: {
+            contains: phone,
+            mode: "insensitive",
+          },
+        }),
+        ...(name && {
+          name: {
+            contains: name,
+            mode: "insensitive",
+          },
+        }),
       },
       orderBy: {
         createdAt: "desc",

@@ -2,6 +2,7 @@ import { Response } from "express";
 import { ExtendedRequest } from "../../types/types";
 import prisma from "../../utility/prisma";
 import { LoneProvider } from "@prisma/client";
+import { getPagination } from "../../utility/getPaginatin";
 
 const createLoneProvider = async (req: ExtendedRequest, res: Response) => {
   try {
@@ -70,10 +71,24 @@ const createLoneProvider = async (req: ExtendedRequest, res: Response) => {
 };
 
 const getAllLoneProviders = async (req: ExtendedRequest, res: Response) => {
+  const { page, limit, skip } = getPagination(req);
+  const {phone,name} = req.query as {phone?:string,name?:string};
   try {
     const loneProviders = await prisma.loneProvider.findMany({
       where: {
         shopOwnerId: req.shopOwner.id,
+        ...(phone && {
+          phoneNumber: {
+            contains: phone,
+            mode: "insensitive",
+          },
+        }),
+        ...(name && {
+          loneProviderName: {
+            contains: name,
+            mode: "insensitive",
+          },
+        }),
       },
     });
 

@@ -44,10 +44,12 @@ const createSupplier = async (req: ExtendedRequest, res: Response) => {
 
 const getAllSuppliers = async (req: ExtendedRequest, res: Response) => {
   const { page, limit, skip } = getPagination(req);
-  const { phone,  name} = req.query as {
+  const { phone, name, due } = req.query as {
     phone?: string;
     name?: string;
+    due?: "true" | "false";
   };
+
   try {
     const suppliers = await prisma.supplier.findMany({
       where: {
@@ -64,6 +66,14 @@ const getAllSuppliers = async (req: ExtendedRequest, res: Response) => {
             contains: name,
             mode: "insensitive",
           },
+        }),
+        ...(due === "true" && {
+          totalDue: {
+            gt: 0,
+          },
+        }),
+        ...(due === "false" && {
+          totalDue: 0,
         }),
       },
       orderBy: {
@@ -91,18 +101,49 @@ const getAllSuppliers = async (req: ExtendedRequest, res: Response) => {
     const count = await prisma.supplier.count({
       where: {
         shopOwnerId: req.shopOwner.id,
+        // filter by phone and name if provided using regex
+        ...(phone && {
+          phone: {
+            contains: phone,
+            mode: "insensitive",
+          },
+        }),
+        ...(name && {
+          name: {
+            contains: name,
+            mode: "insensitive",
+          },
+        }),
+        ...(due === "true" && {
+          totalDue: {
+            gt: 0,
+          },
+        }),
+        ...(due === "false" && {
+          totalDue: 0,
+        }),
+      },
+    });
+
+    const supplierTotalDuePaid = await prisma.supplier.aggregate({
+      where: { shopOwnerId: req.shopOwner.id },
+      _sum: {
+        totalDue: true,
+        totalPaid: true,
       },
     });
 
     return res.status(200).json({
-      success: true,
-      message: "All lone providers",
-      suppliers,
       meta: {
         page,
         limit,
         count,
       },
+      totalDue: supplierTotalDuePaid._sum.totalDue || 0,
+      totalPaid: supplierTotalDuePaid._sum.totalPaid || 0,
+      success: true,
+      message: "All lone providers",
+      suppliers,
     });
   } catch (error) {
     return res.status(500).json({

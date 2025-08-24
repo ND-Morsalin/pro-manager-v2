@@ -515,11 +515,11 @@ const getTodayCash = async (req: ExtendedRequest, res: Response) => {
 
 const getCashBalance = async (req: ExtendedRequest, res: Response) => {
   try {
-    const startDate = req.params.startDate;
-    const endDate = req.params.endDate;
+    const startDate = req.query.startDate;
+    const endDate = req.query.endDate;
 
-    const { start } = parseDateRange(startDate);
-    const { end } = parseDateRange(endDate);
+    const { start } =   parseDateRange(startDate as string);
+    const { end } =  parseDateRange(endDate as string);
     const createdAtFilter: any = {};
     if (startDate) {
       createdAtFilter.gte = start; 

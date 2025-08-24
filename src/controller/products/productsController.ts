@@ -630,10 +630,19 @@ const updateMultipleProductsInventory = async (
 };
 const getAllProducts = async (req: ExtendedRequest, res: Response) => {
   const { page, limit, skip } = getPagination(req);
+  const { categoryId, search } = req.query as { categoryId?: string,search?:string };
   try {
     const products = await prisma.product.findMany({
       where: {
         shopOwnerId: req.shopOwner.id,
+        ...(categoryId && { productCategoryID: categoryId }),
+        ...(search && {
+          productName: {
+            contains: search,
+            mode: "insensitive",
+          },
+        }),
+        
       },
       include: {
         // inventories: true,
