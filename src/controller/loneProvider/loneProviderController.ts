@@ -12,7 +12,7 @@ const createLoneProvider = async (req: ExtendedRequest, res: Response) => {
       loneProviderName,
       loneTakenDate,
       totalLoneTaken,
-      note
+      note,
     } = req.body as LoneProvider;
 
     const newLoneProvider = await prisma.loneProvider.create({
@@ -22,7 +22,7 @@ const createLoneProvider = async (req: ExtendedRequest, res: Response) => {
         lonePaidAmount: 0,
         loneProviderName,
         phoneNumber,
-        note: note||null,
+        note: note || null,
         totalLoneTaken,
         shopOwnerId: req.shopOwner.id,
         loneTakenDate: new Date(loneTakenDate),
@@ -32,7 +32,7 @@ const createLoneProvider = async (req: ExtendedRequest, res: Response) => {
     const loneHistory = await prisma.lonePaymentHistory.create({
       data: {
         lonePaymentStatus: "SHOPOWNERRECIVED",
-        note:note || null,
+        note: note || null,
         givingAmount: totalLoneTaken,
         loneProviderId: newLoneProvider.id,
         shopOwnerId: req.shopOwner.id,
@@ -49,7 +49,7 @@ const createLoneProvider = async (req: ExtendedRequest, res: Response) => {
       success: true,
       message: "Lone provider created successfully",
       loneProvider: newLoneProvider,
-      loneProviderHistory
+      loneProviderHistory,
     });
   } catch (error) {
     console.log({
@@ -72,7 +72,7 @@ const createLoneProvider = async (req: ExtendedRequest, res: Response) => {
 
 const getAllLoneProviders = async (req: ExtendedRequest, res: Response) => {
   const { page, limit, skip } = getPagination(req);
-  const {phone,name} = req.query as {phone?:string,name?:string};
+  const { phone, name } = req.query as { phone?: string; name?: string };
   try {
     const loneProviders = await prisma.loneProvider.findMany({
       where: {
@@ -90,6 +90,9 @@ const getAllLoneProviders = async (req: ExtendedRequest, res: Response) => {
           },
         }),
       },
+      skip,
+      take: limit,
+      orderBy: { loneTakenDate: "desc" },
     });
 
     // if no lone provider found
@@ -107,8 +110,30 @@ const getAllLoneProviders = async (req: ExtendedRequest, res: Response) => {
         ],
       });
     }
+    const count = await prisma.loneProvider.count({
+      where: {
+        shopOwnerId: req.shopOwner.id,
+        ...(phone && {
+          phoneNumber: {
+            contains: phone,
+            mode: "insensitive",
+          },
+        }),
+        ...(name && {
+          loneProviderName: {
+            contains: name,
+            mode: "insensitive",
+          },
+        }),
+      },
+    });
 
     return res.status(200).json({
+      meta: {
+        page,
+        limit,
+        count,
+      },
       success: true,
       message: "All lone providers",
       loneProviders,
@@ -184,13 +209,17 @@ const getSingleLoneProvider = async (req: ExtendedRequest, res: Response) => {
 const updateLoneProvider = async (req: ExtendedRequest, res: Response) => {
   try {
     const { id: loneProviderId } = req.params;
-    const { givingLoneDeuAmount, receivingNewLoneAmount, lonePaymentStatus ,note} =
-      req.body as {  
-        givingLoneDeuAmount: string;
-        receivingNewLoneAmount: string;
-        note?:string;
-        lonePaymentStatus: "SHOPOWNERGIVE" | "SHOPOWNERRECIVED";
-      };
+    const {
+      givingLoneDeuAmount,
+      receivingNewLoneAmount,
+      lonePaymentStatus,
+      note,
+    } = req.body as {
+      givingLoneDeuAmount: string;
+      receivingNewLoneAmount: string;
+      note?: string;
+      lonePaymentStatus: "SHOPOWNERGIVE" | "SHOPOWNERRECIVED";
+    };
     let updatedLoneProvider;
 
     if (givingLoneDeuAmount && lonePaymentStatus === "SHOPOWNERGIVE") {
@@ -216,7 +245,7 @@ const updateLoneProvider = async (req: ExtendedRequest, res: Response) => {
           givingAmount: parseInt(givingLoneDeuAmount),
           loneProviderId: updatedLoneProvider.id,
           shopOwnerId: req.shopOwner.id,
-          note:note||null,
+          note: note || null,
         },
       });
     }
@@ -234,7 +263,7 @@ const updateLoneProvider = async (req: ExtendedRequest, res: Response) => {
           totalLoneTaken: {
             increment: parseInt(receivingNewLoneAmount),
           },
-          note
+          note,
         },
       });
       // create lone provider history
@@ -244,7 +273,7 @@ const updateLoneProvider = async (req: ExtendedRequest, res: Response) => {
           givingAmount: parseInt(receivingNewLoneAmount),
           loneProviderId: updatedLoneProvider.id,
           shopOwnerId: req.shopOwner.id,
-          note: note||null,
+          note: note || null,
         },
       });
     }
@@ -261,7 +290,6 @@ const updateLoneProvider = async (req: ExtendedRequest, res: Response) => {
       loneProvider: updatedLoneProvider,
       loneProviderHistory,
     });
-
   } catch (error) {
     console.log(
       "🚀 ~ file: loneProviderController.ts ~ line 203 ~ updateLoneProvider ~ error",
