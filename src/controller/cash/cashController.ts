@@ -525,7 +525,7 @@ const getCashBalance = async (req: ExtendedRequest, res: Response) => {
       createdAtFilter.gte = start; 
     }
     if (endDate) {
-      createdAtFilter.let = end; 
+      createdAtFilter.lte = end; 
     }
 
     const cash = await prisma.cash.findUnique({
