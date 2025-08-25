@@ -127,6 +127,16 @@ const getAllLoneProviders = async (req: ExtendedRequest, res: Response) => {
         }),
       },
     });
+    const totalDuePaidTaken = await prisma.loneProvider.aggregate({
+      where: {
+        shopOwnerId: req.shopOwner.id,
+      },
+      _sum: {
+        loneDeuAmount: true,
+        lonePaidAmount: true,
+        totalLoneTaken: true,
+      },
+    });
 
     return res.status(200).json({
       meta: {
@@ -134,6 +144,9 @@ const getAllLoneProviders = async (req: ExtendedRequest, res: Response) => {
         limit,
         count,
       },
+      totalLoneDue: totalDuePaidTaken._sum.loneDeuAmount,
+      totalLonePaid: totalDuePaidTaken._sum.lonePaidAmount,
+      totalLoneTaken: totalDuePaidTaken._sum.totalLoneTaken,
       success: true,
       message: "All lone providers",
       loneProviders,
