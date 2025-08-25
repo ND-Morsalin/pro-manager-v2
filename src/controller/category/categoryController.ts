@@ -37,10 +37,17 @@ const createCategory = async (req: ExtendedRequest, res: Response) => {
 
 const getAllCategory = async (req: ExtendedRequest, res: Response) => {
   const { page, limit, skip } = getPagination(req);
+  const { search } = req.query as { search?: string };
   try {
     const allCategory = await prisma.category.findMany({
       where: {
         shopOwnerId: req.shopOwner.id,
+        ...(search && {
+          category: {
+            contains: search,
+            mode: "insensitive",
+          },
+        }),
       },
       orderBy: {
         createdAt: "desc",

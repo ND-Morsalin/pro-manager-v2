@@ -37,10 +37,17 @@ const createRawCategory = async (req: ExtendedRequest, res: Response) => {
 
 const getAllRawCategory = async (req: ExtendedRequest, res: Response) => {
   const { page, limit, skip } = getPagination(req);
+  const { search } = req.query as { search?: string };
   try {
     const allRawCategory = await prisma.rawCategory.findMany({
       where: {
         shopOwnerId: req.shopOwner.id,
+        ...(search && {
+          name: {
+            contains: search,
+            mode: "insensitive",
+          },
+        }),
       },
       orderBy: {
         createdAt: "desc",
