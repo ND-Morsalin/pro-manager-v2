@@ -3,7 +3,6 @@ import { ExtendedRequest } from "../../types/types";
 import { SellingProduct } from "@prisma/client";
 import prisma from "../../utility/prisma";
 
-
 // Atomic increment for MongoDB
 async function getNextInvoiceId(shopOwnerId: string): Promise<string> {
   const counter = await prisma.invoiceCounter.upsert({
@@ -70,7 +69,7 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
 
     // Loop through each product being sold
     for (const item of sellingProducts) {
-      const { productId, quantity, sellingPrice, productName, unit } = item;
+      const { productId, quantity } = item;
       //  Check if product exists
       const isProductExists = await prisma.product.findUnique({
         where: { id: productId, shopOwnerId },
@@ -89,7 +88,7 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
       }
       // check if the product has enough stock
       if (isProductExists.totalStokeAmount < quantity) {
-        console.log(`Not enough stock for product ${productName} (ID: ${productId}) 
+        console.log(`Not enough stock for product ${isProductExists.productName} (ID: ${productId}) 
           available stock: ${isProductExists.totalStokeAmount}, requested quantity: ${quantity}
           shopOwnerId: ${shopOwnerId}
           `);
@@ -109,7 +108,9 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
 
       // Fetch inventories for this product in FIFO order (latest entries first)
       const inventories = await prisma.inventory.findMany({
-        where: { productId, shopOwnerId },
+        where: { productId, shopOwnerId , stokeAmount:{
+          gt:0
+        }},
         orderBy: { createdAt: "asc" },
       });
 
@@ -125,7 +126,8 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
         const sellQty = Math.min(qtyLeftToSell, availableQty); // Max quantity we can sell from this batch
         const buyingPrice = inv.buyingPrice;
 
-        const priceDiff = sellingPrice - buyingPrice; // Profit/Loss per item
+        const priceDiff = isProductExists.currentSellingPrice - buyingPrice; // Profit/Loss per item
+        console.log("price diff.", priceDiff);
         investment += buyingPrice * sellQty; // Accumulate investment for this product
         // console.log({
         //   priceDiff,
@@ -161,18 +163,22 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
       totalInvestment += investment;
       totalProductsSold += quantity;
 
-      totalBill += quantity * sellingPrice; // Calculate total selling price of this product
+      totalBill += quantity * isProductExists.currentSellingPrice; // Calculate total selling price of this product
       // Prepare entry for this sold product
       sellingProductsData.push({
         productId,
         quantity,
-        sellingPrice,
-        totalPrice: quantity * sellingPrice,
-        productName,
+        sellingPrice: isProductExists.currentSellingPrice,
+        totalPrice: quantity * isProductExists.currentSellingPrice,
+        productName: isProductExists.productName,
         shopOwnerId,
-        unit,
+        profit: productProfit,
+        loss: productLoss,
+        unit: isProductExists.unit,
       });
-
+      console.log(
+        `individual Total profit:${totalProfit} : ${productProfit} Total loss:${totalLoss} : ${productLoss} `
+      );
       // console.log(
       //   `Sold ${quantity} of ${productName} (ID: ${productId}) at ${sellingPrice} each, total: ${
       //     quantity * sellingPrice
@@ -185,20 +191,23 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
           totalProfit: { increment: productProfit },
           totalLoss: { increment: productLoss },
           totalStokeAmount: { decrement: quantity },
-          
+
           totalInvestment: {
             decrement: investment, // reduce the total investment by the amount sold because we are selling it
           },
-          totalSold:{
+          totalSold: {
             increment: quantity, // increment the total sold by the quantity sold
-          }
+          },
         },
       });
 
       // update dashboard data
     }
-
-
+    console.log({
+      totalLoss: totalLoss,
+      totalProfit: totalProfit,
+      totalQuantity: totalProductsSold,
+    });
     // Create the product voicer record with sale info
     const newProductVoicer = await prisma.productVoicer.create({
       data: {
@@ -224,6 +233,9 @@ const createProductVoicer = async (req: ExtendedRequest, res: Response) => {
         shopOwnerName: req.shopOwner.shopName,
         shopOwnerPhone: req.shopOwner.mobile,
         discountAmount: discountAmount || 0,
+        totalLoss: totalLoss,
+        totalProfit: totalProfit,
+        totalQuantity: totalProductsSold,
       },
       include: { sellingProducts: true },
     });

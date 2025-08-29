@@ -30,6 +30,7 @@ const dashboardReport = async (req: ExtendedRequest, res: Response) => {
     const totalProfit = sellingProducts.reduce((acc, curr) => {
       return acc +  curr.product.totalProfit;
     }, 0);
+
     const totalLoss = sellingProducts.reduce((acc, curr) => {
       return acc +  curr.product.totalLoss;
     }, 0);
@@ -53,8 +54,6 @@ const dashboardReport = async (req: ExtendedRequest, res: Response) => {
       },
       0
     );
-
- 
 
     const totalLossOnThisPeriod = sellingProductsOnThisPeriod.reduce(
       (acc, curr) => {

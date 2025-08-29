@@ -274,7 +274,7 @@ model Product {
 
   // sum of stokeAmount of inventory.//! for reducing the calculation when any product enter o stock then it will increase and when any selling then the total amount will decrease
   totalStokeAmount Float @default(0)
-  totalSold Float @default(0) // how many products are sold  
+  totalSold        Float @default(0) // how many products are sold  
 
   // the current price in market //! same 
   currentSellingPrice Float @default(0)
@@ -304,10 +304,9 @@ model Product {
   productReceive ProductReceive[]
   inventories    Inventory[]
 
-  createdAt        DateTime           @default(now())
-  updatedAt        DateTime           @updatedAt
-  SellingProduct   SellingProduct?
-  
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  SellingProduct SellingProduct?
 
   purchasedHistories PurchasedHistoryProduct[] // Relation to the join table
 }
@@ -321,18 +320,18 @@ enum PaymentType {
   CASH
   BANK_CHEQUE
 }
+
 model Inventory {
   id           String  @id @default(auto()) @map("_id") @db.ObjectId
   buyingPrice  Float
   sellingPrice Float
   stokeAmount  Float
-  product      Product @relation(fields: [productId], references: [id] ,onDelete: Cascade)
+  product      Product @relation(fields: [productId], references: [id], onDelete: Cascade)
   productId    String  @db.ObjectId
 
-  supplierId         String?           @db.ObjectId
-  supplier           Supplier?         @relation(fields: [supplierId], references: [id])
-  purchasedHistoryId String?           @unique @db.ObjectId
-  
+  supplierId         String?   @db.ObjectId
+  supplier           Supplier? @relation(fields: [supplierId], references: [id])
+  purchasedHistoryId String?   @unique @db.ObjectId
 
   shopOwner   ShopOwner @relation(fields: [shopOwnerId], references: [id], onDelete: Cascade)
   shopOwnerId String    @db.ObjectId
@@ -444,9 +443,11 @@ model ProductVoicer {
   nowPaying      Float?
   shopOwnerName  String?
   shopOwnerPhone String
-
-  shopOwner   ShopOwner @relation(fields: [shopOwnerId], references: [id], onDelete: Cascade)
-  shopOwnerId String    @db.ObjectId
+  totalProfit    Float     @default(0)
+  totalLoss      Float     @default(0)
+  totalQuantity  Float     @default(0)
+  shopOwner      ShopOwner @relation(fields: [shopOwnerId], references: [id], onDelete: Cascade)
+  shopOwnerId    String    @db.ObjectId
 
   customer   Customer? @relation(fields: [customerId], references: [id], onDelete: Cascade)
   customerId String?   @db.ObjectId
@@ -458,15 +459,16 @@ model ProductVoicer {
 }
 
 model SellingProduct {
-  id           String @id @default(auto()) @map("_id") @db.ObjectId
+  id           String  @id @default(auto()) @map("_id") @db.ObjectId
   productName  String
   sellingPrice Float
   quantity     Float
   unit         String
   totalPrice   Float // sellingPrice * stokeAmount
-
-  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-  productId String  @unique @db.ObjectId
+  profit       Float   @default(0)
+  loss         Float   @default(0)
+  product      Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId    String  @unique @db.ObjectId
 
   // ShopOwner id
   shopOwner   ShopOwner @relation(fields: [shopOwnerId], references: [id], onDelete: Cascade)

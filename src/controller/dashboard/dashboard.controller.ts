@@ -88,6 +88,9 @@ export async function getDashboardData(req: ExtendedRequest, res: Response) {
       },
       _sum: {
         totalBillAmount: true,
+        totalQuantity:true,
+        totalLoss:true,
+        totalProfit:true
       },
     });
     const productVoicersCount = await prisma.productVoicer.count({
@@ -100,9 +103,9 @@ export async function getDashboardData(req: ExtendedRequest, res: Response) {
       totalSales: productVoicers._sum.totalBillAmount || 0,
       totalOrders: productVoicersCount || 0,
       totalCustomers: totalCustomers || 0,
-      totalProductsSold: products._sum.totalSold || 0,
-      totalLosses: products._sum.totalLoss || 0,
-      totalProfit: products._sum.totalProfit || 0,
+      totalProductsSold: productVoicers._sum.totalQuantity || 0,
+      totalLosses: productVoicers._sum.totalLoss || 0,
+      totalProfit: productVoicers._sum.totalProfit || 0,
       totalInvoices: productVoicersCount || 0,
       totalInvestments: productsInvestment._sum.totalInvestment || 0,
       totalDueFromCustomers: customersDue._sum.deuAmount || 0,
@@ -140,7 +143,7 @@ export async function totalSell(req: ExtendedRequest, res: Response) {
     const { end } = parseDateRange(
       (endDate as string) || new Date().toISOString().split("T")[0]
     );
-
+console.log({start,end, startDate,endDate});
     const sells = await prisma.productVoicer.findMany({
       where: {
         shopOwnerId,
@@ -158,6 +161,8 @@ export async function totalSell(req: ExtendedRequest, res: Response) {
             sellingPrice: true,
             totalPrice: true,
             unit: true,
+            profit:true,
+            loss:true
           },
         },
         customer: {
@@ -179,6 +184,39 @@ export async function totalSell(req: ExtendedRequest, res: Response) {
         },
       },
     });
+
+    // Add these parameters to your function
+const { productPage = 1, productLimit = 50 } = req.query;
+const productSkip = (Number(productPage) - 1) * Number(productLimit);
+
+// Modify the aggregation query
+const aggregatedProducts = await prisma.sellingProduct.groupBy({
+  by: ['productName', 'unit'],
+  where: {
+    productVoicer: {
+      shopOwnerId,
+      createdAt: {
+        gte: start,
+        lte: end,
+      },
+    },
+  },
+  _sum: {
+    quantity: true,
+    totalPrice: true,
+    profit: true,
+    loss: true,
+  },
+  orderBy: {
+    _sum: {
+      totalPrice: 'desc',
+    },
+  },
+  skip,
+  take: limit,
+});
+
+
     return res.status(200).json({
       success: true,
       meta: {
@@ -187,6 +225,7 @@ export async function totalSell(req: ExtendedRequest, res: Response) {
         count,
       },
       data: sells,
+      uniqueProducts: aggregatedProducts
     });
   } catch (error) {
     console.error("Error in totalSell:", error);
