@@ -50,16 +50,30 @@ const addProduct = async (req: ExtendedRequest, res: Response) => {
         id: categoryId,
       },
     });
-    const totalInvestment = stokeAmount * buyingPrice;
+
+    // Calculate total investment and unit price
+    const totalFlatPrice = stokeAmount * buyingPrice;
+
+    // Calculate discount amount
+    let discountAmount = 0;
+    if (discountType === DiscountType.PERCENTAGE) {
+      discountAmount = (totalFlatPrice * discount) / 100;
+    } else if (discountType === DiscountType.FLAT) {
+      discountAmount = discount;
+    }
+
+    // Calculate final total price (total investment - discount + cost)
+    const finalTotalPrice = totalFlatPrice - discountAmount + cost;
+    const unitPrice = finalTotalPrice / stokeAmount;
+
     const product = await prisma.product.create({
       data: {
         productName,
         totalStokeAmount: stokeAmount,
         currentSellingPrice: sellingPrice,
-
         totalProfit: 0,
         totalLoss: 0,
-        totalInvestment,
+        totalInvestment: finalTotalPrice,
         productBrand,
         unit,
         shopOwnerId: req.shopOwner.id as string,
@@ -67,14 +81,6 @@ const addProduct = async (req: ExtendedRequest, res: Response) => {
         productCategoryID: categoryId,
       },
     });
-
-    // calculate discount amount base to totalInvestment
-    let discountAmount = 0;
-    if (discountType === DiscountType.PERCENTAGE) {
-      discountAmount = (totalInvestment * discount) / 100;
-    } else if (discountType === DiscountType.FLAT) {
-      discountAmount = discount;
-    }
 
     // Purchased history
     const purchasedHistory = await prisma.purchasedHistory.create({
@@ -84,8 +90,8 @@ const addProduct = async (req: ExtendedRequest, res: Response) => {
         discountAmount,
         discountType,
         paid: paidAmount,
-        totalPrice: totalInvestment,
-        due: totalInvestment - paidAmount,
+        totalPrice: finalTotalPrice,
+        due: finalTotalPrice - (paidAmount + discountAmount), // Updated due calculation
         shopOwnerId: req.shopOwner.id as string,
         paymentType,
       },
@@ -99,7 +105,7 @@ const addProduct = async (req: ExtendedRequest, res: Response) => {
     // create inventory
     const inventory = await prisma.inventory.create({
       data: {
-        buyingPrice,
+        buyingPrice: unitPrice, // Use unit price
         sellingPrice,
         stokeAmount,
         productId: product.id,
@@ -116,19 +122,18 @@ const addProduct = async (req: ExtendedRequest, res: Response) => {
       },
       data: {
         totalDue: {
-          increment: purchasedHistory.due || 0, // increment the total due of supplier
+          increment: finalTotalPrice - (paidAmount + discountAmount), // Updated due calculation
         },
         totalPaid: {
-          increment: purchasedHistory.paid || 0, // increment the total paid of supplier
+          increment: paidAmount, // increment the total paid of supplier
         },
         totalTransaction: {
-          increment: totalInvestment, // increment the total transaction of supplier
+          increment: finalTotalPrice, // increment the total transaction of supplier
         },
       },
     });
 
     // if payment type is CASH then it will reduce CASH balance
-
     if (paymentType === PaymentType.CASH) {
       const cash = await prisma.cash.findUnique({
         where: {
@@ -170,10 +175,10 @@ const addProduct = async (req: ExtendedRequest, res: Response) => {
         supplierId,
         shopOwnerId: req.shopOwner.id as string,
         paidAmount,
-        deuAmount: totalInvestment - paidAmount,
+        deuAmount: finalTotalPrice - (paidAmount + discountAmount), // Updated due calculation
         transactionStatus: "BUYING_PRODUCTS",
         note: `Purchased products from supplier ${supplier.name}`,
-        transactionAmount: totalInvestment,
+        transactionAmount: finalTotalPrice,
         paymentDate: new Date(),
       },
     });
@@ -215,148 +220,154 @@ const updateInventory = async (req: ExtendedRequest, res: Response) => {
       paymentType,
     } = req.body as AddProductsPayload;
     // Use transaction to ensure all operations succeed or fail together
-    const result = await prisma.$transaction(async (tx) => {
-      const supplier = await tx.supplier.findUnique({
+
+    const supplier = await prisma.supplier.findUnique({
+      where: {
+        id: supplierId,
+      },
+    });
+    if (!supplier) {
+      // Throw error to be caught outside the transaction
+      throw new Error("Supplier not found");
+    }
+
+    
+    const totalFlatPrice = stokeAmount * buyingPrice;
+   
+    // calculate discount amount base to totalInvestment
+    let discountAmount = 0;
+    if (discountType === DiscountType.PERCENTAGE) {
+      discountAmount = (totalFlatPrice * discount) / 100;
+    } else if (discountType === DiscountType.FLAT) {
+      discountAmount = discount;
+    }
+  const finalTotalPrice = totalFlatPrice - discountAmount + cost;
+    const unitPrice = finalTotalPrice / stokeAmount;
+
+    const product = await prisma.product.update({
+      where: {
+        id,
+      },
+      data: {
+        totalStokeAmount: {
+          increment: stokeAmount,
+        },
+        currentSellingPrice: sellingPrice,
+        totalInvestment: {
+          increment: finalTotalPrice,
+        },
+      },
+    });
+
+    
+
+    // Purchased history
+    const purchasedHistory = await prisma.purchasedHistory.create({
+      data: {
+        cost,
+        supplierId,
+        discountAmount,
+        discountType,
+        paid: paidAmount,
+        totalPrice: finalTotalPrice,
+        due: finalTotalPrice - (paidAmount + discountAmount), // Updated due calculation
+        shopOwnerId: req.shopOwner.id as string,
+        paymentType,
+      },
+    });
+    
+    await prisma.purchasedHistoryProduct.create({
+      data: {
+        purchasedHistoryId: purchasedHistory.id,
+        productId: product.id,
+      },
+    });
+
+     // create inventory
+    const inventory = await prisma.inventory.create({
+      data: {
+        buyingPrice: unitPrice, // Use unit price
+        sellingPrice,
+        stokeAmount,
+        productId: product.id,
+        supplierId,
+        shopOwnerId: req.shopOwner.id as string,
+        purchasedHistoryId: purchasedHistory.id,
+      },
+    });
+    // Update Supplier
+    const updateSupplier = await prisma.supplier.update({
+      where: {
+        id: supplierId,
+      },
+      data: {
+        totalDue: {
+          increment: finalTotalPrice - (paidAmount + discountAmount), // Updated due calculation
+        },
+        totalPaid: {
+          increment: paidAmount, // increment the total paid of supplier
+        },
+        totalTransaction: {
+          increment: finalTotalPrice, // increment the total transaction of supplier
+        },
+      },
+    });
+
+    // if payment type is CASH then it will reduce CASH balance
+
+    if (paymentType === PaymentType.CASH) {
+      const cash = await prisma.cash.findUnique({
         where: {
-          id: supplierId,
+          shopOwnerId: req.shopOwner.id,
         },
       });
-      if (!supplier) {
-        // Throw error to be caught outside the transaction
-        throw new Error("Supplier not found");
-      }
-      const totalInvestment = stokeAmount * buyingPrice;
-      const product = await tx.product.update({
-        where: {
-          id,
-        },
-        data: {
-          totalStokeAmount: {
-            increment: stokeAmount,
-          },
-          currentSellingPrice: sellingPrice,
-          totalInvestment: {
-            increment: totalInvestment,
-          },
-        },
-      });
-
-      // calculate discount amount base to totalInvestment
-      let discountAmount = 0;
-      if (discountType === DiscountType.PERCENTAGE) {
-        discountAmount = (totalInvestment * discount) / 100;
-      } else if (discountType === DiscountType.FLAT) {
-        discountAmount = discount;
-      }
-
-      // Purchased history
-      const purchasedHistory = await tx.purchasedHistory.create({
-        data: {
-          cost,
-          supplierId,
-          discountAmount,
-          discountType,
-          paid: paidAmount,
-          totalPrice: totalInvestment,
-          due: totalInvestment - paidAmount,
-          shopOwnerId: req.shopOwner.id as string,
-          paymentType,
-        },
-      });
-      await tx.purchasedHistoryProduct.create({
-        data: {
-          purchasedHistoryId: purchasedHistory.id,
-          productId: product.id,
-        },
-      });
-
-      // create inventory
-      const inventory = await tx.inventory.create({
-        data: {
-          buyingPrice: buyingPrice,
-          sellingPrice: sellingPrice || product.currentSellingPrice,
-          stokeAmount,
-          productId: product.id,
-          supplierId,
-          shopOwnerId: req.shopOwner.id as string,
-          purchasedHistoryId: purchasedHistory.id,
-        },
-      });
-      // Update Dashboard
-
-      // Update Supplier
-      const updateSupplier = await tx.supplier.update({
-        where: {
-          id: supplierId,
-        },
-        data: {
-          totalDue: {
-            increment: purchasedHistory.due || 0, // increment the total due of supplier
-          },
-          totalPaid: {
-            increment: purchasedHistory.paid || 0, // increment the total paid of supplier
-          },
-          totalTransaction: {
-            increment: totalInvestment, // increment the total transaction of supplier
-          },
-        },
-      });
-
-      // if payment type is CASH then it will reduce CASH balance
-
-      if (paymentType === PaymentType.CASH) {
-        const cash = await prisma.cash.findUnique({
+      if (!cash) {
+        return res.status(200).json({
+          success: true,
+          message:
+            "Product created successfully, But on your cash balance is not enough to pay the supplier please add cash to your account or change the payment type your product purchase and it already added to your inventory",
+          product,
+        });
+      } else {
+        const cash = await prisma.cash.update({
           where: {
             shopOwnerId: req.shopOwner.id,
           },
+          data: {
+            cashBalance: {
+              decrement: paidAmount,
+            },
+            cashOutHistory: {
+              create: {
+                cashOutFor: `Purchased product ${updateProduct.name} from supplier ${supplier.name}`,
+                shopOwnerId: req.shopOwner.id as string,
+                cashOutAmount: paidAmount,
+                cashOutDate: new Date(),
+              },
+            },
+          },
         });
-        if (!cash) {
-          return res.status(200).json({
-            success: true,
-            message:
-              "Product created successfully, But on your cash balance is not enough to pay the supplier please add cash to your account or change the payment type your product purchase and it already added to your inventory",
-            product,
-          });
-        } else {
-          const cash = await prisma.cash.update({
-            where: {
-              shopOwnerId: req.shopOwner.id,
-            },
-            data: {
-              cashBalance: {
-                decrement: paidAmount,
-              },
-              cashOutHistory: {
-                create: {
-                  cashOutFor: `Purchased product ${updateProduct.name} from supplier ${supplier.name}`,
-                  shopOwnerId: req.shopOwner.id as string,
-                  cashOutAmount: paidAmount,
-                  cashOutDate: new Date(),
-                },
-              },
-            },
-          });
-        }
       }
-      // create a supplier SupplierPaymentHistory
-      await tx.supplierPaymentHistory.create({
-        data: {
-          supplierId,
-          shopOwnerId: req.shopOwner.id as string,
-          paidAmount,
-          deuAmount: totalInvestment - paidAmount,
-          transactionStatus: "BUYING_PRODUCTS",
-          note: `Purchased products from supplier ${supplier.name}`,
-          transactionAmount: totalInvestment,
-          paymentDate: new Date(),
-        },
-      });
-      return {product}
+    }
+    // create a supplier SupplierPaymentHistory
+    await prisma.supplierPaymentHistory.create({
+      data: {
+        supplierId,
+        shopOwnerId: req.shopOwner.id as string,
+        paidAmount,
+        deuAmount: finalTotalPrice - (paidAmount + discountAmount), // Updated due calculation
+        transactionStatus: "BUYING_PRODUCTS",
+        note: `Purchased products from supplier ${supplier.name}`,
+        transactionAmount: finalTotalPrice,
+        paymentDate: new Date(),
+      },
     });
+
+
     return res.status(200).json({
       success: true,
       message: "Product created successfully",
-      product:result,
+      product,
     });
   } catch (error) {
     console.log(error);
@@ -442,7 +453,6 @@ const updateMultipleProductsInventory = async (
 
     const results = [];
 
-    let totalDashboardDue = 0;
     let totalDashboardInvestment = 0;
     let totalDashboardStock = 0;
     let totalInvestment = 0;
