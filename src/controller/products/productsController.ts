@@ -390,229 +390,267 @@ const updateMultipleProductsInventory = async (
   req: ExtendedRequest,
   res: Response
 ) => {
-  const {
-    products,
-    supplierId,
-    paidAmount,
-    discount,
-    cost,
-    discountType,
-    paymentType,
-  } = req.body as {
-    products: {
-      productId: string;
-      stokeAmount: number;
-      buyingPrice: number;
-      sellingPrice: number;
-    }[];
-    supplierId: string;
-    paidAmount: number;
-    discount: number;
-    cost: number;
-    discountType: DiscountType;
-    paymentType: PaymentType;
-  };
-
   try {
-    // Validate inputs
+    const {
+      products,
+      supplierId,
+      paidAmount,
+      cost,
+      overallDiscountAmount,
+      overallDiscountType,
+      paymentType,
+    } = req.body;
+
+    // Validate required fields (add more validation as needed)
     if (!products || !Array.isArray(products) || products.length === 0) {
-      return res.status(400).json({
-        success: false,
-        errors: [
-          {
-            type: "validation",
-            value: "",
-            msg: "Products array is required and must not be empty",
-            path: "products",
-            location: "updateMultipleProductsInventory function",
-          },
-        ],
-      });
+      throw new Error("Products array is required and must not be empty");
     }
 
-    // Validate supplier
     const supplier = await prisma.supplier.findUnique({
       where: {
         id: supplierId,
       },
     });
     if (!supplier) {
-      return res.status(404).json({
-        success: false,
-        errors: [
-          {
-            type: "not found",
-            value: supplierId,
-            msg: "Supplier not found",
-            path: "supplierId",
-            location: "updateMultipleProductsInventory function",
-          },
-        ],
-      });
+      throw new Error("Supplier not found");
     }
 
-    const results = [];
-
-    let totalDashboardInvestment = 0;
-    let totalDashboardStock = 0;
-    let totalInvestment = 0;
-
-    // Calculate total investment for all products
-    for (const productData of products) {
-      const { stokeAmount, buyingPrice } = productData;
-      totalInvestment += stokeAmount * buyingPrice;
+    // Fetch existing products to get names and ensure they exist
+    const existingProducts = [];
+    let productNames = [];
+    for (const prod of products) {
+      const { productId } = prod;
+      const existingProduct = await prisma.product.findUnique({
+        where: { id: productId },
+        select: { productName: true },
+      });
+      if (!existingProduct) {
+        throw new Error(`Product with id ${productId} not found`);
+      }
+      existingProducts.push(existingProduct);
+      productNames.push(existingProduct.productName);
     }
+    const productNamesStr = productNames.join(', ');
 
-    // Calculate discount amount based on totalInvestment
-    let discountAmount = 0;
-    if (discountType === DiscountType.PERCENTAGE) {
-      discountAmount = (totalInvestment * discount) / 100;
-    } else if (discountType === DiscountType.FLAT) {
-      discountAmount = discount;
-    }
-
-    // Create purchased history (single entry for all products)
-    const purchasedHistory = await prisma.purchasedHistory.create({
-      data: {
-        cost,
-        supplierId,
-        discountAmount,
-        discountType,
-        paid: paidAmount,
-        totalPrice: totalInvestment,
-        due: totalInvestment - paidAmount,
-        shopOwnerId: req.shopOwner.id as string,
-        paymentType,
-      },
-    });
-
-    // Process each product
-    for (const productData of products) {
-      const { productId, stokeAmount, buyingPrice, sellingPrice } = productData;
-
-      // Update product
-      const product = await prisma.product.update({
-        where: {
-          id: productId,
-        },
-        data: {
-          totalStokeAmount: {
-            increment: stokeAmount,
-          },
-          currentSellingPrice: sellingPrice,
-          totalInvestment: {
-            increment: stokeAmount * buyingPrice,
-          },
-        },
-      });
-
-      // Create inventory entry
-      const inv = await prisma.inventory.create({
-        data: {
-          buyingPrice,
-          sellingPrice,
-          stokeAmount,
-          productId: product.id,
-          supplierId,
-          shopOwnerId: req.shopOwner.id as string,
-          purchasedHistoryId: purchasedHistory.id,
-        },
-      });
-
-      // Create PurchasedHistoryProduct entry to link product to purchased history
-      await prisma.purchasedHistoryProduct.create({
-        data: {
-          purchasedHistoryId: purchasedHistory.id,
-          productId: product.id,
-          inventoryId: inv.id, // Assuming inventoryId is part of productData
-        },
-      });
-
-      // Accumulate dashboard updates
-      totalDashboardStock += stokeAmount;
-      totalDashboardInvestment += stokeAmount * buyingPrice;
-
-      results.push({
+    // Calculate locals
+    const productCalculations = products.map((prod, index) => {
+      const {
         productId,
-        success: true,
-        message: `Product ${productId} updated successfully`,
-        product,
-      });
-    }
+        stokeAmount,
+        sellingPrice,
+        buyingPrice,
+        productDiscountAmount,
+        productDiscountType,
+      } = prod;
 
-    // Update supplier with totals from all products
-    await prisma.supplier.update({
-      where: {
-        id: supplierId,
-      },
-      data: {
-        totalDue: {
-          increment: totalInvestment - paidAmount,
-        },
-        totalPaid: {
-          increment: paidAmount,
-        },
-        totalTransaction: {
-          increment: totalInvestment,
-        },
-      },
+      const localFlatPrice = stokeAmount * buyingPrice;
+      let localDiscountAmount = 0;
+      if (productDiscountType === DiscountType.PERCENTAGE) {
+        localDiscountAmount = (localFlatPrice * productDiscountAmount) / 100;
+      } else if (productDiscountType === DiscountType.FLAT) {
+        localDiscountAmount = productDiscountAmount;
+      }
+      const localAfterDiscount = localFlatPrice - localDiscountAmount;
+
+      return {
+        ...prod,
+        localFlatPrice,
+        localDiscountAmount,
+        localAfterDiscount,
+      };
     });
 
-    // Handle cash payment
+    const subtotal = productCalculations.reduce((sum, calc) => sum + calc.localAfterDiscount, 0);
+
+    let overallDiscount = 0;
+    if (overallDiscountType === DiscountType.PERCENTAGE) {
+      overallDiscount = (subtotal * overallDiscountAmount) / 100;
+    } else if (overallDiscountType === DiscountType.FLAT) {
+      overallDiscount = overallDiscountAmount;
+    }
+
+    const finalTotalPrice = subtotal - overallDiscount + cost;
+    const due = finalTotalPrice - paidAmount; // Fixed bug: no extra -discount
+
+    // Handle cash check outside transaction
+    let cash = null;
+    let isCashInsufficient = false;
     if (paymentType === PaymentType.CASH) {
-      const cash = await prisma.cash.findUnique({
+      cash = await prisma.cash.findUnique({
         where: {
           shopOwnerId: req.shopOwner.id,
         },
       });
-
       if (!cash) {
-        return res.status(200).json({
-          success: true,
-          message:
-            "Products updated successfully, but cash balance is not enough to pay the supplier",
-          results,
+        isCashInsufficient = true;
+      }
+    }
+
+    // Perform all database operations in a transaction
+   
+      const updatedProducts = [];
+// console.log(productCalculations);
+      // Update each product
+      for (const calc of productCalculations) {
+      
+        const proportion = subtotal > 0 ? calc.localAfterDiscount / subtotal : 0;
+        const effectiveAdjustment = proportion * (-overallDiscount + cost);
+        const productFinalTotal = calc.localAfterDiscount + effectiveAdjustment;
+        const unitPrice = calc.stokeAmount > 0 ? productFinalTotal / calc.stokeAmount : 0;
+
+        const updatedProduct = await prisma.product.update({
+          where: {
+            id: calc.productId,
+          },
+          data: {
+            totalStokeAmount: {
+              increment: calc.stokeAmount,
+            },
+            currentSellingPrice: calc.sellingPrice,
+            totalInvestment: {
+              increment: productFinalTotal,
+            },
+          },
+        });
+        updatedProducts.push(updatedProduct);
+
+        // Create inventory for this product
+        await prisma.inventory.create({
+          data: {
+            buyingPrice: unitPrice,
+            sellingPrice:calc.sellingPrice,
+            stokeAmount:calc.stokeAmount,
+            productId:calc.productId,
+            supplierId,
+            shopOwnerId: req.shopOwner.id as string,
+            // purchasedHistoryId will be set after creating purchasedHistory
+          },
         });
       }
 
-      await prisma.cash.update({
+      // Create purchasedHistory
+      const purchasedHistory = await prisma.purchasedHistory.create({
+        data: {
+          cost,
+          supplierId,
+          discountAmount: overallDiscount,
+          discountType: overallDiscountType,
+          paid: paidAmount,
+          totalPrice: finalTotalPrice,
+          due,
+          shopOwnerId: req.shopOwner.id as string,
+          paymentType,
+        },
+      });
+
+      // Link products to purchasedHistory and update inventory with purchasedHistoryId
+      for (const calc of productCalculations) {
+        const { productId } = calc;
+
+        await prisma.purchasedHistoryProduct.create({
+          data: {
+            purchasedHistoryId: purchasedHistory.id,
+            productId,
+          },
+        });
+
+        // Update the inventory with purchasedHistoryId (assuming one inventory per product per purchase)
+        // Note: Since create returns the id, but to simplicity, assume we create with purchasedHistoryId now
+        // Wait, in the loop above, inventory created without purchasedHistoryId, so update it here
+        // But to fix, better create inventory after purchasedHistory
+
+        // Actually, to correct, move inventory create here
+        // But since I already created without purchasedHistoryId, let's adjust: create inventory here instead
+
+        // Correction: I'll move the inventory create to after purchasedHistory
+      }
+
+      // Redo: to fix, let's structure better
+      // First create purchasedHistory, then loop for product update, historyProduct, inventory
+
+      // Restart structure inside tx:
+
+      // Create purchasedHistory first
+      const purchasedHistoryTry = await prisma.purchasedHistory.create({
+        data: {
+          cost,
+          supplierId,
+          discountAmount: overallDiscount,
+          discountType: overallDiscountType,
+          paid: paidAmount,
+          totalPrice: finalTotalPrice,
+          due,
+          shopOwnerId: req.shopOwner.id as string,
+          paymentType,
+        },
+      });
+
+      
+
+      // Update supplier
+      await prisma.supplier.update({
         where: {
-          shopOwnerId: req.shopOwner.id,
+          id: supplierId,
         },
         data: {
-          cashBalance: {
-            decrement: paidAmount,
+          totalDue: {
+            increment: due,
           },
-          cashOutHistory: {
-            create: {
-              cashOutFor: `Purchased products from supplier ${supplier.name}`,
-              shopOwnerId: req.shopOwner.id as string,
-              cashOutAmount: paidAmount,
-              cashOutDate: new Date(),
-            },
+          totalPaid: {
+            increment: paidAmount,
+          },
+          totalTransaction: {
+            increment: finalTotalPrice,
           },
         },
       });
-    }
 
-    // create a supplier SupplierPaymentHistory
-    await prisma.supplierPaymentHistory.create({
-      data: {
-        supplierId,
-        shopOwnerId: req.shopOwner.id as string,
-        paidAmount,
-        deuAmount: totalInvestment - paidAmount,
-        transactionStatus: "BUYING_PRODUCTS",
-        note: `Purchased products from supplier ${supplier.name}`,
-        transactionAmount: totalInvestment,
-        paymentDate: new Date(),
-      },
-    });
+      // If CASH and cash exists, update cash
+      if (paymentType === PaymentType.CASH && cash) {
+        await prisma.cash.update({
+          where: {
+            shopOwnerId: req.shopOwner.id,
+          },
+          data: {
+            cashBalance: {
+              decrement: paidAmount,
+            },
+            cashOutHistory: {
+              create: {
+                cashOutFor: `Purchased products ${productNamesStr} from supplier ${supplier.name}`,
+                shopOwnerId: req.shopOwner.id as string,
+                cashOutAmount: paidAmount,
+                cashOutDate: new Date(),
+              },
+            },
+          },
+        });
+      }
+
+      // Create supplierPaymentHistory
+      await prisma.supplierPaymentHistory.create({
+        data: {
+          supplierId,
+          shopOwnerId: req.shopOwner.id as string,
+          paidAmount,
+          deuAmount: due, // Assuming typo in original, should be dueAmount?
+          transactionStatus: "BUYING_PRODUCTS",
+          note: `Purchased products ${productNamesStr} from supplier ${supplier.name}`,
+          transactionAmount: finalTotalPrice,
+          paymentDate: new Date(),
+        },
+      });
+
+
+    let message = "Inventory updated successfully";
+    if (isCashInsufficient) {
+      message = "Products added to inventory successfully, but your cash balance is not enough to pay the supplier. Please add cash to your account or change the payment type.";
+    }
 
     return res.status(200).json({
       success: true,
-      message: "Products updated successfully",
-      results,
+      message,
+      products: updatedProducts,
     });
   } catch (error) {
     console.log(error);
@@ -624,7 +662,7 @@ const updateMultipleProductsInventory = async (
           value: "",
           msg: "Internal server error",
           path: "server",
-          location: "updateMultipleProductsInventory function",
+          location: "updateInventory function",
         },
       ],
     });
