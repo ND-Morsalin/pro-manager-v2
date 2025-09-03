@@ -11,9 +11,9 @@ export const sendMessageToAll = async (req: ExtendedRequest, res: Response) => {
       numbers: string[];
     };
     const smsPost = await axios.get(
-      `http://bulksmsbd.net/api/smsapi?api_key=3CuemU2YW4dCNqDJulbJ&type=text&number=88${numbers.join(
+      `http://bulksmsbd.net/api/smsapi?api_key=Wx2YSwaq1iLCSfgn9mk2&type=text&number=88${numbers.join(
         ","
-      )}&senderid=8809617618303&message=Manager.com ${message}`
+      )}&senderid=Random&message=Manager.com ${message}`
     );
     console.log({
       smsPost: smsPost.data,
