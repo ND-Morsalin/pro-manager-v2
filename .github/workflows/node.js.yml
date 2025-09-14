@@ -23,12 +23,12 @@ jobs:
         run: |
           whoami
           groups
-      # - name: copy .env file
-      #   run: |
-      #     echo "Copying .env file from env secrets"
-      #     echo "${{secrets.ENV_FILE}}" | sed 's/\\n/\n/g' > .env
+      - name: copy .env file
+        run: |
+          echo "Copying .env file from env secrets"
+          echo "${{secrets.ENV_FILE}}" | sed 's/\\n/\n/g' > .env
 
       - name: Set up Docker Compose
         run: |
           echo "up docker compose"
-          docker compose up -d --build
+          docker compose -p promanager-v2-main up -d --build
