@@ -247,8 +247,9 @@ const updateSupplier = async (req: ExtendedRequest, res: Response) => {
 const supplierCashSupplier = async (req: ExtendedRequest, res: Response) => {
   try {
     const { id } = req.params as { id: string };
-    const { paidAmount } = req.body as {
+    const { paidAmount, paymentType } = req.body as {
       paidAmount: number;
+      paymentType: "CASH" | "OTHER";
     };
 
     const supplier = await prisma.supplier.update({
@@ -277,9 +278,22 @@ const supplierCashSupplier = async (req: ExtendedRequest, res: Response) => {
       },
     });
 
+    if (paymentType === "CASH") {
+      await prisma.cash.update({
+        where: {
+          shopOwnerId: req.shopOwner.id,
+        },
+        data: {
+          cashBalance: {
+            decrement: paidAmount,
+          },
+        },
+      });
+    }
+
     return res.status(200).json({
       success: true,
-      message: "Supplier updated successfully",
+      message: `Supplier updated successfully, paid ${paidAmount} to supplier ${supplier.name} payment by ${paymentType}`,
       supplier,
     });
   } catch (error) {
